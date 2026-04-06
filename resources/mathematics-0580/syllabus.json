@@ -1,0 +1,740 @@
+{
+  "title": "Cambridge IGCSE Mathematics (0580) — For examination in 2025–2027",
+  "core": [
+    {
+      "id": "section-1",
+      "title": "1 Number",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "1.1 Types of number",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "1.2 Sets",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-3",
+          "title": "1.3 Powers and roots",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-4",
+          "title": "1.4 Fractions, decimals and percentages",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-5",
+          "title": "1.5 Ordering",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-6",
+          "title": "1.6 The four operations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-7",
+          "title": "1.7 Indices I",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-8",
+          "title": "1.8 Standard form",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-9",
+          "title": "1.9 Estimation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-10",
+          "title": "1.10 Limits of accuracy",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-11",
+          "title": "1.11 Ratio and proportion",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-12",
+          "title": "1.12 Rates",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-13",
+          "title": "1.13 Percentages",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-14",
+          "title": "1.14 Using a calculator",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-15",
+          "title": "1.15 Time",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-16",
+          "title": "1.16 Money",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "2 Algebra and graphs",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "2.1 Introduction to algebra",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "2.2 Algebraic manipulation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "2.4 Indices II",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-4",
+          "title": "2.5 Equations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-5",
+          "title": "2.6 Inequalities",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-6",
+          "title": "2.7 Sequences",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-7",
+          "title": "2.9 Graphs in practical situations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-8",
+          "title": "2.10 Graphs of functions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-9",
+          "title": "2.11 Sketching curves",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "3 Coordinate geometry",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "3.1 Coordinates",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "3.2 Drawing linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "3.3 Gradient of linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "3.5 Equations of linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-5",
+          "title": "3.6 Parallel lines",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "4 Geometry",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "4.1 Geometrical terms",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "4.2 Geometrical constructions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "4.3 Scale drawings",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "4.4 Similarity",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-5",
+          "title": "4.5 Symmetry",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-6",
+          "title": "4.6 Angles",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-7",
+          "title": "4.7 Circle theorems",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "title": "5 Mensuration",
+      "topics": [
+        {
+          "id": "topic-5-1",
+          "title": "5.1 Units of measure",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-2",
+          "title": "5.2 Area and perimeter",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-3",
+          "title": "5.3 Circles, arcs and sectors",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-4",
+          "title": "5.4 Surface area and volume",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-5",
+          "title": "5.5 Compound shapes and parts of shapes",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "title": "6 Trigonometry",
+      "topics": [
+        {
+          "id": "topic-6-1",
+          "title": "6.1 Pythagoras’ theorem",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-2",
+          "title": "6.2 Right-angled triangles",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-7",
+      "title": "7 Transformations and vectors",
+      "topics": [
+        {
+          "id": "topic-7-1",
+          "title": "7.1 Transformations",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-8",
+      "title": "8 Probability",
+      "topics": [
+        {
+          "id": "topic-8-1",
+          "title": "8.1 Introduction to probability",
+          "subtopics": []
+        },
+        {
+          "id": "topic-8-2",
+          "title": "8.2 Relative and expected frequencies",
+          "subtopics": []
+        },
+        {
+          "id": "topic-8-3",
+          "title": "8.3 Probability of combined events",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-9",
+      "title": "9 Statistics",
+      "topics": [
+        {
+          "id": "topic-9-1",
+          "title": "9.1 Classifying statistical data",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-2",
+          "title": "9.2 Interpreting statistical data",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-3",
+          "title": "9.3 Averages and range",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-4",
+          "title": "9.4 Statistical charts and diagrams",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-5",
+          "title": "9.5 Scatter diagrams",
+          "subtopics": []
+        }
+      ]
+    }
+  ],
+  "extended": [
+    {
+      "id": "section-1",
+      "title": "1 Number",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "1.1 Types of number",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "1.2 Sets",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-3",
+          "title": "1.3 Powers and roots",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-4",
+          "title": "1.4 Fractions, decimals and percentages",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-5",
+          "title": "1.5 Ordering",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-6",
+          "title": "1.6 The four operations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-7",
+          "title": "1.7 Indices I",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-8",
+          "title": "1.8 Standard form",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-9",
+          "title": "1.9 Estimation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-10",
+          "title": "1.10 Limits of accuracy",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-11",
+          "title": "1.11 Ratio and proportion",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-12",
+          "title": "1.12 Rates",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-13",
+          "title": "1.13 Percentages",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-14",
+          "title": "1.14 Using a calculator",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-15",
+          "title": "1.15 Time",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-16",
+          "title": "1.16 Money",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-17",
+          "title": "1.17 Exponential growth and decay",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-18",
+          "title": "1.18 Surds",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "2 Algebra and graphs",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "2.1 Introduction to algebra",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "2.2 Algebraic manipulation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "2.3 Algebraic fractions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-4",
+          "title": "2.4 Indices II",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-5",
+          "title": "2.5 Equations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-6",
+          "title": "2.6 Inequalities",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-7",
+          "title": "2.7 Sequences",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-8",
+          "title": "2.8 Proportion",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-9",
+          "title": "2.9 Graphs in practical situations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-10",
+          "title": "2.10 Graphs of functions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-11",
+          "title": "2.11 Sketching curves",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-12",
+          "title": "2.12 Differentiation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-13",
+          "title": "2.13 Functions",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "3 Coordinate geometry",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "3.1 Coordinates",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "3.2 Drawing linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "3.3 Gradient of linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "3.4 Length and midpoint",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-5",
+          "title": "3.5 Equations of linear graphs",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-6",
+          "title": "3.6 Parallel lines",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-7",
+          "title": "3.7 Perpendicular lines",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "4 Geometry",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "4.1 Geometrical terms",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "4.2 Geometrical constructions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "4.3 Scale drawings",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "4.4 Similarity",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-5",
+          "title": "4.5 Symmetry",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-6",
+          "title": "4.6 Angles",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-7",
+          "title": "4.7 Circle theorems I",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-8",
+          "title": "4.8 Circle theorems II",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "title": "5 Mensuration",
+      "topics": [
+        {
+          "id": "topic-5-1",
+          "title": "5.1 Units of measure",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-2",
+          "title": "5.2 Area and perimeter",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-3",
+          "title": "5.3 Circles, arcs and sectors",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-4",
+          "title": "5.4 Surface area and volume",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-5",
+          "title": "5.5 Compound shapes and parts of shapes",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "title": "6 Trigonometry",
+      "topics": [
+        {
+          "id": "topic-6-1",
+          "title": "6.1 Pythagoras’ theorem",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-2",
+          "title": "6.2 Right-angled triangles",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-3",
+          "title": "6.3 Exact trigonometric values",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-4",
+          "title": "6.4 Trigonometric functions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-5",
+          "title": "6.5 Non-right-angled triangles",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-6",
+          "title": "6.6 Pythagoras’ theorem and trigonometry",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-7",
+      "title": "7 Transformations and vectors",
+      "topics": [
+        {
+          "id": "topic-7-1",
+          "title": "7.1 Transformations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-2",
+          "title": "7.2 Vectors in two dimensions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-3",
+          "title": "7.3 Magnitude of a vector",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-4",
+          "title": "7.4 Vector geometry",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-8",
+      "title": "8 Probability",
+      "topics": [
+        {
+          "id": "topic-8-1",
+          "title": "8.1 Introduction to probability",
+          "subtopics": []
+        },
+        {
+          "id": "topic-8-2",
+          "title": "8.2 Relative and expected frequencies",
+          "subtopics": []
+        },
+        {
+          "id": "topic-8-3",
+          "title": "8.3 Probability of combined events",
+          "subtopics": []
+        },
+        {
+          "id": "topic-8-4",
+          "title": "8.4 Conditional probability",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-9",
+      "title": "9 Statistics",
+      "topics": [
+        {
+          "id": "topic-9-1",
+          "title": "9.1 Classifying statistical data",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-2",
+          "title": "9.2 Interpreting statistical data",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-3",
+          "title": "9.3 Averages and measures of spread",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-4",
+          "title": "9.4 Statistical charts and diagrams",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-5",
+          "title": "9.5 Scatter diagrams",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-6",
+          "title": "9.6 Cumulative frequency diagrams",
+          "subtopics": []
+        },
+        {
+          "id": "topic-9-7",
+          "title": "9.7 Histograms",
+          "subtopics": []
+        }
+      ]
+    }
+  ]
+}

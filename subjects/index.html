@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T6XYBEBL4Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T6XYBEBL4Z');
+</script>
+
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Subjects - IGCSEfy</title>
+<meta content="Browse the core IGCSEfy subjects. Each subject page includes the syllabus and past papers." name="description"/>
+<base href="/"/>
+<link href="/assets/favicon.png" rel="icon"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="/assets/styles.css" rel="stylesheet"/>
+<link href="/assets/nav.css?v=20260403n" rel="stylesheet"/>
+<script>
+  (function () {
+    try {
+      var raw = localStorage.getItem('igcsefy-settings');
+      var theme = 'dark';
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        var preference = parsed && parsed.appearance ? parsed.appearance.theme : '';
+        if (preference === 'light' || preference === 'dark') {
+          theme = preference;
+        } else if (preference === 'system' && window.matchMedia && !window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          theme = 'light';
+        }
+      }
+      document.documentElement.classList.add(theme);
+    } catch (error) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+<style>
+  :root{
+    --subjects-page-width: 976px;
+    --subjects-card-radius: 14px;
+    --subjects-card-gap: 16px;
+  }
+
+  body.subjects-page{
+    background: #000;
+    color: #fff;
+    overflow-x: hidden;
+  }
+
+  html.light body.subjects-page{
+    background: #F1EFE7;
+    color: #000000;
+  }
+
+  body.subjects-page::before{
+    content: "";
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: min(320px, 36vh);
+    pointer-events: none;
+    background:
+      radial-gradient(90% 115% at 50% 0%, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.02) 26%, rgba(0,0,0,0) 64%),
+      linear-gradient(180deg, rgba(18,18,18,0.95) 0%, rgba(8,8,8,0.55) 58%, rgba(0,0,0,0) 100%),
+      repeating-linear-gradient(
+        180deg,
+        rgba(255,255,255,0.045) 0,
+        rgba(255,255,255,0.045) 1px,
+        rgba(0,0,0,0) 1px,
+        rgba(0,0,0,0) 34px
+      );
+    opacity: 0.28;
+    mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.88) 72%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, rgba(0,0,0,0.88) 72%, transparent 100%);
+  }
+
+  html.light body.subjects-page::before{
+    background:
+      radial-gradient(90% 115% at 50% 0%, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.02) 26%, rgba(0,0,0,0) 64%),
+      linear-gradient(180deg, rgba(241,239,231,0.95) 0%, rgba(241,239,231,0.72) 58%, rgba(241,239,231,0) 100%),
+      repeating-linear-gradient(
+        180deg,
+        rgba(0,0,0,0.03) 0,
+        rgba(0,0,0,0.03) 1px,
+        rgba(0,0,0,0) 1px,
+        rgba(0,0,0,0) 34px
+      );
+    opacity: 0.4;
+  }
+
+  body.subjects-page a:hover{
+    text-decoration: none;
+  }
+
+  .subjects-layout{
+    width: min(100%, calc(var(--subjects-page-width) + 40px));
+    margin: 0 auto;
+    padding: 78px 20px 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .subjects-hero{
+    text-align: center;
+  }
+
+  .subjects-title{
+    margin: 0;
+    font-size: clamp(3.4rem, 6vw, 5rem);
+    line-height: 0.96;
+    letter-spacing: -0.075em;
+    font-weight: 800;
+  }
+
+  .subjects-subtitle{
+    margin: 18px auto 0;
+    max-width: 36rem;
+    color: rgba(255,255,255,0.5);
+    font-size: 1.12rem;
+    line-height: 1.55;
+  }
+
+  html.light .subjects-subtitle,
+  html.light .subject-code,
+  html.light .subjects-footer__inner p{
+    color: #666666;
+  }
+
+  .subjects-grid{
+    list-style: none;
+    padding: 0;
+    margin: 72px auto 0;
+    width: min(100%, var(--subjects-page-width));
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .subject-entry{
+    opacity: 0;
+    animation: subject-fade-up 0.5s ease-out forwards;
+    animation-delay: var(--subject-delay, 0ms);
+  }
+
+  .subject-tile{
+    position: relative;
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--subjects-card-gap);
+    padding: 18px 20px;
+    border-radius: var(--subjects-card-radius);
+    background: linear-gradient(90deg, rgba(18,18,18,0.98) 0%, rgba(22,22,22,0.92) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.02),
+      0 18px 40px rgba(0,0,0,0.36);
+    overflow: hidden;
+    transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  }
+
+  html.light .subject-tile{
+    background: #FFFFFF;
+    border-color: #E9E3D8;
+    box-shadow: 0 18px 36px rgba(0,0,0,0.06);
+  }
+
+  .subject-tile::after{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.03), transparent 40%);
+    transition: opacity 300ms ease;
+  }
+
+  .subject-tile:hover{
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.14);
+    background: linear-gradient(90deg, rgba(23,23,23,0.98) 0%, rgba(27,27,27,0.96) 100%);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.03),
+      0 22px 48px rgba(0,0,0,0.44);
+  }
+
+  html.light .subject-tile:hover{
+    border-color: #E9E3D8;
+    background: #FFFFFF;
+    box-shadow: 0 22px 40px rgba(0,0,0,0.08);
+  }
+
+  .subject-tile:hover::after,
+  .subject-tile:focus-visible::after{
+    opacity: 1;
+  }
+
+  .subject-tile:focus-visible{
+    outline: 2px solid rgba(255,255,255,0.88);
+    outline-offset: 4px;
+  }
+
+  html.light .subject-tile:focus-visible{
+    outline-color: #000000;
+  }
+
+  .subject-copy{
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .subject-code{
+    color: rgba(255,255,255,0.42);
+    font-size: 0.66rem;
+    line-height: 1;
+    letter-spacing: 0.34em;
+    font-weight: 600;
+  }
+
+  .subject-name{
+    color: #f3f3f3;
+    font-size: 0.96rem;
+    line-height: 1.25;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  html.light .subject-name{
+    color: #000000;
+  }
+
+  .subject-icon{
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    background: #f5f5f5;
+    color: #0b0b0b;
+    transition: transform 300ms ease;
+  }
+
+  html.light .subject-icon{
+    background: #000000;
+    color: #FFFFFF;
+  }
+
+  .subject-tile:hover .subject-icon,
+  .subject-tile:focus-visible .subject-icon{
+    transform: scale(1.1) rotate(12deg);
+  }
+
+  .subject-icon svg{
+    width: 14px;
+    height: 14px;
+    display: block;
+    stroke: currentColor;
+    stroke-width: 1.85;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+  }
+
+  footer.subjects-footer{
+    width: min(100%, calc(var(--subjects-page-width) + 40px));
+    margin: 96px auto 0;
+    padding: 0 20px 52px;
+    border-top: 0;
+    color: inherit;
+  }
+
+  .subjects-footer__inner{
+    border-top: 1px solid rgba(255,255,255,0.11);
+    padding-top: 30px;
+  }
+
+  html.light .subjects-footer__inner{
+    border-top-color: #E9E3D8;
+  }
+
+  .subjects-footer__inner p{
+    margin: 0;
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.76rem;
+    letter-spacing: 0.18em;
+    font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  @keyframes subject-fade-up{
+    0%{
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    100%{
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 960px){
+    .subjects-layout{
+      padding-top: 70px;
+    }
+
+    .subjects-grid{
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px){
+    .subjects-layout{
+      padding-top: 58px;
+    }
+
+    .subjects-title{
+      font-size: clamp(2.9rem, 15vw, 3.8rem);
+      letter-spacing: -0.06em;
+    }
+
+    .subjects-subtitle{
+      font-size: 1rem;
+      max-width: 24rem;
+    }
+
+    .subjects-grid{
+      margin-top: 56px;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .subject-tile{
+      padding: 16px 18px;
+    }
+
+    .subject-name{
+      white-space: normal;
+      overflow: visible;
+      text-overflow: clip;
+    }
+
+    footer.subjects-footer{
+      margin-top: 74px;
+      padding-bottom: 42px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .subject-entry{
+      opacity: 1;
+      animation: none;
+    }
+
+    .subject-tile,
+    .subject-tile::after,
+    .subject-icon{
+      transition: none;
+    }
+  }
+</style>
+</head>
+<body class="subjects-page">
+<main class="subjects-layout">
+  <section aria-labelledby="subjects-title" class="subjects-hero">
+    <h1 class="subjects-title" id="subjects-title">Browse Subjects</h1>
+    <p class="subjects-subtitle">Select a subject to view the syllabus and past papers.</p>
+  </section>
+
+  <section aria-label="Subjects list">
+    <ul class="subjects-grid" role="list">
+      <li class="subject-entry" style="--subject-delay: 0ms;">
+        <a aria-label="Mathematics (0580)" class="subject-tile" href="/subjects/mathematics-0580/">
+          <span class="subject-copy">
+            <span class="subject-code">0580</span>
+            <span class="subject-name">Mathematics</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 60ms;">
+        <a aria-label="First Language English (0500)" class="subject-tile" href="/subjects/english-first-language-0500/">
+          <span class="subject-copy">
+            <span class="subject-code">0500</span>
+            <span class="subject-name">First Language English</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 120ms;">
+        <a aria-label="English as a Second Language (0510)" class="subject-tile" href="/subjects/english-as-a-second-language-0510/">
+          <span class="subject-copy">
+            <span class="subject-code">0510</span>
+            <span class="subject-name">English as a Second Language</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 180ms;">
+        <a aria-label="Biology (0610)" class="subject-tile" href="/subjects/biology-0610/">
+          <span class="subject-copy">
+            <span class="subject-code">0610</span>
+            <span class="subject-name">Biology</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 240ms;">
+        <a aria-label="Chemistry (0620)" class="subject-tile" href="/subjects/chemistry-0620/">
+          <span class="subject-copy">
+            <span class="subject-code">0620</span>
+            <span class="subject-name">Chemistry</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 300ms;">
+        <a aria-label="Physics (0625)" class="subject-tile" href="/subjects/physics-0625/">
+          <span class="subject-copy">
+            <span class="subject-code">0625</span>
+            <span class="subject-name">Physics</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 360ms;">
+        <a aria-label="Business Studies (0450)" class="subject-tile" href="/subjects/business-studies-0450/">
+          <span class="subject-copy">
+            <span class="subject-code">0450</span>
+            <span class="subject-name">Business Studies</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 420ms;">
+        <a aria-label="Economics (0455)" class="subject-tile" href="/subjects/economics-0455/">
+          <span class="subject-copy">
+            <span class="subject-code">0455</span>
+            <span class="subject-name">Economics</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 480ms;">
+        <a aria-label="Accounting (0452)" class="subject-tile" href="/subjects/accounting-0452/">
+          <span class="subject-copy">
+            <span class="subject-code">0452</span>
+            <span class="subject-name">Accounting</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 540ms;">
+        <a aria-label="Psychology (0266)" class="subject-tile" href="/subjects/psychology-0266/">
+          <span class="subject-copy">
+            <span class="subject-code">0266</span>
+            <span class="subject-name">Psychology</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 600ms;">
+        <a aria-label="Sociology (0495)" class="subject-tile" href="/subjects/sociology-0495/">
+          <span class="subject-copy">
+            <span class="subject-code">0495</span>
+            <span class="subject-name">Sociology</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+      <li class="subject-entry" style="--subject-delay: 660ms;">
+        <a aria-label="Computer Science (0478)" class="subject-tile" href="/subjects/computer-science-0478/">
+          <span class="subject-copy">
+            <span class="subject-code">0478</span>
+            <span class="subject-name">Computer Science</span>
+          </span>
+          <span aria-hidden="true" class="subject-icon">
+            <svg viewBox="0 0 16 16">
+              <path d="M5 11L11 5"></path>
+              <path d="M6 5h5v5"></path>
+            </svg>
+          </span>
+        </a>
+      </li>
+    </ul>
+  </section>
+</main>
+<footer class="subjects-footer">
+  <div class="subjects-footer__inner">
+    <p>&copy; 2026 IGCSEfy</p>
+  </div>
+</footer>
+<script defer="" src="/assets/nav.js"></script>
+</body>
+</html>

@@ -1,0 +1,2740 @@
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <link href="/assets/favicon.png" rel="icon" type="image/svg+xml">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://igcsefy.com/manifest.json" rel="manifest">
+  <title>
+   IGCSEfy
+  </title>
+  <script>
+   (function () {
+  var root = document.documentElement;
+  var theme = 'dark';
+  var preference = 'dark';
+
+  try {
+    var raw = localStorage.getItem('igcsefy-settings');
+    var navTheme = localStorage.getItem('igcsefy-nav-theme-icon');
+
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      var appearanceTheme = parsed && parsed.appearance ? parsed.appearance.theme : '';
+      if (appearanceTheme === 'light' || appearanceTheme === 'dark' || appearanceTheme === 'system') {
+        preference = appearanceTheme;
+      }
+    }
+
+    if (preference === 'system') {
+      theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    } else if (preference === 'light' || preference === 'dark') {
+      theme = preference;
+    } else if (navTheme === 'light') {
+      theme = 'light';
+      preference = 'light';
+    }
+  } catch (error) {
+    theme = 'dark';
+    preference = 'dark';
+  }
+
+  root.classList.remove('light', 'dark');
+  root.classList.add(theme);
+  root.dataset.theme = theme;
+  root.dataset.themePreference = preference === 'system' ? 'system' : theme;
+
+  var bg = theme === 'light' ? '#F1EFE7' : '#0A0A0A';
+  var bootStyle = document.createElement('style');
+  bootStyle.setAttribute('data-home-theme-boot', '');
+  bootStyle.textContent = 'html{background:' + bg + ';color-scheme:' + theme + ';}body{background:' + bg + ';}';
+  document.head.appendChild(bootStyle);
+})();
+  </script>
+  <link rel="preload" href="./styles/index-CATDY5YA.css" as="style">
+  <link rel="preload" href="./scripts/index-DizRNcGQ.js" as="script" crossorigin>
+  <style id="home-auth-gate">
+   html[data-home-auth-gate="pending"] #root section > .relative.z-10 {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+  </style>
+  <script>
+   (function () {
+  var path = window.location.pathname || '';
+  if (!(path === '/' || /\/index\.html$/i.test(path))) return;
+
+  document.documentElement.setAttribute('data-home-auth-gate', 'pending');
+
+  var released = false;
+
+  function release() {
+    if (released) return;
+    released = true;
+    document.documentElement.removeAttribute('data-home-auth-gate');
+    window.removeEventListener('igcsefy:home-hero-ready', onHeroReady);
+    window.removeEventListener('igcsefy:supabase-auth-change', onAuthChange);
+  }
+
+  function onHeroReady() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(release);
+    });
+  }
+
+  function onAuthChange(event) {
+    if (event && event.detail && event.detail.isAuthenticated) return;
+    release();
+  }
+
+  window.addEventListener('igcsefy:home-hero-ready', onHeroReady);
+  window.addEventListener('igcsefy:supabase-auth-change', onAuthChange);
+
+  setTimeout(release, 2500);
+})();
+  </script>
+  <script crossorigin="" src="./scripts/index-DizRNcGQ.js" type="module">
+  </script>
+  <link crossorigin="" href="./styles/index-CATDY5YA.css" rel="stylesheet">
+  <link href="/assets/nav.css?v=20260403n" rel="stylesheet">
+  <script type="module">
+   if (window.self === window.top) {
+  let lastPath = "";
+  function getPageNameFromPath(path) {
+    const segments = path.split("/").filter(Boolean);
+    return segments[0] || null;
+  }
+  function trackPageView() {
+    const path = window.location.pathname;
+    if (path === lastPath) return;
+    lastPath = path;
+    const pageName = getPageNameFromPath(path) || "home";
+    const appId = "69aecb9c4b8dbb433676d89c";
+    if (!appId) return;
+    fetch(`/app-logs/${appId}/log-user-in-app/${pageName}`, {
+      method: "POST",
+    }).catch(() => {});
+  }
+  const originalPushState = history.pushState.bind(history);
+  history.pushState = function (...args) {
+    originalPushState(...args);
+    trackPageView();
+  };
+  const originalReplaceState = history.replaceState.bind(history);
+  history.replaceState = function (...args) {
+    originalReplaceState(...args);
+    trackPageView();
+  };
+  window.addEventListener("popstate", trackPageView);
+  trackPageView();
+}
+  </script>
+  <meta content="IGCSEfy" property="og:title">
+  <meta content="A premium, personalized study ecosystem for IGCSE students featuring intelligent progress tracking, syllabus navigation, and streamlined access to past papers." property="og:description">
+  <meta content="/assets/favicon.png" property="og:image">
+  <meta content="https://igcsefy.com" property="og:url">
+  <meta content="website" property="og:type">
+  <meta content="IGCSEfy" property="og:site_name">
+  <meta content="summary_large_image" name="twitter:card">
+  <meta content="IGCSEfy" name="twitter:title">
+  <meta content="A premium, personalized study ecosystem for IGCSE students featuring intelligent progress tracking, syllabus navigation, and streamlined access to past papers." name="twitter:description">
+  <meta content="/assets/favicon.png" name="twitter:image">
+  <meta content="https://igcsefy.com" name="twitter:url">
+  <meta content="A premium, personalized study ecosystem for IGCSE students featuring intelligent progress tracking, syllabus navigation, and streamlined access to past papers." name="description">
+  <meta content="yes" name="mobile-web-app-capable">
+  <meta content="black" name="apple-mobile-web-app-status-bar-style">
+  <meta content="IGCSEfy" name="apple-mobile-web-app-title">
+  <link href="https://igcsefy.com" rel="canonical">
+ 
+ <style>
+.site-nav { z-index: 120 !important; }
+      #root section > div.absolute.inset-0.pointer-events-none:not(.flex) { display: none !important; }
+      #root section > div.absolute.bottom-10.flex.flex-col.items-center.gap-2 { display: none !important; }
+      #root a[href="./pages/Subjects.html"],
+      #root a[href="./pages/PastPapers.html"] { display: none !important; }
+      #root [data-home-search-host] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+    </style>
+<style id="signin-pill-cursor-glow-tune">
+.signin-pill.is-exiting{
+  transform: scale(1.008);
+  transition:
+    transform 0.32s cubic-bezier(0.25,0.1,0.25,1),
+    box-shadow 0.14s cubic-bezier(.22,.61,.36,1),
+    opacity 0.14s cubic-bezier(.22,.61,.36,1);
+}
+</style>
+
+<style id="signin-pill-apple-easing">
+.signin-pill{
+  transition: transform 0.32s cubic-bezier(0.25,0.1,0.25,1),
+              box-shadow 0.32s cubic-bezier(0.25,0.1,0.25,1),
+              opacity 0.32s cubic-bezier(0.25,0.1,0.25,1);
+}
+.signin-pill:hover{
+  transform: scale(1.018);
+}
+</style>
+
+
+<style id="pill-keep-glow-stop-motion">
+  .pill-card{
+    --shift-x: 0px !important;
+    --shift-y: 0px !important;
+    transform: translate3d(0,0,0) scale(1) !important;
+  }
+  .host.is-hovered .pill-card,
+  .signin-pill-host.is-hovered .pill-card,
+  .pill-host.is-hovered .pill-card{
+    transform: translate3d(0,0,0) scale(1.018) !important;
+  }
+</style>
+
+</head>
+ <body>
+  <div id="root"></div>
+ <script>
+      const uiState = window.__igcsefyHomeUi || (window.__igcsefyHomeUi = {});
+      const HOME_SEARCH_DATA_URL = "/assets/home-search-data.json";
+      const HOME_SEARCH_RECENTS_KEY = "igcsefy.home.search.recent.v1";
+      const HOME_SEARCH_SELECTIONS_KEY = "igcsefy.home.search.selections.v1";
+      const HOME_SEARCH_LIMITS = {
+        recents: 8,
+        selections: 8,
+        results: 10
+      };
+      const SESSION_META = {
+        m: { label: "Feb/March", rank: 1, searchLabel: "feb march" },
+        s: { label: "May/June", rank: 3, searchLabel: "may june" },
+        w: { label: "October/November", rank: 2, searchLabel: "oct nov" }
+      };
+      const SUBJECT_ALIAS_OVERRIDES = {
+        "0266": ["psychology"],
+        "0450": ["business", "business studies"],
+        "0452": ["accounting"],
+        "0455": ["economics", "econ"],
+        "0478": ["computer science", "cs", "computer"],
+        "0495": ["sociology"],
+        "0500": ["english language", "first language english", "fle", "english"],
+        "0510": ["english as a second language", "esl", "english second language"],
+        "0580": ["mathematics", "math", "maths"],
+        "0610": ["biology", "bio"],
+        "0620": ["chemistry", "chem"],
+        "0625": ["physics", "phys"]
+      };
+      const FEATURED_SUBJECT_CODES = ["0580", "0625", "0620", "0610"];
+      const POPULAR_SEARCHES = [
+        { query: "0625", description: "Search by subject code", icon: "search" },
+        { query: "physics syllabus", description: "Jump straight to syllabus", icon: "book-open" },
+        { query: "0580 2023 p2", description: "Find an exact paper fast", icon: "file-text" },
+        { query: "chemistry mj 2023 paper 6", description: "Messy query parsing", icon: "file-text" },
+        { query: "business studies past papers", description: "Open a subject paper hub", icon: "book-open" },
+        { query: "progress", description: "Go back to your profile", icon: "activity" }
+      ];
+      const SEARCH_NOISE_TOKENS = new Set([
+        "account",
+        "activity",
+        "march",
+        "feb",
+        "june",
+        "mark",
+        "may",
+        "ms",
+        "nov",
+        "oct",
+        "paper",
+        "papers",
+        "past",
+        "profile",
+        "progress",
+        "qp",
+        "question",
+        "specification",
+        "student",
+        "syllabus",
+        "topic",
+        "topics",
+        "tracked",
+        "tracker",
+        "user",
+        "variant"
+      ]);
+
+      const isHomePath = () => {
+        const path = window.location.pathname || "";
+        return path === "/" || /\/index\.html$/i.test(path);
+      };
+
+      const iconMarkup = {
+        search: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>',
+        "book-open": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v14"></path><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"></path></svg>',
+        "file-text": '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>',
+        activity: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 8-4-16-3 8H2"></path></svg>',
+        user: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21a8 8 0 0 0-16 0"></path><circle cx="12" cy="8" r="5"></circle></svg>',
+        history: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 6.3L3 8"></path><path d="M12 7v5l4 2"></path></svg>',
+        close: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>'
+      };
+
+      const safeParseJSON = (raw) => {
+        if (!raw) return null;
+        try {
+          return JSON.parse(raw);
+        } catch (error) {
+          return null;
+        }
+      };
+
+      const readLocalStorage = (key) => {
+        try {
+          return window.localStorage.getItem(key);
+        } catch (error) {
+          return null;
+        }
+      };
+
+      const writeLocalStorage = (key, value) => {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (error) {}
+      };
+
+      const escapeHtml = (value) =>
+        String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      const escapeRegex = (value) => String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const normalizeSearchText = (value) => {
+        let text = String(value || "").toLowerCase();
+
+        text = text.replace(/may\s*\/\s*june|may\s+june|\bmj\b/g, " may june ");
+        text = text.replace(/oct(?:ober)?\s*\/\s*nov(?:ember)?|oct(?:ober)?\s+nov(?:ember)?|\bon\b/g, " oct nov ");
+        text = text.replace(/feb(?:ruary)?\s*\/\s*march|feb(?:ruary)?\s+march|\bfm\b/g, " feb march ");
+        text = text.replace(/\bquestion\s+paper\b/g, " qp ");
+        text = text.replace(/\bmark\s+scheme\b/g, " ms ");
+        text = text.replace(/\bpaper\s*([1-9])\b/g, " paper $1 ");
+        text = text.replace(/\bp\s*([1-9])\b/g, " p $1 ");
+        text = text.replace(/\bvariant\s*([0-9]{1,2})\b/g, " variant $1 ");
+        text = text.replace(/\bv\s*([0-9]{1,2})\b/g, " v $1 ");
+        text = text.replace(/[^a-z0-9]+/g, " ");
+
+        return text.replace(/\s+/g, " ").trim();
+      };
+
+      const matchesAlias = (normalizedQuery, queryTokens, alias) => {
+        if (!alias) return false;
+        if (alias.length < 3) {
+          return queryTokens.includes(alias);
+        }
+        if (new RegExp(`(?:^|\\s)${escapeRegex(alias)}(?:\\s|$)`).test(normalizedQuery)) {
+          return true;
+        }
+
+        const aliasTokens = alias.split(" ").filter(Boolean);
+        if (!aliasTokens.length) return false;
+
+        return aliasTokens.every((aliasToken) =>
+          queryTokens.some((token) => {
+            if (token.length < 2) return false;
+            return token === aliasToken || token.startsWith(aliasToken) || aliasToken.startsWith(token);
+          })
+        );
+      };
+
+      const normalizeLegacyPastPaperStatus = (value) => {
+        if (value === true || value === 1 || value === "1" || value === "true") {
+          return "done";
+        }
+        if (value === "in-progress") {
+          return "in_progress";
+        }
+        return value === "in_progress" || value === "done" || value === "reviewed" ? value : null;
+      };
+
+      const readProgressSnapshot = () => {
+        const live = safeParseJSON(readLocalStorage("igcsefy.live_data.v1")) || {};
+        const liveSyllabus = live && typeof live.syllabusTopicStates === "object" ? live.syllabusTopicStates : {};
+        const livePapers = live && typeof live.pastPaperStatuses === "object" ? live.pastPaperStatuses : {};
+        const trackedSubjects = Array.isArray(live && live.trackedSubjects) ? live.trackedSubjects : [];
+        const legacySyllabus = safeParseJSON(readLocalStorage("igcsefy.profile.syllabus.states.v1")) || {};
+        const legacyPapers = safeParseJSON(readLocalStorage("igcsefy_pp_tracker_v1")) || {};
+        const mergedPapers = {};
+
+        Object.keys(legacyPapers || {}).forEach((trackKey) => {
+          const normalized = normalizeLegacyPastPaperStatus(legacyPapers[trackKey]);
+          if (normalized) {
+            mergedPapers[String(trackKey)] = normalized;
+          }
+        });
+
+        Object.keys(livePapers || {}).forEach((trackKey) => {
+          const value = String(livePapers[trackKey] || "");
+          if (value === "in_progress" || value === "done" || value === "reviewed") {
+            mergedPapers[String(trackKey)] = value;
+          }
+        });
+
+        return {
+          trackedSubjects,
+          syllabusTopicStates: Object.assign({}, legacySyllabus, liveSyllabus),
+          pastPaperStatuses: mergedPapers
+        };
+      };
+
+      const isSignedIn = () => {
+        const token = readLocalStorage("igcsefy_access_token") || readLocalStorage("token");
+        return !!String(token || "").trim();
+      };
+
+      const readRecentSearches = () => {
+        const parsed = safeParseJSON(readLocalStorage(HOME_SEARCH_RECENTS_KEY));
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed
+          .map((item) => {
+            const query = String(item && item.query ? item.query : "").trim();
+            if (!query) return null;
+            return {
+              query,
+              normalized: normalizeSearchText(query),
+              usedAt: typeof item.usedAt === "string" ? item.usedAt : null
+            };
+          })
+          .filter(Boolean)
+          .slice(0, HOME_SEARCH_LIMITS.recents);
+      };
+
+      const writeRecentSearches = (items) => {
+        writeLocalStorage(HOME_SEARCH_RECENTS_KEY, JSON.stringify(items.slice(0, HOME_SEARCH_LIMITS.recents)));
+      };
+
+      const pushRecentSearch = (query) => {
+        const label = String(query || "").trim();
+        if (!label) return;
+
+        const normalized = normalizeSearchText(label);
+        const next = [
+          {
+            query: label,
+            normalized,
+            usedAt: new Date().toISOString()
+          },
+          ...readRecentSearches().filter((item) => item.normalized !== normalized)
+        ];
+
+        writeRecentSearches(next);
+      };
+
+      const readRecentSelections = () => {
+        const parsed = safeParseJSON(readLocalStorage(HOME_SEARCH_SELECTIONS_KEY));
+        if (!Array.isArray(parsed)) return [];
+
+        return parsed
+          .map((item) => {
+            if (!item || typeof item !== "object") return null;
+            const id = String(item.id || item.trackKey || item.href || "").trim();
+            if (!id) return null;
+            return {
+              id,
+              type: String(item.type || "").trim(),
+              title: String(item.title || "").trim(),
+              subtitle: String(item.subtitle || "").trim(),
+              href: String(item.href || "").trim(),
+              subjectSlug: String(item.subjectSlug || "").trim(),
+              trackKey: String(item.trackKey || "").trim(),
+              topicKey: String(item.topicKey || "").trim(),
+              query: String(item.query || "").trim(),
+              selectedAt: typeof item.selectedAt === "string" ? item.selectedAt : null
+            };
+          })
+          .filter(Boolean)
+          .slice(0, HOME_SEARCH_LIMITS.selections);
+      };
+
+      const writeRecentSelections = (items) => {
+        writeLocalStorage(HOME_SEARCH_SELECTIONS_KEY, JSON.stringify(items.slice(0, HOME_SEARCH_LIMITS.selections)));
+      };
+
+      const pushRecentSelection = (result, query) => {
+        if (!result || result.mode !== "navigate") return;
+        const id = String(result.trackKey || result.id || result.href || "").trim();
+        if (!id) return;
+
+        const record = {
+          id,
+          type: result.type || "",
+          title: result.title || "",
+          subtitle: result.subtitle || "",
+          href: result.href || "",
+          subjectSlug: result.subjectSlug || "",
+          trackKey: result.trackKey || "",
+          topicKey: result.topicKey || "",
+          query: String(query || "").trim(),
+          selectedAt: new Date().toISOString()
+        };
+
+        const next = [record, ...readRecentSelections().filter((item) => item.id !== id)];
+        writeRecentSelections(next);
+      };
+
+      const buildSubjectAliases = (subject) => {
+        const aliases = new Set([
+          subject.name,
+          subject.code,
+          subject.slug.replace(/-\d+$/, "").replace(/-/g, " ")
+        ]);
+
+        (SUBJECT_ALIAS_OVERRIDES[subject.code] || []).forEach((alias) => aliases.add(alias));
+
+        const nameTokens = String(subject.name || "")
+          .toLowerCase()
+          .split(/\s+/)
+          .filter(Boolean);
+
+        if (nameTokens[0] && nameTokens[0].length > 3) {
+          aliases.add(nameTokens[0]);
+        }
+
+        if (nameTokens.length > 1) {
+          aliases.add(nameTokens.slice(0, 2).join(" "));
+        }
+
+        return Array.from(aliases)
+          .map(normalizeSearchText)
+          .filter(Boolean);
+      };
+
+      const stripSyllabusLabel = (value) => {
+        const label = String(value || "").trim();
+        return label.replace(/^\d+(?:\.\d+)*(?:\s+|(?=[A-Za-z]))/, "").trim() || label;
+      };
+
+      const buildHrefWithParams = (href, params) => {
+        const url = new URL(String(href || "/"), window.location.origin);
+        Object.entries(params || {}).forEach(([key, value]) => {
+          if (value == null || value === "") return;
+          url.searchParams.set(key, String(value));
+        });
+        return `${url.pathname}${url.search}${url.hash}`;
+      };
+
+      const buildTokenSet = (value) => new Set(normalizeSearchText(value).split(" ").filter(Boolean));
+
+      const hasPastPaperIntent = (parsed) =>
+        !!(
+          parsed &&
+          (
+            parsed.hasPaperFilters ||
+            parsed.fileIntent ||
+            ((parsed.subjectCode || parsed.subjectSlugs.size) && (parsed.paper || parsed.variant || parsed.year || parsed.session)) ||
+            (parsed.year && parsed.paper) ||
+            (parsed.session && parsed.paper)
+          )
+        );
+
+      const hasSpecificPastPaperTarget = (parsed) =>
+        !!(
+          parsed &&
+          (
+            parsed.variant ||
+            (parsed.paper && parsed.fileIntent) ||
+            ((parsed.subjectCode || parsed.subjectSlugs.size) && (parsed.paper || parsed.variant)) ||
+            ((parsed.subjectCode || parsed.subjectSlugs.size) && parsed.year && (parsed.paper || parsed.session || parsed.fileIntent)) ||
+            (parsed.year && parsed.paper)
+          )
+        );
+
+      const prepareHomeSearchData = (rawData) => {
+        const subjects = Array.isArray(rawData && rawData.subjects) ? rawData.subjects : [];
+        const paperEntries = Array.isArray(rawData && rawData.paperEntries) ? rawData.paperEntries : [];
+        const syllabusEntries = Array.isArray(rawData && rawData.syllabusEntries) ? rawData.syllabusEntries : [];
+        const paperCounts = new Map();
+
+        paperEntries.forEach((entry) => {
+          paperCounts.set(entry.subjectSlug, (paperCounts.get(entry.subjectSlug) || 0) + 1);
+        });
+
+        const preparedSubjects = subjects.map((subject) => {
+          const aliases = buildSubjectAliases(subject);
+          const subjectHref = subject.subjectHref || `/subjects/${subject.slug}/`;
+          const pastPapersHref = subject.pastPapersHref || `/past-papers/${subject.slug}/`;
+          const subjectTokenSet = new Set(
+            normalizeSearchText([subject.name, subject.code, aliases.join(" ")].join(" "))
+              .split(" ")
+              .filter(Boolean)
+          );
+
+          return Object.assign({}, subject, {
+            aliases,
+            subjectHref,
+            syllabusHref: subjectHref,
+            syllabusPageHref: subjectHref,
+            pastPapersHref,
+            pastPapersPageHref: buildHrefWithParams(subjectHref, { tab: "past-papers" }),
+            normalizedName: normalizeSearchText(subject.name),
+            searchText: normalizeSearchText([
+              subject.name,
+              subject.code,
+              subject.slug.replace(/-/g, " "),
+              aliases.join(" ")
+            ].join(" ")),
+            subjectTokenSet,
+            hasPastPapers: paperCounts.has(subject.slug)
+          });
+        });
+
+        const subjectBySlug = new Map(preparedSubjects.map((subject) => [subject.slug, subject]));
+        const subjectByCode = new Map(preparedSubjects.map((subject) => [subject.code, subject]));
+
+        const preparedPapers = paperEntries
+          .map((entry) => {
+            const subject = subjectBySlug.get(entry.subjectSlug);
+            if (!subject) return null;
+            const sessionMeta = SESSION_META[entry.session] || SESSION_META.s;
+            const title = `${subject.name} ${subject.code} • ${sessionMeta.label} ${entry.year} • Paper ${entry.paperNumber} • Variant ${entry.variant}`;
+            const defaultType = entry.qpHref ? "qp" : "ms";
+            const searchText = normalizeSearchText([
+              subject.name,
+              subject.code,
+              subject.slug.replace(/-/g, " "),
+              subject.aliases.join(" "),
+              entry.year,
+              sessionMeta.label,
+              sessionMeta.searchLabel,
+              `paper ${entry.paperNumber}`,
+              `p ${entry.paperNumber}`,
+              `variant ${entry.variant}`,
+              `v ${entry.variant}`,
+              "qp question paper",
+              "ms mark scheme",
+              title
+            ].join(" "));
+            const tokenSet = new Set(searchText.split(" ").filter(Boolean));
+
+            return Object.assign({}, entry, {
+              subject,
+              subjectCode: subject.code,
+              subjectName: subject.name,
+              subjectRoute: subject.subjectHref,
+              subjectPastPapersRoute: subject.pastPapersPageHref,
+              sessionRaw: entry.session,
+              sessionNormalized: sessionMeta.searchLabel,
+              sessionLabel: sessionMeta.label,
+              sessionRank: sessionMeta.rank,
+              displayLabel: title,
+              paperNumber: Number(entry.paperNumber),
+              variantNumber: String(entry.variant || "").padStart(2, "0"),
+              qpUrl: entry.qpHref || "",
+              msUrl: entry.msHref || "",
+              defaultType,
+              openHref: `${subject.pastPapersHref}?track=${encodeURIComponent(entry.trackKey)}`,
+              title,
+              searchText,
+              tokenSet
+            });
+          })
+          .filter(Boolean);
+
+        const preparedSyllabus = syllabusEntries
+          .map((entry) => {
+            const subject = subjectBySlug.get(entry.subjectSlug);
+            if (!subject) return null;
+
+            const sectionDisplayTitle = stripSyllabusLabel(entry.sectionTitle);
+            const topicDisplayTitle = entry.topicTitle ? stripSyllabusLabel(entry.topicTitle) : "";
+            const title =
+              entry.kind === "topic"
+                ? `${subject.name} ${subject.code} • ${topicDisplayTitle || sectionDisplayTitle}`
+                : `${subject.name} ${subject.code} • ${sectionDisplayTitle}`;
+            const subtitle =
+              entry.kind === "topic"
+                ? `${sectionDisplayTitle} • ${entry.level === "extended" ? "Extended" : "Core"} syllabus`
+                : `${entry.level === "extended" ? "Extended" : "Core"} syllabus topic area`;
+            const href = buildHrefWithParams(subject.syllabusPageHref, {
+              tab: "syllabus",
+              level: entry.level || "core",
+              section: entry.sectionId || "",
+              topic: entry.topicId || ""
+            });
+            const sectionSearchText = normalizeSearchText([entry.sectionTitle, sectionDisplayTitle].join(" "));
+            const topicSearchText = normalizeSearchText([entry.topicTitle || "", topicDisplayTitle].join(" "));
+            const searchText = normalizeSearchText([
+              subject.name,
+              subject.code,
+              subject.aliases.join(" "),
+              entry.kind,
+              "syllabus topics section",
+              entry.level,
+              sectionDisplayTitle,
+              entry.sectionTitle,
+              topicDisplayTitle,
+              entry.topicTitle || ""
+            ].join(" "));
+
+            return Object.assign({}, entry, {
+              subject,
+              subjectCode: subject.code,
+              subjectName: subject.name,
+              title,
+              subtitle,
+              href,
+              searchText,
+              sectionDisplayTitle,
+              topicDisplayTitle,
+              sectionSearchText,
+              topicSearchText,
+              tokenSet: new Set(searchText.split(" ").filter(Boolean)),
+              topicTokenSet: new Set(topicSearchText.split(" ").filter(Boolean)),
+              sectionTokenSet: new Set(sectionSearchText.split(" ").filter(Boolean))
+            });
+          })
+          .filter(Boolean);
+
+        return {
+          subjects: preparedSubjects,
+          subjectBySlug,
+          subjectByCode,
+          paperEntries: preparedPapers,
+          paperSearchIndex: preparedPapers,
+          paperByTrackKey: new Map(preparedPapers.map((entry) => [entry.trackKey, entry])),
+          syllabusEntries: preparedSyllabus,
+          syllabusByTopicKey: new Map(
+            preparedSyllabus
+              .filter((entry) => entry.topicKey)
+              .map((entry) => [entry.topicKey, entry])
+          )
+        };
+      };
+
+      const ensureHomeSearchData = () => {
+        if (uiState.homeSearchData) {
+          return Promise.resolve(uiState.homeSearchData);
+        }
+        if (uiState.homeSearchDataPromise) {
+          return uiState.homeSearchDataPromise;
+        }
+
+        uiState.homeSearchDataPromise = fetch(HOME_SEARCH_DATA_URL, { cache: "no-store" })
+          .then((response) => (response.ok ? response.json() : { subjects: [], paperEntries: [] }))
+          .catch(() => ({ subjects: [], paperEntries: [] }))
+          .then((rawData) => {
+            uiState.homeSearchData = prepareHomeSearchData(rawData);
+            return uiState.homeSearchData;
+          });
+
+        return uiState.homeSearchDataPromise;
+      };
+
+      const parseSearchQuery = (rawValue, data) => {
+        const normalized = normalizeSearchText(rawValue);
+        const tokens = normalized ? normalized.split(" ") : [];
+        const subjectSlugs = new Set();
+        const subjectTokens = new Set();
+        let subjectCode = null;
+
+        (data ? data.subjects : []).forEach((subject) => {
+          let matched = false;
+          if (tokens.includes(subject.code)) {
+            subjectCode = subject.code;
+            subjectSlugs.add(subject.slug);
+            matched = true;
+          }
+
+          subject.aliases.forEach((alias) => {
+            if (matchesAlias(normalized, tokens, alias)) {
+              subjectSlugs.add(subject.slug);
+              matched = true;
+            }
+          });
+
+          if (matched) {
+            subject.subjectTokenSet.forEach((token) => subjectTokens.add(token));
+          }
+        });
+
+        let session = null;
+        if (normalized.includes("may june")) {
+          session = "s";
+        } else if (normalized.includes("oct nov")) {
+          session = "w";
+        } else if (normalized.includes("feb march")) {
+          session = "m";
+        }
+
+        const yearMatch = normalized.match(/\b(20\d{2})\b/);
+        const paperMatch = normalized.match(/\b(?:paper|p)\s+([1-9])\b/);
+        const variantMatch = normalized.match(/\b(?:variant|v)\s+([0-9]{1,2})\b/);
+        const fileIntent = /\bqp\b/.test(normalized) ? "qp" : /\bms\b/.test(normalized) ? "ms" : "";
+        const intents = new Set();
+        let paper = paperMatch ? Number(paperMatch[1]) : null;
+        const variant = variantMatch ? variantMatch[1].padStart(2, "0") : null;
+
+        if (!paper && variant && variant.length === 2 && /^[1-9]/.test(variant)) {
+          paper = Number(variant.charAt(0));
+        }
+
+        if (/\b(profile|account|student|user)\b/.test(normalized)) {
+          intents.add("profile");
+        }
+        if (/\b(progress|activity|tracker|tracked)\b/.test(normalized)) {
+          intents.add("progress");
+        }
+        if (/\b(syllabus|specification|topics?)\b/.test(normalized)) {
+          intents.add("syllabus");
+        }
+        if (
+          /\b(past papers?|papers?|qp|ms|question paper|mark scheme)\b/.test(normalized) ||
+          yearMatch ||
+          paperMatch ||
+          variantMatch ||
+          session
+        ) {
+          intents.add("past-papers");
+        }
+
+        const contentTokens = tokens.filter(
+          (token) =>
+            token &&
+            !subjectTokens.has(token) &&
+            !SEARCH_NOISE_TOKENS.has(token) &&
+            !/^\d+$/.test(token)
+        );
+
+        const year = yearMatch ? Number(yearMatch[1]) : null;
+        const pastPaperIntent = hasPastPaperIntent({
+          hasPaperFilters: !!(yearMatch || paperMatch || variantMatch || session),
+          fileIntent,
+          subjectCode,
+          subjectSlugs,
+          year,
+          session,
+          paper,
+          variant
+        });
+        const specificPastPaperTarget = hasSpecificPastPaperTarget({
+          fileIntent,
+          subjectCode,
+          subjectSlugs,
+          year,
+          session,
+          paper,
+          variant
+        });
+
+        return {
+          raw: rawValue,
+          normalized,
+          tokens,
+          subjectCode,
+          subjectSlugs,
+          subjectTokens,
+          contentTokens,
+          contentQuery: contentTokens.join(" "),
+          year,
+          session,
+          paper,
+          variant,
+          fileIntent,
+          intents,
+          hasPaperFilters: !!(yearMatch || paperMatch || variantMatch || session),
+          isPastPaperIntent: pastPaperIntent,
+          hasSpecificPastPaperTarget: specificPastPaperTarget
+        };
+      };
+
+      const buildRecentBoostMaps = () => {
+        const subjectBoosts = new Map();
+        const trackBoosts = new Map();
+        const topicBoosts = new Map();
+
+        readRecentSelections().forEach((item, index) => {
+          const boost = Math.max(1, 6 - index);
+          if (item.subjectSlug) {
+            subjectBoosts.set(item.subjectSlug, Math.max(subjectBoosts.get(item.subjectSlug) || 0, boost));
+          }
+          if (item.trackKey) {
+            trackBoosts.set(item.trackKey, Math.max(trackBoosts.get(item.trackKey) || 0, boost));
+          }
+          if (item.topicKey) {
+            topicBoosts.set(item.topicKey, Math.max(topicBoosts.get(item.topicKey) || 0, boost));
+          }
+        });
+
+        return {
+          subjectBoosts,
+          trackBoosts,
+          topicBoosts
+        };
+      };
+
+      const countTokenMatches = (tokens, tokenSet) =>
+        tokens.reduce((count, token) => count + (tokenSet.has(token) ? 1 : 0), 0);
+
+      const createQueryResult = (query, subtitle, icon, id) => ({
+        id,
+        type: "query",
+        mode: "query",
+        icon: icon || "search",
+        title: query,
+        subtitle
+      });
+
+      const createNavigateResult = (config) =>
+        Object.assign(
+          {
+            mode: "navigate",
+            actions: []
+          },
+          config
+        );
+
+      const createSubjectResult = (subject, score) =>
+        createNavigateResult({
+          id: `subject:${subject.slug}`,
+          type: "subject",
+          icon: "book-open",
+          title: `${subject.name} (${subject.code})`,
+          subtitle: "Open subject page",
+          badge: subject.code,
+          href: subject.subjectHref,
+          subjectSlug: subject.slug,
+          score
+        });
+
+      const createSyllabusResult = (subject, score, subtitle) =>
+        createNavigateResult({
+          id: `syllabus:${subject.slug}`,
+          type: "syllabus",
+          icon: "book-open",
+          title: `${subject.name} Syllabus`,
+          subtitle: subtitle || "Open syllabus",
+          badge: "Syllabus",
+          href: subject.syllabusPageHref,
+          subjectSlug: subject.slug,
+          score
+        });
+
+      const createPastPaperHubResult = (subject, score) =>
+        createNavigateResult({
+          id: `past-papers:${subject.slug}`,
+          type: "past-papers-hub",
+          icon: "file-text",
+          title: `${subject.name} Past Papers`,
+          subtitle: "Open subject past papers",
+          badge: "Past papers",
+          href: subject.pastPapersPageHref,
+          subjectSlug: subject.slug,
+          score
+        });
+
+      const createPastPaperResult = (entry, score, options) =>
+        createNavigateResult({
+          id: `paper:${entry.trackKey}`,
+          type: "past-paper",
+          icon: "file-text",
+          title: entry.displayLabel || entry.title,
+          subtitle:
+            (options && options.subtitle) ||
+            (options && options.fileIntent === "qp"
+              ? "Open the question paper file"
+              : options && options.fileIntent === "ms"
+                ? "Open the mark scheme file"
+                : "Open the exact paper destination"),
+          badge:
+            options && options.fileIntent
+              ? options.fileIntent.toUpperCase()
+              : "",
+          href:
+            options && options.fileIntent === "qp"
+              ? entry.qpUrl || entry.qpHref || entry.openHref
+              : options && options.fileIntent === "ms"
+                ? entry.msUrl || entry.msHref || entry.openHref
+                : entry.openHref,
+          subjectSlug: entry.subjectSlug,
+          trackKey: entry.trackKey,
+          score,
+          sortYear: entry.year,
+          sortSessionRank: entry.sessionRank,
+          sortPaperNumber: entry.paperNumber,
+          sortVariant: Number(entry.variantNumber || entry.variant),
+          actions: [
+            entry.qpUrl || entry.qpHref ? { label: "QP", href: entry.qpUrl || entry.qpHref } : null,
+            entry.msUrl || entry.msHref ? { label: "MS", href: entry.msUrl || entry.msHref } : null,
+            null
+          ].filter(Boolean)
+        });
+
+      const createSyllabusTopicResult = (entry, score, subtitleOverride) =>
+        createNavigateResult({
+          id: `syllabus-entry:${entry.kind}:${entry.subjectSlug}:${entry.level}:${entry.sectionId}:${entry.topicId || "section"}`,
+          type: entry.kind === "topic" ? "syllabus-topic" : "syllabus-section",
+          icon: "book-open",
+          title: entry.title,
+          subtitle: subtitleOverride || entry.subtitle,
+          badge: entry.kind === "topic" ? "Topic" : "Syllabus",
+          href: entry.href,
+          subjectSlug: entry.subjectSlug,
+          topicKey: entry.topicKey || "",
+          score,
+          sortSectionIndex: entry.sectionIndex || 0,
+          sortTopicIndex: entry.topicIndex || 0
+        });
+
+      const buildProfileRouteResults = (parsed) => {
+        const results = [];
+        const wantsProfile = parsed.intents.has("profile") || parsed.normalized === "profile";
+        const wantsProgress = parsed.intents.has("progress") || parsed.normalized === "progress";
+
+        if (wantsProgress) {
+          results.push(
+            createNavigateResult({
+              id: "profile:progress",
+              type: "progress",
+              icon: "activity",
+              title: "Your Progress",
+              subtitle: "Open your profile progress",
+              badge: "Profile",
+              href: "/profile/",
+              score: 220
+            })
+          );
+        }
+
+        if (wantsProfile || wantsProgress) {
+          results.push(
+            createNavigateResult({
+              id: "profile:page",
+              type: "profile",
+              icon: "user",
+              title: "Your Profile",
+              subtitle: "Open your profile",
+              badge: "Profile",
+              href: "/profile/",
+              score: wantsProfile ? 218 : 204
+            })
+          );
+        }
+
+        return results;
+      };
+
+      const buildSubjectResults = (data, parsed, boosts) => {
+        const results = [];
+
+        data.subjects.forEach((subject) => {
+          const exactCode = parsed.subjectCode === subject.code;
+          const exactName = parsed.normalized === subject.normalizedName;
+          const aliasHit = subject.aliases.some((alias) => matchesAlias(parsed.normalized, parsed.tokens, alias));
+          const textHit = subject.searchText.includes(parsed.normalized);
+          const partialTokenHit = parsed.tokens.some(
+            (token) => token.length > 1 && (subject.code.includes(token) || subject.normalizedName.includes(token))
+          );
+
+          if (!(exactCode || exactName || aliasHit || textHit || partialTokenHit)) {
+            return;
+          }
+
+          let baseScore = 0;
+          if (exactCode) baseScore = 170;
+          else if (exactName) baseScore = 166;
+          else if (aliasHit) baseScore = 154;
+          else if (textHit) baseScore = 132;
+          else if (partialTokenHit) baseScore = 104;
+
+          if (parsed.hasPaperFilters || parsed.fileIntent) {
+            baseScore -= 26;
+          }
+          if (parsed.isPastPaperIntent) {
+            baseScore -= parsed.hasSpecificPastPaperTarget ? 92 : 38;
+          }
+          if (parsed.contentTokens.length) {
+            baseScore -= 14;
+          }
+          baseScore += boosts.subjectBoosts.get(subject.slug) || 0;
+
+          results.push(createSubjectResult(subject, baseScore + 14));
+          results.push(
+            createSyllabusResult(
+              subject,
+              baseScore + (parsed.intents.has("syllabus") ? 26 : 6)
+            )
+          );
+
+          if (subject.hasPastPapers) {
+            results.push(
+              createPastPaperHubResult(
+                subject,
+                baseScore + (parsed.intents.has("past-papers") || parsed.hasPaperFilters ? 30 : 8)
+              )
+            );
+          }
+        });
+
+        return results;
+      };
+
+      const buildSyllabusTopicResults = (data, parsed, boosts) => {
+        if (!parsed.normalized || parsed.hasPaperFilters || parsed.intents.has("past-papers") || parsed.fileIntent) {
+          return [];
+        }
+
+        if (!parsed.contentTokens.length) {
+          return [];
+        }
+
+        const resultsBySignature = data.syllabusEntries
+          .map((entry) => {
+            if (parsed.subjectCode && entry.subjectCode !== parsed.subjectCode) {
+              return null;
+            }
+            if (parsed.subjectSlugs.size && !parsed.subjectSlugs.has(entry.subjectSlug)) {
+              return null;
+            }
+
+            const contentTokenCount = parsed.contentTokens.length;
+            const tokenMatches = countTokenMatches(parsed.contentTokens, entry.tokenSet);
+            const topicMatches = countTokenMatches(parsed.contentTokens, entry.topicTokenSet);
+            const sectionMatches = countTokenMatches(parsed.contentTokens, entry.sectionTokenSet);
+            const topicExactMatch = !!parsed.contentQuery && entry.topicSearchText === parsed.contentQuery;
+            const sectionExactMatch = !!parsed.contentQuery && entry.sectionSearchText === parsed.contentQuery;
+            const topicPhraseMatch = !!parsed.contentQuery && entry.topicSearchText.includes(parsed.contentQuery);
+            const sectionPhraseMatch = !!parsed.contentQuery && entry.sectionSearchText.includes(parsed.contentQuery);
+            const fullQueryMatch = entry.searchText.includes(parsed.normalized);
+            const coverage = contentTokenCount ? tokenMatches / contentTokenCount : 0;
+
+            if (
+              !topicExactMatch &&
+              !sectionExactMatch &&
+              !topicPhraseMatch &&
+              !sectionPhraseMatch &&
+              !fullQueryMatch &&
+              tokenMatches === 0
+            ) {
+              return null;
+            }
+            if (
+              !parsed.subjectSlugs.size &&
+              !parsed.subjectCode &&
+              tokenMatches < 1 &&
+              !topicPhraseMatch &&
+              !sectionPhraseMatch &&
+              !topicExactMatch &&
+              !sectionExactMatch
+            ) {
+              return null;
+            }
+            if (!parsed.subjectSlugs.size && !parsed.subjectCode && contentTokenCount > 1 && coverage < 0.5) {
+              return null;
+            }
+
+            let score = 0;
+
+            if (entry.kind === "topic") {
+              if (topicExactMatch) score += 232;
+              else if (topicPhraseMatch) score += 196;
+              else if (sectionExactMatch) score += 108;
+              else if (sectionPhraseMatch) score += 82;
+            } else if (sectionExactMatch) {
+              score += 214;
+            } else if (sectionPhraseMatch) {
+              score += 178;
+            } else if (fullQueryMatch) {
+              score += 164;
+            }
+
+            score += tokenMatches * 28;
+            score += topicMatches * 20;
+            score += sectionMatches * 14;
+
+            if (coverage === 1 && contentTokenCount) {
+              score += 42;
+            }
+            if (parsed.intents.has("syllabus")) {
+              score += 28;
+            }
+            if (parsed.subjectCode === entry.subjectCode) {
+              score += 40;
+            }
+            if (parsed.subjectSlugs.has(entry.subjectSlug)) {
+              score += 34;
+            }
+            if (entry.kind === "topic") {
+              score += 10;
+            }
+
+            score += boosts.subjectBoosts.get(entry.subjectSlug) || 0;
+            score += boosts.topicBoosts.get(entry.topicKey || "") || 0;
+
+            if (score <= 0) {
+              return null;
+            }
+
+            return createSyllabusTopicResult(entry, score);
+          })
+          .filter(Boolean)
+          .reduce((map, result) => {
+            const signature = [
+              result.type,
+              result.subjectSlug,
+              String(result.title || "").toLowerCase(),
+              String(result.subtitle || "").replace(/\b(Core|Extended)\b/gi, "").toLowerCase()
+            ].join("::");
+            const existing = map.get(signature);
+            if (!existing || result.score > existing.score) {
+              map.set(signature, result);
+            }
+            return map;
+          }, new Map());
+
+        return Array.from(resultsBySignature.values());
+      };
+
+      const buildPastPaperResults = (data, parsed, boosts) => {
+        if (
+          !parsed.normalized ||
+          (!parsed.isPastPaperIntent &&
+            !parsed.intents.has("past-papers") &&
+            !parsed.fileIntent &&
+            !parsed.subjectCode &&
+            !parsed.subjectSlugs.size)
+        ) {
+          return [];
+        }
+
+        return (data.paperSearchIndex || data.paperEntries)
+          .map((entry) => {
+            const subjectCodeMatch = parsed.subjectCode === entry.subjectCode;
+            const subjectSlugMatch = parsed.subjectSlugs.has(entry.subjectSlug);
+
+            if (parsed.subjectCode && entry.subjectCode !== parsed.subjectCode) {
+              return null;
+            }
+            if (parsed.subjectSlugs.size && !parsed.subjectSlugs.has(entry.subjectSlug)) {
+              return null;
+            }
+            if (parsed.year && entry.year !== parsed.year) {
+              return null;
+            }
+            if (parsed.session && entry.session !== parsed.session) {
+              return null;
+            }
+            if (parsed.paper && entry.paperNumber !== parsed.paper) {
+              return null;
+            }
+            if (parsed.variant && entry.variant !== parsed.variant) {
+              return null;
+            }
+            if (parsed.fileIntent === "qp" && !(entry.qpUrl || entry.qpHref)) {
+              return null;
+            }
+            if (parsed.fileIntent === "ms" && !(entry.msUrl || entry.msHref)) {
+              return null;
+            }
+
+            const tokenMatches = countTokenMatches(parsed.tokens, entry.tokenSet || buildTokenSet(entry.searchText));
+            const fullQueryMatch = entry.searchText.includes(parsed.normalized);
+            const paperPhraseMatch = parsed.paper ? entry.searchText.includes(`paper ${parsed.paper}`) : false;
+            const variantPhraseMatch = parsed.variant ? entry.searchText.includes(`variant ${parsed.variant}`) : false;
+            let score = 0;
+
+            if (subjectCodeMatch) score += 240;
+            if (subjectSlugMatch) score += 188;
+            if (parsed.year) score += 82;
+            if (parsed.session) score += 72;
+            if (parsed.paper) score += 104;
+            if (parsed.variant) score += 128;
+            if (parsed.fileIntent) score += 62;
+            if (parsed.hasPaperFilters) score += 54;
+            if (parsed.isPastPaperIntent) score += 48;
+            if (parsed.hasSpecificPastPaperTarget) score += 64;
+            if (parsed.intents.has("past-papers")) score += 24;
+            if (fullQueryMatch) score += 36;
+            if (paperPhraseMatch) score += 18;
+            if (variantPhraseMatch) score += 20;
+            score += Math.min(tokenMatches, 8) * 7;
+            if (parsed.year && parsed.paper && (subjectCodeMatch || subjectSlugMatch)) {
+              score += 132;
+            }
+            if (parsed.session && parsed.paper) {
+              score += 52;
+            }
+            if (parsed.variant && (subjectCodeMatch || subjectSlugMatch)) {
+              score += 104;
+            }
+            if (parsed.fileIntent && parsed.paper) {
+              score += 56;
+            }
+            if (parsed.fileIntent === "qp" && (entry.qpUrl || entry.qpHref)) {
+              score += 10;
+            }
+            if (parsed.fileIntent === "ms" && (entry.msUrl || entry.msHref)) {
+              score += 10;
+            }
+            if (
+              !parsed.isPastPaperIntent &&
+              !parsed.intents.has("past-papers") &&
+              !parsed.fileIntent &&
+              (parsed.subjectCode || parsed.subjectSlugs.size)
+            ) {
+              score -= 60;
+            }
+
+            score += boosts.trackBoosts.get(entry.trackKey) || 0;
+
+            if (score <= 0) {
+              return null;
+            }
+
+            return createPastPaperResult(entry, score, {
+              fileIntent: parsed.fileIntent
+            });
+          })
+          .filter(Boolean)
+          .sort((left, right) => {
+            if (right.score !== left.score) return right.score - left.score;
+            const rightEntry = data.paperByTrackKey.get(right.trackKey);
+            const leftEntry = data.paperByTrackKey.get(left.trackKey);
+            if (!leftEntry || !rightEntry) return 0;
+            if (rightEntry.year !== leftEntry.year) return rightEntry.year - leftEntry.year;
+            if (rightEntry.sessionRank !== leftEntry.sessionRank) {
+              return rightEntry.sessionRank - leftEntry.sessionRank;
+            }
+            if (leftEntry.paperNumber !== rightEntry.paperNumber) {
+              return leftEntry.paperNumber - rightEntry.paperNumber;
+            }
+            return Number(leftEntry.variant) - Number(rightEntry.variant);
+          });
+      };
+
+      const dedupeResults = (results) => {
+        const seen = new Set();
+        return results.filter((result) => {
+          if (!result || seen.has(result.id)) return false;
+          seen.add(result.id);
+          return true;
+        });
+      };
+
+      const buildContinueWhereLeftOff = (data) => {
+        if (!data || !isSignedIn()) return [];
+
+        const results = [];
+        const recentSelection = readRecentSelections().find((item) => item.type && item.type !== "query");
+
+        if (recentSelection) {
+          if (recentSelection.topicKey && data.syllabusByTopicKey.has(recentSelection.topicKey)) {
+            results.push(
+              createSyllabusTopicResult(
+                data.syllabusByTopicKey.get(recentSelection.topicKey),
+                999,
+                "Continue where you left off"
+              )
+            );
+          } else if (recentSelection.trackKey && data.paperByTrackKey.has(recentSelection.trackKey)) {
+            results.push(
+              createPastPaperResult(
+                data.paperByTrackKey.get(recentSelection.trackKey),
+                999,
+                { subtitle: "Continue where you left off" }
+              )
+            );
+          } else if (recentSelection.subjectSlug && data.subjectBySlug.has(recentSelection.subjectSlug)) {
+            const subject = data.subjectBySlug.get(recentSelection.subjectSlug);
+            results.push(
+              createNavigateResult({
+                id: `continue:${recentSelection.id}`,
+                type: recentSelection.type || "subject",
+                icon: /^syllabus/.test(recentSelection.type || "") ? "book-open" : "file-text",
+                title: recentSelection.title || `${subject.name} (${subject.code})`,
+                subtitle: "Continue where you left off",
+                href: recentSelection.href || subject.subjectHref,
+                subjectSlug: subject.slug,
+                score: 999
+              })
+            );
+          }
+        }
+
+        if (results.length) {
+          return dedupeResults(results).slice(0, 2);
+        }
+
+        const snapshot = readProgressSnapshot();
+        const paperCandidates = Object.keys(snapshot.pastPaperStatuses || {})
+          .map((trackKey) => {
+            const entry = data.paperByTrackKey.get(trackKey);
+            if (!entry) return null;
+            const status = snapshot.pastPaperStatuses[trackKey];
+            const statusRank = status === "in_progress" ? 3 : status === "done" ? 2 : 1;
+            return { entry, status, statusRank };
+          })
+          .filter(Boolean)
+          .sort((left, right) => {
+            if (right.statusRank !== left.statusRank) return right.statusRank - left.statusRank;
+            if (right.entry.year !== left.entry.year) return right.entry.year - left.entry.year;
+            return right.entry.sessionRank - left.entry.sessionRank;
+          });
+
+        if (paperCandidates[0]) {
+          results.push(
+            createPastPaperResult(
+              paperCandidates[0].entry,
+              998,
+              {
+                subtitle:
+                  paperCandidates[0].status === "in_progress"
+                    ? "Continue tracked past paper"
+                    : "Resume tracked past paper"
+              }
+            )
+          );
+        }
+
+        const syllabusCandidates = Object.keys(snapshot.syllabusTopicStates || {})
+          .map((topicKey) => {
+            const entry = data.syllabusByTopicKey.get(topicKey);
+            if (!entry) return null;
+            const status = snapshot.syllabusTopicStates[topicKey];
+            const statusRank = status === "in_progress" ? 3 : status === "completed" ? 2 : 1;
+            return { entry, status, statusRank };
+          })
+          .filter(Boolean)
+          .sort((left, right) => {
+            if (right.statusRank !== left.statusRank) return right.statusRank - left.statusRank;
+            if ((right.entry.sectionIndex || 0) !== (left.entry.sectionIndex || 0)) {
+              return (right.entry.sectionIndex || 0) - (left.entry.sectionIndex || 0);
+            }
+            return (right.entry.topicIndex || 0) - (left.entry.topicIndex || 0);
+          });
+
+        if (syllabusCandidates[0]) {
+          results.push(
+            createSyllabusTopicResult(
+              syllabusCandidates[0].entry,
+              997,
+              syllabusCandidates[0].status === "in_progress" ? "Continue syllabus topic" : "Resume syllabus topic"
+            )
+          );
+        }
+
+        const syllabusBySubject = new Map();
+        Object.keys(snapshot.syllabusTopicStates || {}).forEach((topicKey) => {
+          const state = snapshot.syllabusTopicStates[topicKey];
+          if (state !== "in_progress" && state !== "completed") return;
+          const subjectSlug = String(topicKey).split("::")[0];
+          const bucket = syllabusBySubject.get(subjectSlug) || { in_progress: 0, completed: 0 };
+          bucket[state] += 1;
+          syllabusBySubject.set(subjectSlug, bucket);
+        });
+
+        const bestSyllabus = Array.from(syllabusBySubject.entries())
+          .map(([subjectSlug, counts]) => ({ subjectSlug, counts }))
+          .filter((item) => data.subjectBySlug.has(item.subjectSlug))
+          .sort((left, right) => {
+            if (right.counts.in_progress !== left.counts.in_progress) {
+              return right.counts.in_progress - left.counts.in_progress;
+            }
+            return right.counts.completed - left.counts.completed;
+          })[0];
+
+        if (bestSyllabus) {
+          const subject = data.subjectBySlug.get(bestSyllabus.subjectSlug);
+          results.push(
+            createSyllabusResult(
+              subject,
+              997,
+              `${bestSyllabus.counts.in_progress} in progress • ${bestSyllabus.counts.completed} completed`
+            )
+          );
+        }
+
+        return dedupeResults(results).slice(0, 2);
+      };
+
+      const buildSuggestedSubjectResults = (data) => {
+        if (!data) return [];
+
+        const snapshot = readProgressSnapshot();
+        const trackedSubjects = Array.isArray(snapshot.trackedSubjects) ? snapshot.trackedSubjects : [];
+        const ordered = [];
+        const seen = new Set();
+
+        trackedSubjects.forEach((subject) => {
+          const slug = String(subject && (subject.slug || subject.subjectSlug) ? subject.slug || subject.subjectSlug : "").trim();
+          const resolved = data.subjectBySlug.get(slug) || data.subjectByCode.get(String(subject && subject.code ? subject.code : "").trim());
+          if (!resolved || seen.has(resolved.slug)) return;
+          seen.add(resolved.slug);
+          ordered.push(resolved);
+        });
+
+        FEATURED_SUBJECT_CODES.forEach((code) => {
+          const subject = data.subjectByCode.get(code);
+          if (!subject || seen.has(subject.slug)) return;
+          seen.add(subject.slug);
+          ordered.push(subject);
+        });
+
+        return ordered.slice(0, 4).map((subject) =>
+          createNavigateResult({
+            id: `suggested:${subject.slug}`,
+            type: "subject",
+            icon: "book-open",
+            title: subject.name,
+            subtitle: subject.code,
+            href: subject.subjectHref,
+            subjectSlug: subject.slug
+          })
+        );
+      };
+
+      const buildFocusCollections = (data) => {
+        const collections = [];
+        const continueResults = buildContinueWhereLeftOff(data);
+        const recentSearches = readRecentSearches().map((item) =>
+          createQueryResult(item.query, "Run search again", "history", `recent:${item.normalized}`)
+        );
+
+        if (continueResults.length) {
+          collections.push({
+            title: "Continue Where You Left Off",
+            layout: "list",
+            items: continueResults
+          });
+        }
+
+        if (recentSearches.length) {
+          collections.push({
+            title: "Recent Searches",
+            layout: "list",
+            items: recentSearches
+          });
+        }
+
+        if (data) {
+          const suggested = buildSuggestedSubjectResults(data);
+          if (suggested.length) {
+            collections.push({
+              title: "Suggested Subjects",
+              layout: "grid",
+              items: suggested
+            });
+          }
+        }
+
+        collections.push({
+          title: "Popular Searches",
+          layout: "grid",
+          items: POPULAR_SEARCHES.map((item) =>
+            createQueryResult(item.query, item.description, item.icon, `popular:${normalizeSearchText(item.query)}`)
+          )
+        });
+
+        return collections;
+      };
+
+      const buildSearchCollections = (data, query) => {
+        const parsed = parseSearchQuery(query, data);
+        const boosts = buildRecentBoostMaps();
+        const results = dedupeResults(
+          [
+            ...buildProfileRouteResults(parsed),
+            ...buildSubjectResults(data, parsed, boosts),
+            ...buildSyllabusTopicResults(data, parsed, boosts),
+            ...buildPastPaperResults(data, parsed, boosts)
+          ].sort((left, right) => {
+            if (right.score !== left.score) return right.score - left.score;
+            if ((right.sortYear || 0) !== (left.sortYear || 0)) {
+              return (right.sortYear || 0) - (left.sortYear || 0);
+            }
+            if ((right.sortSessionRank || 0) !== (left.sortSessionRank || 0)) {
+              return (right.sortSessionRank || 0) - (left.sortSessionRank || 0);
+            }
+            if ((left.sortPaperNumber || 0) !== (right.sortPaperNumber || 0)) {
+              return (left.sortPaperNumber || 0) - (right.sortPaperNumber || 0);
+            }
+            if ((left.sortVariant || 0) !== (right.sortVariant || 0)) {
+              return (left.sortVariant || 0) - (right.sortVariant || 0);
+            }
+            if ((left.sortSectionIndex || 0) !== (right.sortSectionIndex || 0)) {
+              return (left.sortSectionIndex || 0) - (right.sortSectionIndex || 0);
+            }
+            if ((left.sortTopicIndex || 0) !== (right.sortTopicIndex || 0)) {
+              return (left.sortTopicIndex || 0) - (right.sortTopicIndex || 0);
+            }
+            return String(left.title || "").localeCompare(String(right.title || ""));
+          })
+        ).slice(0, HOME_SEARCH_LIMITS.results);
+
+        if (!results.length) {
+          return [
+            {
+              title: "No Matches",
+              layout: "list",
+              empty: "No matches found. Try a subject code, syllabus topic, year, session, or paper number."
+            },
+            {
+              title: "Popular Searches",
+              layout: "grid",
+              items: POPULAR_SEARCHES.map((item) =>
+                createQueryResult(item.query, item.description, item.icon, `popular:${normalizeSearchText(item.query)}`)
+              )
+            }
+          ];
+        }
+
+        return [
+          {
+            title: "Best Matches",
+            layout: "list",
+            items: results
+          }
+        ];
+      };
+
+      const mountSearchBar = (host) => {
+        const resolveSearchTheme = () => {
+          const root = document.documentElement;
+          return root.classList.contains("light") || root.dataset.theme === "light"
+            ? "light"
+            : "dark";
+        };
+
+        const shadow = host.attachShadow({ mode: "open" });
+        shadow.innerHTML = `
+          <style>
+            :host {
+              display: block;
+              width: 100%;
+              max-width: 42rem;
+              margin: 0 auto;
+              text-align: initial;
+              opacity: 1;
+              animation: none;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            .ig-search {
+              position: relative;
+              -webkit-font-smoothing: antialiased;
+              text-rendering: geometricPrecision;
+              width: 100%;
+              max-width: 42rem;
+              margin: 0 auto;
+              font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+              color: rgb(248, 248, 248);
+            }
+            .ig-glow {
+              display: none;
+            }
+            .ig-card {
+              position: relative;
+              will-change: auto;
+              overflow: hidden;
+              border-radius: 24px;
+              background: rgba(255, 255, 255, 0.03);
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              backdrop-filter: none;
+              -webkit-backdrop-filter: none;
+              transition:
+                transform 0.32s cubic-bezier(0.25,0.1,0.25,1),
+                background-color 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                border-color 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+            .ig-line {
+              position: absolute;
+              inset-inline: 0;
+              top: 0;
+              height: 1px;
+              opacity: 0;
+              transition: opacity 0.5s;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+              );
+            }
+            .ig-input-row {
+              position: relative;
+              display: flex;
+              align-items: center;
+              gap: 16px;
+              padding: 16px 24px;
+            }
+            .ig-input-icon {
+              width: 20px;
+              height: 20px;
+              flex-shrink: 0;
+              color: rgba(113, 113, 113, 1);
+              transition: transform 0.3s ease, color 0.3s ease;
+            }
+            .ig-input-icon svg {
+              display: block;
+              width: 100%;
+              height: 100%;
+            }
+            .ig-input {
+              flex: 1;
+              min-width: 0;
+              border: none;
+              outline: none;
+              background: transparent;
+              color: rgb(248, 248, 248);
+              font-size: 16px;
+              line-height: 1.5;
+              font-family: inherit;
+            }
+            .ig-input::placeholder {
+              color: rgba(113, 113, 113, 0.7);
+            }
+            .ig-panel {
+              opacity: 0;
+              transform: translateY(-6px);
+              pointer-events: none;
+              transition:
+                opacity 0.34s cubic-bezier(0.23, 1, 0.32, 1),
+                transform 0.32s cubic-bezier(0.25,0.1,0.25,1);
+            }
+            .ig-panel-overflow {
+              overflow: hidden;
+              height: 0;
+              will-change: height;
+              transition: height 0.42s cubic-bezier(0.23, 1, 0.32, 1);
+            }
+            .ig-panel-scroll {
+              max-height: min(30rem, 62vh);
+              overflow: hidden;
+            }
+            .ig-panel-inner {
+              padding: 0 12px 16px;
+            }
+            .ig-panel-content {
+              display: flex;
+              flex-direction: column;
+              scrollbar-width: thin;
+              scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+            }
+            .ig-panel-scroll::-webkit-scrollbar {
+              width: 8px;
+            }
+            .ig-panel-scroll::-webkit-scrollbar-thumb {
+              border-radius: 999px;
+              background: rgba(255, 255, 255, 0.14);
+            }
+            .ig-panel-divider {
+              margin: 0 0 12px;
+              height: 1px;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.1),
+                transparent
+              );
+            }
+            .ig-suggestions {
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 8px;
+              transition: opacity 0.18s ease-out;
+            }
+            .ig-section {
+              grid-column: 1 / -1;
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            }
+            .ig-section-head {
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              padding: 0 4px;
+            }
+            .ig-section-title {
+              color: rgba(248, 248, 248, 0.4);
+              font-size: 10px;
+              line-height: 1;
+              letter-spacing: 0.18em;
+              text-transform: uppercase;
+              font-weight: 600;
+            }
+            .ig-result-list {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            }
+            .ig-section[data-layout="grid"] .ig-result-list {
+              display: grid;
+              grid-template-columns: repeat(2, minmax(0, 1fr));
+              gap: 8px;
+            }
+            .ig-result-card {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            }
+            .ig-suggestion {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              width: 100%;
+              padding: 12px 16px;
+              border-radius: 16px;
+              border: 1px solid transparent;
+              background: rgba(255, 255, 255, 0.02);
+              color: inherit;
+              text-align: left;
+              cursor: pointer;
+              transition:
+                background-color 0.24s ease-out,
+                border-color 0.24s ease-out,
+                transform 0.24s ease-out;
+            }
+            .ig-suggestion:hover,
+            .ig-suggestion.is-active {
+              background: rgba(255, 255, 255, 0.08);
+              border-color: rgba(255, 255, 255, 0.1);
+              transform: scale(1.02);
+            }
+            .ig-suggestion:active {
+              transform: scale(0.98);
+            }
+            .ig-suggestion-icon {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              width: 32px;
+              height: 32px;
+              border-radius: 12px;
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              background: rgba(255, 255, 255, 0.06);
+              color: rgba(113, 113, 113, 1);
+              transition:
+                background-color 0.24s ease,
+                border-color 0.24s ease,
+                color 0.24s ease;
+            }
+            .ig-suggestion-icon svg {
+              width: 16px;
+              height: 16px;
+            }
+            .ig-suggestion:hover .ig-suggestion-icon,
+            .ig-suggestion.is-active .ig-suggestion-icon {
+              background: rgba(255, 255, 255, 0.12);
+              border-color: rgba(255, 255, 255, 0.15);
+              color: rgb(248, 248, 248);
+            }
+            .ig-result-copy {
+              min-width: 0;
+              display: flex;
+              flex: 1;
+              flex-direction: column;
+              gap: 4px;
+            }
+            .ig-result-title {
+              color: rgba(248, 248, 248, 0.9);
+              font-size: 14px;
+              line-height: 1.35;
+              font-weight: 500;
+            }
+            .ig-result-subtitle {
+              color: rgba(248, 248, 248, 0.42);
+              font-size: 11px;
+              line-height: 1.35;
+            }
+            .ig-result-badge {
+              flex-shrink: 0;
+              border-radius: 999px;
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              background: rgba(255, 255, 255, 0.04);
+              color: rgba(248, 248, 248, 0.46);
+              font-size: 10px;
+              line-height: 1;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              padding: 6px 9px;
+            }
+            .ig-result-actions {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              padding: 0 4px 0 44px;
+            }
+            .ig-result-action {
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              min-width: 44px;
+              border-radius: 999px;
+              border: 1px solid rgba(255, 255, 255, 0.08);
+              background: rgba(255, 255, 255, 0.04);
+              color: rgba(248, 248, 248, 0.66);
+              text-decoration: none;
+              font-size: 10px;
+              line-height: 1;
+              letter-spacing: 0.08em;
+              text-transform: uppercase;
+              padding: 7px 9px;
+              transition:
+                background-color 0.2s ease,
+                border-color 0.2s ease,
+                color 0.2s ease;
+            }
+            .ig-result-action:hover {
+              background: rgba(255, 255, 255, 0.09);
+              border-color: rgba(255, 255, 255, 0.13);
+              color: rgb(248, 248, 248);
+            }
+            .ig-empty {
+              padding: 14px 16px;
+              border-radius: 16px;
+              background: rgba(255, 255, 255, 0.02);
+              color: rgba(248, 248, 248, 0.44);
+              font-size: 13px;
+              line-height: 1.45;
+            }
+            .ig-search.is-hovered .ig-glow,
+            .ig-search.is-open .ig-glow {
+              opacity: 1;
+            }
+            .ig-search.is-hovered:not(.is-open) .ig-card {
+              background: rgba(255, 255, 255, 0.06);
+              border-color: rgba(255, 255, 255, 0.12);
+              transform: none;
+            }
+            .ig-search.is-open .ig-card {
+              background: rgba(255, 255, 255, 0.06);
+              border-color: rgba(255, 255, 255, 0.14);
+              transform: none;
+              box-shadow: 0 8px 36px rgba(0, 0, 0, 0.22);
+            }
+            .ig-search.is-open .ig-input-icon {
+              color: rgb(248, 248, 248);
+              transform: scale(1.1);
+            }
+            .ig-search.is-hovered .ig-line,
+            .ig-search.is-open .ig-line {
+              opacity: 1;
+            }
+            .ig-search.is-open .ig-panel {
+              opacity: 1;
+              transform: translateY(0);
+              pointer-events: auto;
+            }
+            .ig-search[data-theme="light"] {
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-card {
+              background: rgba(255, 255, 255, 0.9);
+              border-color: rgba(233, 227, 216, 0.96);
+              backdrop-filter: blur(22px) saturate(180%);
+              -webkit-backdrop-filter: blur(22px) saturate(180%);
+              box-shadow:
+                0 18px 44px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.65);
+            }
+            .ig-search[data-theme="light"] .ig-line {
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 0, 0, 0.12),
+                transparent
+              );
+            }
+            .ig-search[data-theme="light"] .ig-input {
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-input::placeholder {
+              color: #666666;
+            }
+            .ig-search[data-theme="light"] .ig-input-icon {
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-panel-content {
+              scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+            }
+            .ig-search[data-theme="light"] .ig-panel-scroll::-webkit-scrollbar-thumb {
+              background: rgba(0, 0, 0, 0.18);
+            }
+            .ig-search[data-theme="light"] .ig-panel-divider {
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 0, 0, 0.08),
+                transparent
+              );
+            }
+            .ig-search[data-theme="light"] .ig-section-title,
+            .ig-search[data-theme="light"] .ig-result-subtitle,
+            .ig-search[data-theme="light"] .ig-result-badge,
+            .ig-search[data-theme="light"] .ig-empty {
+              color: #666666;
+            }
+            .ig-search[data-theme="light"] .ig-suggestion {
+              background: rgba(255, 255, 255, 0.78);
+              border-color: rgba(233, 227, 216, 0.92);
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-suggestion:hover,
+            .ig-search[data-theme="light"] .ig-suggestion.is-active {
+              background: rgba(255, 255, 255, 0.94);
+              border-color: rgba(233, 227, 216, 0.96);
+            }
+            .ig-search[data-theme="light"] .ig-suggestion-icon {
+              background: rgba(255, 255, 255, 0.88);
+              border-color: rgba(233, 227, 216, 0.92);
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-suggestion:hover .ig-suggestion-icon,
+            .ig-search[data-theme="light"] .ig-suggestion.is-active .ig-suggestion-icon {
+              background: rgba(255, 255, 255, 1);
+              border-color: rgba(233, 227, 216, 0.96);
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-result-title {
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-result-action {
+              background: rgba(255, 255, 255, 0.82);
+              border-color: rgba(233, 227, 216, 0.9);
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-result-action:hover {
+              background: rgba(255, 255, 255, 1);
+              border-color: rgba(233, 227, 216, 0.96);
+              color: #000000;
+            }
+            .ig-search[data-theme="light"] .ig-empty {
+              background: rgba(255, 255, 255, 0.82);
+            }
+            .ig-search[data-theme="light"].is-hovered:not(.is-open) .ig-card,
+            .ig-search[data-theme="light"].is-open .ig-card {
+              background: rgba(255, 255, 255, 0.96);
+              border-color: rgba(233, 227, 216, 0.96);
+              box-shadow:
+                0 20px 48px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.75);
+            }
+            .ig-search[data-theme="light"].is-open .ig-input-icon {
+              color: #000000;
+            }
+            @media (max-width: 520px) {
+              .ig-input-row {
+                padding: 16px 20px;
+              }
+              .ig-suggestions,
+              .ig-section[data-layout="grid"] .ig-result-list {
+                grid-template-columns: 1fr;
+              }
+              .ig-result-actions {
+                padding-left: 4px;
+              }
+            }
+            @keyframes ig-float-up {
+              0% {
+                opacity: 0;
+                transform: translateY(40px);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+          </style>
+          <div class="ig-search" data-root>
+            <div class="ig-glow"></div>
+            <div class="ig-card">
+              <div class="ig-line"></div>
+              <div class="ig-input-row">
+                <div class="ig-input-icon">${iconMarkup.search}</div>
+                <input class="ig-input" type="text" placeholder="Search subjects and papers..." />
+              </div>
+              <div class="ig-panel" data-panel>
+                <div class="ig-panel-overflow" data-panel-overflow>
+                  <div class="ig-panel-scroll" data-panel-scroll>
+                    <div class="ig-panel-inner">
+                      <div class="ig-panel-content" data-panel-content>
+                        <div class="ig-panel-divider"></div>
+                        <div class="ig-suggestions" data-suggestions></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        const root = shadow.querySelector("[data-root]");
+        const input = shadow.querySelector(".ig-input");
+        const panelOverflow = shadow.querySelector("[data-panel-overflow]");
+        const panelScroll = shadow.querySelector("[data-panel-scroll]");
+        const panelContent = shadow.querySelector("[data-panel-content]");
+        const suggestions = shadow.querySelector("[data-suggestions]");
+        const syncSearchHostTheme = () => {
+          const theme = resolveSearchTheme();
+          host.dataset.theme = theme;
+          root.dataset.theme = theme;
+        };
+
+        syncSearchHostTheme();
+        if (host.__igThemeObserver) {
+          host.__igThemeObserver.disconnect();
+        }
+        host.__igThemeObserver = new MutationObserver(syncSearchHostTheme);
+        host.__igThemeObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["class", "data-theme"]
+        });
+
+        const state = {
+          open: false,
+          hovered: false,
+          value: "",
+          activeIndex: -1,
+          visibleResults: [],
+          renderTimer: 0,
+          layoutRaf: 0,
+          panelObserver: null,
+          sectionCache: new Map(),
+          resultCache: new Map()
+        };
+
+        const getPanelMaxHeight = () => Math.min(480, Math.max(240, Math.floor(window.innerHeight * 0.62)));
+
+        const syncPanelLayout = (immediate) => {
+          if (state.layoutRaf) {
+            window.cancelAnimationFrame(state.layoutRaf);
+            state.layoutRaf = 0;
+          }
+
+          const nextHeight = state.open ? Math.min(panelContent.scrollHeight, getPanelMaxHeight()) : 0;
+          const currentHeight = Math.round(panelOverflow.getBoundingClientRect().height);
+
+          panelScroll.style.overflowY =
+            state.open && panelContent.scrollHeight > nextHeight + 1 ? "auto" : "hidden";
+
+          if (immediate) {
+            panelOverflow.style.height = `${nextHeight}px`;
+            return;
+          }
+
+          panelOverflow.style.height = `${currentHeight}px`;
+          state.layoutRaf = window.requestAnimationFrame(() => {
+            panelOverflow.style.height = `${nextHeight}px`;
+          });
+        };
+
+        const emitSearchOpenState = () => {
+          window.dispatchEvent(
+            new CustomEvent("igcsefy:search-open-state", {
+              detail: { open: state.open }
+            })
+          );
+        };
+
+        const syncState = (immediate) => {
+          root.classList.toggle("is-open", state.open);
+          root.classList.toggle("is-hovered", state.hovered);
+          if (input.value !== state.value) {
+            input.value = state.value;
+          }
+          syncPanelLayout(immediate);
+          emitSearchOpenState();
+        };
+
+        const setActiveIndex = (nextIndex) => {
+          state.activeIndex = nextIndex;
+          suggestions.querySelectorAll(".ig-suggestion[data-result-index]").forEach((button) => {
+            const buttonIndex = Number(button.getAttribute("data-result-index"));
+            button.classList.toggle("is-active", buttonIndex === state.activeIndex);
+          });
+          if (state.activeIndex >= 0) {
+            const activeEl = suggestions.querySelector(`.ig-suggestion[data-result-index="${state.activeIndex}"]`);
+            if (activeEl) {
+              activeEl.scrollIntoView({ block: "nearest" });
+            }
+          }
+        };
+
+        const closeSearch = () => {
+          state.open = false;
+          state.activeIndex = -1;
+          syncState(false);
+          setActiveIndex(-1);
+          input.blur();
+        };
+
+        const activateResult = (result) => {
+          if (!result) return;
+
+          if (result.mode === "query") {
+            state.value = result.title;
+            pushRecentSearch(result.title);
+            state.open = true;
+            state.activeIndex = -1;
+            syncState(false);
+            renderSuggestions();
+            input.focus({ preventScroll: true });
+            return;
+          }
+
+          if (state.value.trim()) {
+            pushRecentSearch(state.value.trim());
+          }
+          pushRecentSelection(result, state.value.trim());
+
+          if (result.href) {
+            window.location.href = result.href;
+          }
+        };
+
+        const ensureResultCard = (result) => {
+          let card = state.resultCache.get(result.id);
+          if (card) {
+            return card;
+          }
+
+          card = document.createElement("div");
+          card.className = "ig-result-card";
+          card.dataset.resultId = result.id;
+
+          const button = document.createElement("button");
+          button.className = "ig-suggestion";
+          button.type = "button";
+
+          const icon = document.createElement("span");
+          icon.className = "ig-suggestion-icon";
+
+          const copy = document.createElement("span");
+          copy.className = "ig-result-copy";
+
+          const title = document.createElement("span");
+          title.className = "ig-result-title";
+
+          copy.appendChild(title);
+          button.appendChild(icon);
+          button.appendChild(copy);
+          card.appendChild(button);
+
+          card.__button = button;
+          card.__icon = icon;
+          card.__copy = copy;
+          card.__title = title;
+          card.__subtitle = null;
+          card.__badge = null;
+          card.__actions = null;
+
+          state.resultCache.set(result.id, card);
+          return card;
+        };
+
+        const updateResultCard = (card, result, index) => {
+          card.dataset.resultId = result.id;
+
+          const button = card.__button;
+          button.setAttribute("data-result-index", String(index));
+          button.classList.toggle("is-active", index === state.activeIndex);
+
+          card.__icon.innerHTML = iconMarkup[result.icon] || iconMarkup.search;
+          card.__title.textContent = result.title || "";
+
+          if (result.subtitle) {
+            if (!card.__subtitle) {
+              card.__subtitle = document.createElement("span");
+              card.__subtitle.className = "ig-result-subtitle";
+              card.__copy.appendChild(card.__subtitle);
+            }
+            card.__subtitle.textContent = result.subtitle;
+          } else if (card.__subtitle) {
+            card.__subtitle.remove();
+            card.__subtitle = null;
+          }
+
+          if (result.badge) {
+            if (!card.__badge) {
+              card.__badge = document.createElement("span");
+              card.__badge.className = "ig-result-badge";
+              button.appendChild(card.__badge);
+            }
+            card.__badge.textContent = result.badge;
+          } else if (card.__badge) {
+            card.__badge.remove();
+            card.__badge = null;
+          }
+
+          if (Array.isArray(result.actions) && result.actions.length) {
+            if (!card.__actions) {
+              card.__actions = document.createElement("div");
+              card.__actions.className = "ig-result-actions";
+              card.appendChild(card.__actions);
+            }
+
+            card.__actions.innerHTML = result.actions
+              .map(
+                (action) => `
+                  <a
+                    class="ig-result-action"
+                    href="${escapeHtml(action.href)}"
+                    data-result-index="${index}"
+                    data-result-action="${escapeHtml(action.label)}"
+                  >
+                    ${escapeHtml(action.label)}
+                  </a>
+                `
+              )
+              .join("");
+          } else if (card.__actions) {
+            card.__actions.remove();
+            card.__actions = null;
+          }
+        };
+
+        const ensureSectionNode = (sectionKey) => {
+          let sectionNode = state.sectionCache.get(sectionKey);
+          if (sectionNode) {
+            return sectionNode;
+          }
+
+          sectionNode = document.createElement("section");
+          sectionNode.className = "ig-section";
+
+          const head = document.createElement("div");
+          head.className = "ig-section-head";
+
+          const title = document.createElement("span");
+          title.className = "ig-section-title";
+
+          head.appendChild(title);
+          sectionNode.appendChild(head);
+
+          sectionNode.__title = title;
+          sectionNode.__body = null;
+
+          state.sectionCache.set(sectionKey, sectionNode);
+          return sectionNode;
+        };
+
+        const setSectionBody = (sectionNode, nextBody) => {
+          if (sectionNode.__body === nextBody) {
+            return;
+          }
+          if (sectionNode.__body && sectionNode.__body.parentNode === sectionNode) {
+            sectionNode.__body.remove();
+          }
+          sectionNode.__body = nextBody || null;
+          if (nextBody) {
+            sectionNode.appendChild(nextBody);
+          }
+        };
+
+        const renderCollections = (collections) => {
+          const nextResults = [];
+          const nextSectionKeys = new Set();
+          const nextSectionNodes = [];
+
+          collections.forEach((section) => {
+            const sectionKey = [
+              section.title || "",
+              section.layout || "list",
+              section.empty ? "empty" : "items"
+            ].join("::");
+            const sectionNode = ensureSectionNode(sectionKey);
+            sectionNode.dataset.layout = section.layout || "list";
+            sectionNode.__title.textContent = section.title || "";
+
+            if (section.empty) {
+              const emptyNode = sectionNode.__body && sectionNode.__body.classList.contains("ig-empty")
+                ? sectionNode.__body
+                : document.createElement("div");
+              emptyNode.className = "ig-empty";
+              emptyNode.textContent = section.empty;
+              setSectionBody(sectionNode, emptyNode);
+            } else {
+              const listNode = sectionNode.__body && sectionNode.__body.classList.contains("ig-result-list")
+                ? sectionNode.__body
+                : document.createElement("div");
+              const fragment = document.createDocumentFragment();
+
+              listNode.className = "ig-result-list";
+
+              (section.items || []).forEach((result) => {
+                const index = nextResults.push(result) - 1;
+                const card = ensureResultCard(result);
+                updateResultCard(card, result, index);
+                fragment.appendChild(card);
+              });
+
+              listNode.replaceChildren(fragment);
+              setSectionBody(sectionNode, listNode);
+            }
+
+            nextSectionKeys.add(sectionKey);
+            nextSectionNodes.push(sectionNode);
+          });
+
+          state.visibleResults = nextResults;
+          if (state.activeIndex >= nextResults.length) {
+            state.activeIndex = -1;
+          }
+
+          Array.from(state.sectionCache.keys()).forEach((sectionKey) => {
+            if (!nextSectionKeys.has(sectionKey)) {
+              state.sectionCache.delete(sectionKey);
+            }
+          });
+
+          suggestions.replaceChildren(...nextSectionNodes);
+          setActiveIndex(state.activeIndex);
+          syncPanelLayout(false);
+        };
+
+        const renderLoading = () => {
+          renderCollections([
+            {
+              title: "Search",
+              layout: "list",
+              empty: "Loading search data..."
+            }
+          ]);
+        };
+
+        const renderSuggestions = () => {
+          const data = uiState.homeSearchData || null;
+          const query = state.value.trim();
+
+          if (!data) {
+            if (query) {
+              renderLoading();
+            } else {
+              renderCollections(buildFocusCollections(null));
+            }
+
+            ensureHomeSearchData().then(() => {
+              if (host.isConnected) {
+                renderSuggestions();
+              }
+            });
+            return;
+          }
+
+          const collections = query ? buildSearchCollections(data, query) : buildFocusCollections(data);
+          renderCollections(collections);
+        };
+
+        const queueRender = () => {
+          if (state.renderTimer) {
+            window.clearTimeout(state.renderTimer);
+          }
+          state.renderTimer = window.setTimeout(() => {
+            state.renderTimer = 0;
+            renderSuggestions();
+          }, 90);
+        };
+
+        input.addEventListener("focus", () => {
+          state.open = true;
+          syncState(false);
+          renderSuggestions();
+        });
+
+        input.addEventListener("input", (event) => {
+          state.value = event.target.value || "";
+          state.open = true;
+          state.activeIndex = -1;
+          syncState(false);
+          queueRender();
+        });
+
+        input.addEventListener("keydown", (event) => {
+          if (event.key === "ArrowDown") {
+            if (!state.visibleResults.length) return;
+            event.preventDefault();
+            setActiveIndex(state.activeIndex < state.visibleResults.length - 1 ? state.activeIndex + 1 : 0);
+            return;
+          }
+
+          if (event.key === "ArrowUp") {
+            if (!state.visibleResults.length) return;
+            event.preventDefault();
+            setActiveIndex(state.activeIndex > 0 ? state.activeIndex - 1 : state.visibleResults.length - 1);
+            return;
+          }
+
+          if (event.key === "Enter") {
+            const selected = state.visibleResults[state.activeIndex >= 0 ? state.activeIndex : 0];
+            if (!selected) return;
+            event.preventDefault();
+            activateResult(selected);
+            return;
+          }
+
+          if (event.key === "Escape") {
+            closeSearch();
+          }
+        });
+
+        suggestions.addEventListener("mousemove", (event) => {
+          const button = event.target.closest(".ig-suggestion[data-result-index]");
+          if (!button) {
+            setActiveIndex(-1);
+            return;
+          }
+          setActiveIndex(Number(button.getAttribute("data-result-index")));
+        });
+
+        suggestions.addEventListener("mouseleave", () => {
+          setActiveIndex(-1);
+        });
+
+        suggestions.addEventListener("click", (event) => {
+          const action = event.target.closest("[data-result-action]");
+          if (action) {
+            const index = Number(action.getAttribute("data-result-index"));
+            const result = state.visibleResults[index];
+            if (result) {
+              if (state.value.trim()) {
+                pushRecentSearch(state.value.trim());
+              }
+              pushRecentSelection(result, state.value.trim());
+            }
+            return;
+          }
+
+          const button = event.target.closest("[data-result-index]");
+          if (!button) return;
+          const result = state.visibleResults[Number(button.getAttribute("data-result-index"))];
+          activateResult(result);
+        });
+
+        root.addEventListener("mouseenter", () => {
+          state.hovered = true;
+          syncState(true);
+        });
+
+        root.addEventListener("mouseleave", () => {
+          state.hovered = false;
+          syncState(true);
+        });
+
+        document.addEventListener("mousedown", (event) => {
+          const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+          if (path.includes(host)) {
+            return;
+          }
+          closeSearch();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && state.open) {
+            closeSearch();
+          }
+        });
+
+        if (typeof window.ResizeObserver === "function") {
+          state.panelObserver = new ResizeObserver(() => {
+            if (state.open) {
+              syncPanelLayout(false);
+            }
+          });
+          state.panelObserver.observe(panelContent);
+        }
+
+        window.addEventListener("resize", () => {
+          syncPanelLayout(true);
+        });
+
+        if (typeof window.requestIdleCallback === "function") {
+          window.requestIdleCallback(() => {
+            void ensureHomeSearchData();
+          });
+        } else {
+          window.setTimeout(() => {
+            void ensureHomeSearchData();
+          }, 120);
+        }
+
+        renderSuggestions();
+        syncState(true);
+      };
+
+
+      const getSearchHost = () => {
+        if (!uiState.searchHost) {
+          uiState.searchHost = document.createElement("div");
+          uiState.searchHost.setAttribute("data-igcsefy-search-host", "");
+          mountSearchBar(uiState.searchHost);
+        }
+        return uiState.searchHost;
+      };
+
+
+      const ensureSearchBar = () => {
+        const host = getSearchHost();
+        const heroContent = document.querySelector("#root section .relative.z-10");
+        const description = heroContent?.querySelector("p");
+
+        if (!isHomePath() || !heroContent || !description) {
+          if (host.isConnected) {
+            host.remove();
+          }
+          return;
+        }
+
+        if (host.parentNode !== heroContent || host.previousElementSibling !== description) {
+          description.insertAdjacentElement("afterend", host);
+        }
+      };
+
+
+      const ensureHomeMockupUi = () => {
+        ensureSearchBar();
+      };
+
+      const isLightTheme = () => {
+        const root = document.documentElement;
+        return root.classList.contains("light") || root.dataset.theme === "light";
+      };
+
+      const ensureHomeHeroLightThemeStyles = () => {
+        if (document.getElementById("igcsefy-home-light-hero-style")) {
+          return;
+        }
+
+        const style = document.createElement("style");
+        style.id = "igcsefy-home-light-hero-style";
+        style.textContent = `
+          html.light #root section.relative.min-h-screen .relative.z-10 h1,
+          html.light #root section.relative.min-h-screen .relative.z-10 h1 span,
+          html.light #root section.relative.min-h-screen .relative.z-10 p,
+          html[data-theme="light"] #root section.relative.min-h-screen .relative.z-10 h1,
+          html[data-theme="light"] #root section.relative.min-h-screen .relative.z-10 h1 span,
+          html[data-theme="light"] #root section.relative.min-h-screen .relative.z-10 p {
+            color: #000000 !important;
+          }
+
+          html.light #root section.relative.min-h-screen .relative.z-10 h1 [data-welcome-line="name"],
+          html[data-theme="light"] #root section.relative.min-h-screen .relative.z-10 h1 [data-welcome-line="name"] {
+            color: #666666 !important;
+          }
+
+          html.dark #root section.relative.min-h-screen .relative.z-10 h1 > span:last-of-type,
+          html[data-theme="dark"] #root section.relative.min-h-screen .relative.z-10 h1 > span:last-of-type {
+            color: rgba(255, 255, 255, 0.5) !important;
+          }
+
+          html.light #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none > div > div,
+          html[data-theme="light"] #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none > div > div {
+            opacity: 0.08 !important;
+          }
+
+          html.light #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > polygon:first-child,
+          html.light #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > rect,
+          html[data-theme="light"] #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > polygon:first-child,
+          html[data-theme="light"] #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > rect {
+            fill: #000000 !important;
+          }
+
+          html.light #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > polygon:last-child,
+          html[data-theme="light"] #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg > polygon:last-child {
+            fill: #F1EFE7 !important;
+          }
+        `;
+        document.head.appendChild(style);
+      };
+
+      const syncHomeHeroLogo = () => {
+        ensureHomeHeroLightThemeStyles();
+      };
+
+      const applyHomeHeroTheme = (heroSection) => {
+        if (!heroSection) {
+          return;
+        }
+        const heroContent = heroSection.querySelector(".relative.z-10");
+        if (heroContent) {
+          [heroContent.querySelector("h1"), ...heroContent.querySelectorAll("h1 span, p")].forEach(
+            (node) => {
+              if (node) {
+                node.style.color = "";
+              }
+            }
+          );
+        }
+        syncHomeHeroLogo();
+      };
+
+      const removeHomeChrome = () => {
+        const homeBackground = isLightTheme() ? "#F1EFE7" : "rgb(10, 10, 10)";
+        document.documentElement.style.background = homeBackground;
+        document.body.style.background = homeBackground;
+
+        const rootShell = document.querySelector("#root > div");
+        rootShell?.style.setProperty("background", homeBackground);
+
+        const pageShell = document.querySelector("#root > div > main > div");
+        pageShell?.style.setProperty("background", homeBackground);
+
+        const heroSection = document.querySelector("#root section");
+        if (heroSection) {
+          heroSection.style.setProperty("background", homeBackground);
+
+          const firstLayer = heroSection.firstElementChild;
+          if (
+            firstLayer?.classList.contains("absolute") &&
+            firstLayer.classList.contains("inset-0") &&
+            firstLayer.classList.contains("pointer-events-none") &&
+            !firstLayer.classList.contains("flex")
+          ) {
+            firstLayer.remove();
+          }
+
+          const scrollPrompt = Array.from(heroSection.children).find(
+            (element) => element.textContent?.trim() === "Scroll"
+          );
+          scrollPrompt?.remove();
+
+          const actionRow = Array.from(heroSection.querySelectorAll(".relative.z-10 > div")).find(
+            (element) => {
+              const labels = Array.from(
+                element.querySelectorAll("a"),
+                (link) => link.textContent?.trim()
+              );
+              return labels.includes("Browse Subjects") || labels.includes("Past Papers");
+            }
+          );
+          actionRow?.remove();
+
+          applyHomeHeroTheme(heroSection);
+        }
+
+        ensureHomeMockupUi();
+      };
+
+      removeHomeChrome();
+
+      new MutationObserver(removeHomeChrome).observe(
+        document.getElementById("root") || document.body,
+        {
+          childList: true,
+          subtree: true
+        }
+      );
+      new MutationObserver(removeHomeChrome).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ["class", "data-theme"]
+      });
+      window.addEventListener("popstate", removeHomeChrome);
+    </script><script defer="" src="/assets/nav.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+<script defer src="/assets/supabase-progress.js?v=20260405g"></script>
+<script defer src="/assets/user-identity.js?v=20260405g"></script>
+<script defer src="/assets/welcome-back.js?v=20260405g"></script>
+</body></html>

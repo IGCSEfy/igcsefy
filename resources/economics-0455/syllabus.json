@@ -1,0 +1,236 @@
+{
+  "title": "Cambridge IGCSE Economics (0455) — For examination in 2026",
+  "units": [
+    {
+      "id": "section-1",
+      "title": "1 The basic economic problem",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "1.1 The nature of the economic problem",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "1.2 The factors of production",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-3",
+          "title": "1.3 Opportunity cost",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-4",
+          "title": "1.4 Production possibility curve (PPC) diagrams",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "2 The allocation of resources",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "2.1 Microeconomics and macroeconomics",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "2.2 The role of markets in allocating resources",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "2.3 Demand",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-4",
+          "title": "2.4 Supply",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-5",
+          "title": "2.5 Price determination",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-6",
+          "title": "2.6 Price changes",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-7",
+          "title": "2.7 Price elasticity of demand (PED)",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-8",
+          "title": "2.8 Price elasticity of supply (PES)",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-9",
+          "title": "2.9 Market economic system",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-10",
+          "title": "2.10 Market failure",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-11",
+          "title": "2.11 Mixed economic system",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "3 Microeconomic decision makers",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "3.1 Money and banking",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "3.2 Households",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "3.3 Workers",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "3.4 Trade unions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-5",
+          "title": "3.5 Firms",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-6",
+          "title": "3.6 Firms and production",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-7",
+          "title": "3.7 definition of costs of production",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-8",
+          "title": "3.8 Market structure",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "4 Government and the macroeconomy",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "4.1 The role of government",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "4.2 the macroeconomic aims of government",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "4.3 Fiscal policy",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "4.4 Monetary policy",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-5",
+          "title": "4.5 Supply-side policy",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-6",
+          "title": "4.6 Economic growth",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-7",
+          "title": "4.7 Employment and unemployment",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-8",
+          "title": "4.8 Inflation and deflation",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "title": "5 Economic development",
+      "topics": [
+        {
+          "id": "topic-5-1",
+          "title": "5.1 Living standards",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-2",
+          "title": "5.2 Poverty",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-3",
+          "title": "5.3 Population",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-4",
+          "title": "5.4 Differences in economic development between countries",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "title": "6 International trade and globalisation",
+      "topics": [
+        {
+          "id": "topic-6-1",
+          "title": "6.1 International specialisation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-2",
+          "title": "6.2 Globalisation, free trade and protection",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-3",
+          "title": "6.3 Foreign exchange rates",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-4",
+          "title": "6.4 Current account of balance of payments",
+          "subtopics": []
+        }
+      ]
+    }
+  ]
+}

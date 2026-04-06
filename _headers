@@ -1,0 +1,13 @@
+# Serve PDFs correctly
+/past-papers/*.pdf
+  Content-Type: application/pdf
+
+/resources/*.pdf
+  Content-Type: application/pdf
+
+/*
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Cross-Origin-Opener-Policy: same-origin

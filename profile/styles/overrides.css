@@ -1,0 +1,917 @@
+body[data-profile-page="true"] #root .max-w-5xl .grid[style*="grid-template-columns: 1fr 80px 80px 80px 80px 60px"] > :nth-child(n + 2),
+body[data-profile-page="true"] #root .max-w-5xl .grid[style*="grid-template-columns: 1fr 160px 100px"] > :nth-child(n + 2) {
+  justify-self: center;
+  text-align: center;
+}
+
+body[data-profile-page="true"] #root .max-w-5xl .grid[style*="grid-template-columns: 1fr 80px 80px 80px 80px 60px"] > :last-child,
+body[data-profile-page="true"] #root .max-w-5xl .grid[style*="grid-template-columns: 1fr 160px 100px"] > :last-child {
+  justify-self: center;
+  text-align: center;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus {
+  --igcsefy-syllabus-text-strong: #eceadd;
+  --igcsefy-syllabus-text-active: #555555;
+  --igcsefy-syllabus-text-medium: #3a3a3a;
+  --igcsefy-syllabus-text-soft: #333333;
+  --igcsefy-syllabus-text-faint: #222222;
+  --igcsefy-syllabus-text-code: #252525;
+  --igcsefy-syllabus-text-eyebrow: #2e2e2e;
+  --igcsefy-syllabus-surface: rgb(15,15,15);
+  --igcsefy-syllabus-track: #1a1a1a;
+  --igcsefy-syllabus-grid-empty: #2a2a2a;
+  --igcsefy-syllabus-grid-progress: #555555;
+  --igcsefy-syllabus-outline: #1a1a1a;
+  --igcsefy-syllabus-outline-soft: #1d1d1d;
+  --igcsefy-syllabus-divider: #111111;
+  --igcsefy-syllabus-section-border: #161616;
+  --igcsefy-syllabus-topic-marker-border: #1e1e1e;
+  --igcsefy-syllabus-chip-bg: rgb(10,10,10);
+  --igcsefy-syllabus-chip-hover: #b7b7b7;
+  --igcsefy-syllabus-chip-active-fg: #0b0b0f;
+  --igcsefy-syllabus-topic-title: #666666;
+  --igcsefy-syllabus-topic-progress: #aaaaaa;
+  --igcsefy-syllabus-topic-completed: #444444;
+  --igcsefy-syllabus-topic-state: #1e1e1e;
+  --igcsefy-syllabus-topic-state-progress: var(--igcsefy-syllabus-text-eyebrow);
+  --igcsefy-syllabus-topic-state-completed: var(--igcsefy-syllabus-grid-empty);
+  --igcsefy-syllabus-check-stroke: #0b0b0f;
+  --igcsefy-syllabus-heatmap-empty: var(--igcsefy-syllabus-grid-empty);
+  --igcsefy-syllabus-heatmap-progress: var(--igcsefy-syllabus-grid-progress);
+  --igcsefy-syllabus-heatmap-completed: var(--igcsefy-syllabus-text-strong);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+html.light body[data-profile-page="true"] .igcsefy-profile-syllabus {
+  --igcsefy-syllabus-text-strong: #000000;
+  --igcsefy-syllabus-text-active: #666666;
+  --igcsefy-syllabus-text-medium: #666666;
+  --igcsefy-syllabus-text-soft: #666666;
+  --igcsefy-syllabus-text-faint: #666666;
+  --igcsefy-syllabus-text-code: #666666;
+  --igcsefy-syllabus-text-eyebrow: #666666;
+  --igcsefy-syllabus-surface: #FFFFFF;
+  --igcsefy-syllabus-track: #E9E3D8;
+  --igcsefy-syllabus-grid-empty: #E9E3D8;
+  --igcsefy-syllabus-grid-progress: #666666;
+  --igcsefy-syllabus-outline: #E9E3D8;
+  --igcsefy-syllabus-outline-soft: #E9E3D8;
+  --igcsefy-syllabus-divider: #E9E3D8;
+  --igcsefy-syllabus-section-border: #E9E3D8;
+  --igcsefy-syllabus-topic-marker-border: #E9E3D8;
+  --igcsefy-syllabus-chip-bg: #F1EFE7;
+  --igcsefy-syllabus-chip-hover: #000000;
+  --igcsefy-syllabus-chip-active-fg: #FFFFFF;
+  --igcsefy-syllabus-topic-title: #666666;
+  --igcsefy-syllabus-topic-progress: #CDBDA7;
+  --igcsefy-syllabus-topic-completed: #8E7A63;
+  --igcsefy-syllabus-topic-state: #666666;
+  --igcsefy-syllabus-topic-state-progress: #CDBDA7;
+  --igcsefy-syllabus-topic-state-completed: #8E7A63;
+  --igcsefy-syllabus-check-stroke: #FFFFFF;
+  --igcsefy-syllabus-heatmap-empty: #E9E3D8;
+  --igcsefy-syllabus-heatmap-progress: #CDBDA7;
+  --igcsefy-syllabus-heatmap-completed: #8E7A63;
+}
+
+html.light body[data-profile-page="true"] {
+  background: #F1EFE7;
+  --igcsefy-profile-surface: #FFFDF8;
+  --igcsefy-profile-surface-soft: #FBF7EF;
+  --igcsefy-profile-divider-soft: #E6DECF;
+  --igcsefy-profile-divider: #DDD2C1;
+  --igcsefy-profile-divider-strong: #CDBDA7;
+  --igcsefy-profile-line-strong: #B9A68E;
+  --igcsefy-profile-accent-fill: #8E7A63;
+  --border: 35 28% 83%;
+  --input: 35 28% 83%;
+}
+
+html.light body[data-profile-page="true"] .site-nav {
+  --site-nav-bg: #F1EFE7;
+  --site-nav-bg-strong: #F1EFE7;
+  --site-nav-border: rgba(221, 210, 193, 0.9);
+  --site-nav-border-strong: rgba(221, 210, 193, 1);
+  --site-nav-shadow: none;
+}
+
+html.light body[data-profile-page="true"] .site-nav .site-nav__bar {
+  background: #F1EFE7 !important;
+  border-bottom-color: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.light body[data-profile-page="true"] .site-nav[data-scrolled="true"] .site-nav__bar,
+html.light body[data-profile-page="true"] .site-nav[data-open="true"] .site-nav__bar {
+  background: #F1EFE7 !important;
+  border-bottom-color: var(--igcsefy-profile-divider-soft) !important;
+  box-shadow: none !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html.light body[data-profile-page="true"] #root,
+html.light body[data-profile-page="true"] #root .min-h-screen {
+  background: #F1EFE7 !important;
+}
+
+html.light body[data-profile-page="true"] #root .min-h-screen > div:first-child {
+  background: #F1EFE7 !important;
+  border-bottom: 1px solid var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root h1[style*="color: rgb(236, 234, 221)"] {
+  color: #666666 !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-0.-mb-px {
+  border-bottom: none !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-0.-mb-px > button {
+  color: #746A5E !important;
+  border-bottom: 2px solid transparent !important;
+  font-weight: 500 !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-0.-mb-px > button[style*="color: rgb(236, 234, 221)"],
+html.light body[data-profile-page="true"] #root .flex.gap-0.-mb-px > button[style*="border-bottom: 1px solid rgb(236, 234, 221)"] {
+  color: #1F1A14 !important;
+  border-bottom-color: #1F1A14 !important;
+  font-weight: 600 !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.grid.grid-cols-2.divide-y {
+  background: var(--igcsefy-profile-surface) !important;
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.grid.grid-cols-2.divide-y > div {
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.grid.grid-cols-2.divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden {
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+  background: var(--igcsefy-profile-surface) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > .grid {
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > .px-6.py-3 {
+  background: var(--igcsefy-profile-surface-soft) !important;
+  border-bottom-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > .items-center {
+  background: var(--igcsefy-profile-surface) !important;
+  border-bottom-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > .items-center:hover {
+  background: var(--igcsefy-profile-surface-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="background: rgb(11, 11, 15)"] {
+  background: #F1EFE7 !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="background: rgb(15, 15, 15)"],
+html.light body[data-profile-page="true"] #root [style*="background: rgb(17, 17, 17)"],
+html.light body[data-profile-page="true"] #root [style*="background: rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="background: rgb(22, 22, 22)"] {
+  background: var(--igcsefy-profile-surface) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="border: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border: 1px solid rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border: 1px solid rgb(22, 22, 22)"],
+html.light body[data-profile-page="true"] #root [style*="border: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border: 1px solid rgb(30, 30, 30)"],
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(17, 17, 17)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(17, 17, 17)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(17, 17, 17)"] {
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="border-color: rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border-color: rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-color: rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-color: rgb(17, 17, 17)"] {
+  border-color: var(--igcsefy-profile-divider) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(17, 17, 17)"],
+html.light body[data-profile-page="true"] #root [style*="border-top: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-top: 1px solid rgb(22, 22, 22)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-left: 1px solid rgb(17, 17, 17)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(26, 26, 26)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(21, 21, 21)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(20, 20, 20)"],
+html.light body[data-profile-page="true"] #root [style*="border-right: 1px solid rgb(17, 17, 17)"] {
+  border-color: var(--igcsefy-profile-divider) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="border-bottom: 1px solid rgb(236, 234, 221)"] {
+  border-bottom-color: var(--igcsefy-profile-divider-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="color: rgb(236, 234, 221)"] {
+  color: #000000 !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="color: rgb(68, 68, 68)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(85, 85, 85)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(58, 58, 58)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(51, 51, 51)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(46, 46, 46)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(42, 42, 42)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(37, 37, 37)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(34, 34, 34)"],
+html.light body[data-profile-page="true"] #root [style*="color: rgb(30, 30, 30)"] {
+  color: #666666 !important;
+}
+
+html.light body[data-profile-page="true"] #root [style*="background: rgb(236, 234, 221)"] {
+  background: var(--igcsefy-profile-accent-fill) !important;
+}
+
+html.light body[data-profile-page="true"] #root svg circle[stroke="#1C1C1C"] {
+  stroke: var(--igcsefy-profile-divider) !important;
+}
+
+html.light body[data-profile-page="true"] #root svg circle[stroke="#ECEADD"] {
+  stroke: var(--igcsefy-profile-accent-fill) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > div[style*="border-top"] {
+  border-top-color: var(--igcsefy-profile-line-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > div > .grid.divide-x.px-0 {
+  border-bottom-color: var(--igcsefy-profile-line-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > div > .grid.divide-x.px-0 > div {
+  border-right: 1px solid var(--igcsefy-profile-line-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .rounded-xl.overflow-hidden > div > .flex.items-center.justify-between.px-5.py-3 {
+  border-bottom-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.items-center.gap-4.mb-4 > .flex-1.h-px {
+  background: var(--igcsefy-profile-line-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-4.group > .flex.flex-col.items-center > .flex-1.w-px.mt-1 {
+  background: var(--igcsefy-profile-divider-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-4.group [class*="w-[7px]"][class*="h-[7px]"][class*="rounded-full"][class*="mt-[5px]"] {
+  border-color: var(--igcsefy-profile-divider-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-4.group [style*="background: rgb(30, 30, 30)"],
+html.light body[data-profile-page="true"] #root .flex.gap-4.group [style*="background: rgb(51, 51, 51)"],
+html.light body[data-profile-page="true"] #root .flex.gap-4.group [style*="background: rgb(85, 85, 85)"] {
+  background: var(--igcsefy-profile-divider-strong) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-4.group > .flex-1.pb-5.min-w-0 > .rounded-lg {
+  background: var(--igcsefy-profile-surface) !important;
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+html.light body[data-profile-page="true"] #root .flex.gap-4.group > .flex-1.pb-5.min-w-0 > .rounded-lg:hover {
+  background: var(--igcsefy-profile-surface-soft) !important;
+  border-color: var(--igcsefy-profile-divider-soft) !important;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus-host {
+  display: block;
+}
+
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__summary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--igcsefy-syllabus-text-eyebrow);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__title {
+  margin: 0;
+  color: var(--igcsefy-syllabus-text-strong);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__total {
+  margin: 0;
+  color: var(--igcsefy-syllabus-text-soft);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card {
+  border: 1px solid var(--igcsefy-syllabus-outline);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-head {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-head:hover {
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 0.875rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-name {
+  color: var(--igcsefy-syllabus-text-strong);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-code {
+  color: var(--igcsefy-syllabus-text-code);
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  padding: 0 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--igcsefy-syllabus-outline-soft);
+  background: var(--igcsefy-syllabus-chip-bg);
+  color: var(--igcsefy-syllabus-text-active);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-subject-picker__levels {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.55rem;
+  padding: 0.2rem;
+  border-radius: 999px;
+  border: 1px solid var(--igcsefy-syllabus-outline-soft);
+  background: var(--igcsefy-syllabus-chip-bg);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-subject-picker__level-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.45rem;
+  padding: 0 0.65rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--igcsefy-syllabus-text-active);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-subject-picker__level-chip:hover {
+  color: var(--igcsefy-syllabus-chip-hover);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-subject-picker__level-chip.is-active {
+  background: var(--igcsefy-syllabus-text-strong);
+  color: var(--igcsefy-syllabus-chip-active-fg);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.875rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__stats span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__stats strong {
+  color: var(--igcsefy-syllabus-text-medium);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__stats strong[data-subject-count="completed"] {
+  color: var(--igcsefy-syllabus-text-strong);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__stats em {
+  color: var(--igcsefy-syllabus-text-faint);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__progress-bar {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--igcsefy-syllabus-track);
+  overflow: hidden;
+  position: relative;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__progress-bar > span,
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--igcsefy-syllabus-text-strong);
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__progress-value {
+  color: var(--igcsefy-syllabus-text-medium);
+  font-size: 11px;
+  font-weight: 600;
+  min-width: 2rem;
+  text-align: right;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-side {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__heatmap {
+  display: grid;
+  grid-template-columns: repeat(8, 8px);
+  gap: 3px;
+  max-width: 88px;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__heatmap-cell {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--igcsefy-syllabus-heatmap-empty);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__heatmap-cell.is-progress {
+  background: var(--igcsefy-syllabus-heatmap-progress);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__heatmap-cell.is-completed {
+  background: var(--igcsefy-syllabus-heatmap-completed);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__chevron {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  color: var(--igcsefy-syllabus-text-code);
+  transition: transform 0.2s ease;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-head[aria-expanded="true"] .igcsefy-profile-syllabus__chevron {
+  transform: rotate(90deg);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-body {
+  border-top: 1px solid var(--igcsefy-syllabus-divider);
+  padding: 1rem 1.125rem 1.125rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__subject-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--igcsefy-syllabus-text-soft);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__sections {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section {
+  border: 1px solid var(--igcsefy-syllabus-section-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-head:hover {
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-chevron {
+  display: inline-flex;
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: var(--igcsefy-syllabus-grid-empty);
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-head[aria-expanded="true"] .igcsefy-profile-syllabus__section-chevron {
+  transform: rotate(90deg);
+  color: var(--igcsefy-syllabus-grid-empty);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-title {
+  color: var(--igcsefy-syllabus-text-strong);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-count {
+  color: var(--igcsefy-syllabus-text-eyebrow);
+  font-size: 11px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-count [data-section-completed] {
+  color: var(--igcsefy-syllabus-text-active);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-percent {
+  width: 2rem;
+  color: var(--igcsefy-syllabus-text-soft);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-bar {
+  height: 2px;
+  margin: 0 1.25rem 0.75rem;
+  background: var(--igcsefy-syllabus-track);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-body {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__card-body[hidden],
+body[data-profile-page="true"] .igcsefy-profile-syllabus__section-body[hidden] {
+  display: none !important;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6875rem 1.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--igcsefy-syllabus-divider);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic:not(.is-completed):hover {
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-completed {
+  background: var(--igcsefy-syllabus-surface);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-main {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  min-width: 0;
+  flex: 1;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-marker {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  border: 1px solid var(--igcsefy-syllabus-topic-marker-border);
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transform-origin: center;
+  transition:
+    border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-radius 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-progress .igcsefy-profile-syllabus__topic-marker {
+  border-color: var(--igcsefy-syllabus-topic-progress);
+  background: transparent;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-completed .igcsefy-profile-syllabus__topic-marker {
+  border-radius: 999px;
+  border-color: var(--igcsefy-syllabus-topic-completed);
+  background: var(--igcsefy-syllabus-topic-completed);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-just-completed .igcsefy-profile-syllabus__topic-marker {
+  animation: igcsefy-topic-marker-pop 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-marker svg {
+  width: 10px;
+  height: 8px;
+  display: block;
+  overflow: visible;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-marker svg path {
+  fill: none;
+  stroke: var(--igcsefy-syllabus-check-stroke);
+  stroke-width: 1.85;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-just-completed .igcsefy-profile-syllabus__topic-marker svg path {
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: igcsefy-topic-check-draw 0.32s 0.07s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--igcsefy-syllabus-topic-progress);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-title {
+  display: block;
+  color: var(--igcsefy-syllabus-topic-title);
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 400;
+  min-width: 0;
+  transition:
+    color 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    text-decoration-color 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-progress .igcsefy-profile-syllabus__topic-title {
+  color: var(--igcsefy-syllabus-topic-progress);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-completed .igcsefy-profile-syllabus__topic-title {
+  color: var(--igcsefy-syllabus-topic-completed);
+  text-decoration: line-through;
+  text-decoration-color: var(--igcsefy-syllabus-grid-empty);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-state {
+  color: var(--igcsefy-syllabus-topic-state);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  min-width: 0;
+  text-align: left;
+  transition: color 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-progress .igcsefy-profile-syllabus__topic-state {
+  color: var(--igcsefy-syllabus-topic-state-progress);
+}
+
+body[data-profile-page="true"] .igcsefy-profile-syllabus__topic.is-completed .igcsefy-profile-syllabus__topic-state {
+  color: var(--igcsefy-syllabus-topic-state-completed);
+}
+
+@keyframes igcsefy-topic-marker-pop {
+  0% {
+    transform: scale(0.78);
+  }
+
+  58% {
+    transform: scale(1.08);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes igcsefy-topic-check-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-marker,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-title,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-state,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-marker svg path {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 900px) {
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__card-head,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__summary,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__subject-meta,
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__card-side {
+    justify-content: space-between;
+  }
+
+  body[data-profile-page="true"] .igcsefy-profile-syllabus__topic-state {
+    padding-top: 0.35rem;
+  }
+}
+
+
+/* Force profile auth gate to use same background as home */
+
+/* Remove any auth gradient/glow layers */
+.auth-bg, .auth-gradient, .auth-page-bg {
+  display:none !important;
+}
+
+/* Force profile page background to match home */
+body[data-profile-page="true"]{background:#0a0a0a !important;}
+
+
+/* Match profile shell to home background exactly */
+html, body[data-profile-page="true"] {
+  background: rgb(10, 10, 10) !important;
+}
+body[data-profile-page="true"] #root,
+body[data-profile-page="true"] #root > div,
+body[data-profile-page="true"] #root > div > div:first-child {
+  background: rgb(10, 10, 10) !important;
+}
+
+body[data-profile-page="true"] #root > div[class~="fixed"][class~="top-0"][class~="z-[100]"][class~="max-h-screen"][class~="w-full"][class~="flex-col-reverse"][class~="md:max-w-[420px]"]:has(> div:only-child:empty) {
+  display: none !important;
+}

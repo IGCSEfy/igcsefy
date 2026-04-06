@@ -1,0 +1,182 @@
+{
+  "title": "Cambridge IGCSE Accounting (0452) — For examination in 2026",
+  "units": [
+    {
+      "id": "section-1",
+      "title": "1 The fundamentals of accounting",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "1.1 The purpose of accounting",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "1.2 The accounting equation",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "2 Sources and recording of data",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "2.1 The double entry system of book-keeping",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "2.2 Business documents",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "2.3 Books of prime entry",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "3 Verification of accounting records",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "3.1 The trial balance",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "3.2 Correction of errors",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "3.3 Bank reconciliation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "3.4 Control accounts",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "4 Accounting procedures",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "4.1 Capital and revenue expenditure and receipts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "4.2 Accounting for depreciation and disposal of non-current assets",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "4.3 Other payables and other receivables",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "4.4 Irrecoverable debts and provision for doubtful debts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-5",
+          "title": "4.5 Valuation of inventory",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "title": "5 Preparation of financial statements",
+      "topics": [
+        {
+          "id": "topic-5-1",
+          "title": "5.1 Sole traders",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-2",
+          "title": "5.2 Partnerships",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-3",
+          "title": "5.3 Limited companies",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-4",
+          "title": "5.4 Clubs and societies",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-5",
+          "title": "5.5 Manufacturing accounts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-6",
+          "title": "5.6 Incomplete records",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "title": "6 Analysis and interpretation",
+      "topics": [
+        {
+          "id": "topic-6-1",
+          "title": "6.1 Calculation and understanding of accounting ratios",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-2",
+          "title": "6.2 Interpretation of accounting ratios",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-3",
+          "title": "6.3 Inter-firm comparison",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-4",
+          "title": "6.4 Interested parties",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-5",
+          "title": "6.5 Limitations of accounting statements",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-7",
+      "title": "7 Accounting principles and policies",
+      "topics": [
+        {
+          "id": "topic-7-1",
+          "title": "7.1 Accounting principles",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-2",
+          "title": "7.2 Accounting policies",
+          "subtopics": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+/* Past Papers page motion
+   The page keeps its subtle hero background movement, but content should render
+   immediately without the About-style pop/fade reveal system.
+*/
+
+.past-papers-journey{overflow-x:hidden}
+
+.past-papers-journey .pp-hero{position:relative;overflow:hidden}
+.past-papers-journey .pp-hero-bg{position:absolute;inset:0;pointer-events:none;opacity:.5;background:none;will-change:transform}
+
+.past-papers-journey .reveal{
+  opacity: 1;
+  transform: none;
+  will-change: auto;
+}
+
+@media (prefers-reduced-motion: reduce){
+  .past-papers-journey .reveal{opacity:1;transform:none}
+}

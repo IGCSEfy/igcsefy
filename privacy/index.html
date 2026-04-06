@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — IGCSEfy</title>
+<meta name="description" content="Privacy information for IGCSEfy.">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/nav.css?v=20260403n">
+<script>
+  (function () {
+    try {
+      var raw = localStorage.getItem('igcsefy-settings');
+      var theme = 'dark';
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        var preference = parsed && parsed.appearance ? parsed.appearance.theme : '';
+        if (preference === 'light' || preference === 'dark') {
+          theme = preference;
+        } else if (preference === 'system' && window.matchMedia && !window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          theme = 'light';
+        }
+      }
+      document.documentElement.classList.add(theme);
+    } catch (error) {
+      document.documentElement.classList.add('dark');
+    }
+  })();
+</script>
+<style>
+  :root {
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Inter", system-ui, sans-serif;
+    color: #eceadd;
+    background:
+      radial-gradient(circle at top left, rgba(236, 234, 221, 0.04), transparent 24%),
+      #0b0b0f;
+  }
+
+  html.light body {
+    color: #000000;
+    background:
+      radial-gradient(circle at top left, rgba(0, 0, 0, 0.04), transparent 24%),
+      #F1EFE7;
+  }
+
+  main {
+    width: min(100%, 960px);
+    margin: 0 auto;
+    padding: 112px 20px 56px;
+  }
+
+  .legal-shell {
+    border: 1px solid #1a1a1a;
+    border-radius: 16px;
+    background: rgba(15, 15, 15, 0.94);
+    overflow: hidden;
+  }
+
+  html.light .legal-shell {
+    border-color: #E9E3D8;
+    background: #FFFFFF;
+  }
+
+  .legal-head {
+    padding: 32px 32px 24px;
+    border-bottom: 1px solid #161616;
+  }
+
+  html.light .legal-head {
+    border-bottom-color: #E9E3D8;
+  }
+
+  .legal-kicker {
+    margin: 0 0 10px;
+    color: #555555;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(30px, 5vw, 42px);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+
+  .legal-meta {
+    margin: 12px 0 0;
+    color: #666666;
+    font-size: 13px;
+  }
+
+  .legal-body {
+    padding: 28px 32px 34px;
+    display: grid;
+    gap: 24px;
+  }
+
+  section h2 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+  }
+
+  p,
+  li {
+    margin: 0;
+    color: #a6a6a6;
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 18px;
+    display: grid;
+    gap: 8px;
+  }
+
+  a {
+    color: #eceadd;
+    text-underline-offset: 3px;
+  }
+
+  html.light .legal-kicker,
+  html.light .legal-meta,
+  html.light p,
+  html.light li {
+    color: #666666;
+  }
+
+  html.light a {
+    color: #000000;
+  }
+
+  @media (max-width: 720px) {
+    main {
+      padding-top: 96px;
+    }
+
+    .legal-head,
+    .legal-body {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+<main>
+  <article class="legal-shell">
+    <div class="legal-head">
+      <p class="legal-kicker">Privacy</p>
+      <h1>Privacy Policy</h1>
+      <p class="legal-meta">Effective March 20, 2026</p>
+    </div>
+    <div class="legal-body">
+      <section>
+        <h2>What IGCSEfy stores</h2>
+        <p>IGCSEfy stores the settings and study activity you choose to save, including tracked subject selections, syllabus topic states, past-paper progress, and interface preferences such as theme or reduced motion.</p>
+      </section>
+      <section>
+        <h2>How data is used</h2>
+        <p>Saved data is used to personalise the app, restore your study state, sync progress across signed-in sessions, and support core product functions like progress export and reset.</p>
+      </section>
+      <section>
+        <h2>Local and cloud storage</h2>
+        <ul>
+          <li>Recent searches and some interface preferences are stored in your browser using local storage.</li>
+          <li>If you sign in, progress data may also be synced to IGCSEfy’s Supabase backend so it can follow your account.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Contact</h2>
+        <p>If you have privacy questions, contact <a href="mailto:ebrahim.tariq@icloud.com">ebrahim.tariq@icloud.com</a>.</p>
+      </section>
+    </div>
+  </article>
+</main>
+<script defer src="/assets/nav.js"></script>
+</body>
+</html>

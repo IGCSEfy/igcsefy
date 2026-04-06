@@ -1,0 +1,21 @@
+
+/* Smooth slow liquid animation for Sign-in pill */
+.signin-pill{
+  transform: scale(0.96);
+  opacity:0;
+  transition:
+    transform .38s cubic-bezier(.22,.61,.36,1),
+    opacity .38s cubic-bezier(.22,.61,.36,1),
+    box-shadow .38s cubic-bezier(.22,.61,.36,1);
+}
+.signin-pill.visible{
+  transform: scale(1);
+  opacity:1;
+}
+.signin-pill:hover{
+  transform: scale(1.035);
+  box-shadow:0 8px 20px rgba(0,0,0,.35);
+}
+.signin-pill *{
+  line-height:1;
+}

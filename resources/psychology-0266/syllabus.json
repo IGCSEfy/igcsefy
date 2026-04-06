@@ -1,0 +1,222 @@
+{
+  "title": "Cambridge IGCSE Psychology (0266) — For examination in 2027–2029",
+  "units": [
+    {
+      "id": "section-1",
+      "title": "1 Memory and forgetting",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "1.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "1.2 Craik and Lockhart’s levels of processing (LoP) model of memory",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-3",
+          "title": "1.3 Atkinson and Shiffrin’s multistore model (MSM) of memory",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-4",
+          "title": "1.4 Motivated forgetting",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-5",
+          "title": "1.5 Role of the brain in memory and forgetting",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "2 Sleep and dreams",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "2.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "2.2 Restoration theory of sleep",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "2.3 Hobson & McCarley’s activation-synthesis theory of dreaming",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-4",
+          "title": "2.4 Psychodynamic theory of dreaming",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "3 Prosocial behaviour",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "3.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "3.2 Biological explanation of prosocial behaviour",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "3.3 Social identity theory of prosocial behaviour",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "3.4 Bandura’s social learning theory of prosocial behaviour",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "4 Visual perception",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "4.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "4.2 Gibson’s direct theory of perception",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "4.3 Gregory’s constructivist theory of perception",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "4.4 Visual illusions and culture",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-5",
+      "title": "5 Motivation and needs",
+      "topics": [
+        {
+          "id": "topic-5-1",
+          "title": "5.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-2",
+          "title": "5.2 Hull’s drive reduction theory of motivation",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-3",
+          "title": "5.3 Positive reinforcement in education",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-4",
+          "title": "5.4 Psychodynamic motivation and marketing",
+          "subtopics": []
+        },
+        {
+          "id": "topic-5-5",
+          "title": "5.5 Motivation to exercise",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-6",
+      "title": "6 Language development",
+      "topics": [
+        {
+          "id": "topic-6-1",
+          "title": "6.1 Key concepts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-2",
+          "title": "6.2 Biological explanation of language acquisition",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-3",
+          "title": "6.3 Learning theory of language development",
+          "subtopics": []
+        },
+        {
+          "id": "topic-6-4",
+          "title": "6.4 Piaget’s cognitive theory of language development",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-7",
+      "title": "7 Research methods",
+      "topics": [
+        {
+          "id": "topic-7-1",
+          "title": "7.1 Experimental method",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-2",
+          "title": "7.2 Non-experimental method: observations",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-3",
+          "title": "7.3 Non-experimental method: questionnaires and interviews",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-4",
+          "title": "7.4 Non-experimental method: case studies",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-5",
+          "title": "7.5 Sampling",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-6",
+          "title": "7.6 Validity and reliability",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-7",
+          "title": "7.7 Ethical guidelines",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-8",
+          "title": "7.8 Role of the researcher, materials and procedure",
+          "subtopics": []
+        },
+        {
+          "id": "topic-7-9",
+          "title": "7.9 Dealing with data",
+          "subtopics": []
+        }
+      ]
+    }
+  ]
+}

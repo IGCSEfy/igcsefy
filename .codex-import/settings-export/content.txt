@@ -1,0 +1,61 @@
+
+    SettingsPersonalise your experienceAdjust appearance, study preferences, and data settings.AppearanceAccountStudy PreferencesData & PrivacyHelpAppearanceControl how IGCSEfy looks and feels.ThemeChoose between light, dark, or system preference.LightDarkSystemReduced motionMinimise animations throughout the app.
+  
+
+	
+		Edit with
+		
+  
+  
+  
+  
+    
+      
+      
+      
+      
+    
+  
+
+
+
+	
+	
+	
+	
+	
+		
+			
+		
+	
+
+
+	// Don't show the lovable-badge if the page is in an iframe or if it's being rendered by puppeteer (screenshot service)
+	if (window.self !== window.top || navigator.userAgent.includes('puppeteer')) {
+		// the page is in an iframe
+		var badge = document.getElementById('lovable-badge');
+		if (badge) {
+			badge.style.display = 'none';
+		}
+	}
+
+	// Add click event listener to close button with animation
+	var closeButton = document.getElementById('lovable-badge-close');
+	if (closeButton) {
+		closeButton.addEventListener('click', function(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			var badge = document.getElementById('lovable-badge');
+			if (badge) {
+				badge.classList.add('closing');
+				setTimeout(function() {
+					if (badge) {
+						badge.style.display = 'none';
+					}
+				}, 240);
+			}
+		});
+	}
+
+
+

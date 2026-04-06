@@ -1,0 +1,139 @@
+{
+  "title": "Cambridge IGCSE English as a Second Language (0510) — For examination in 2024–2026",
+  "units": [
+    {
+      "id": "section-1",
+      "title": "Reading",
+      "topics": [
+        {
+          "id": "topic-1-1",
+          "title": "identify and understand factual information, ideas and arguments in a range of texts",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-2",
+          "title": "identify and understand ideas, opinions and attitudes, in a range of texts and the connections between them",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-3",
+          "title": "understand what is implied but not directly stated",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-4",
+          "title": "deduce meaning of an unfamiliar word/phrase, e.g., reading the information around it, and making inferences",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-5",
+          "title": "select relevant details when reading for a specific purpose",
+          "subtopics": []
+        },
+        {
+          "id": "topic-1-6",
+          "title": "identify the type of information that a question focuses on",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-2",
+      "title": "Writing",
+      "topics": [
+        {
+          "id": "topic-2-1",
+          "title": "communicate factual information, ideas and arguments clearly and with expansion",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-2",
+          "title": "produce written texts that show control of language",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-3",
+          "title": "select and organise relevant information and ideas into coherent text using appropriate linking devices",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-4",
+          "title": "produce written texts with a range of grammatical and lexical structures",
+          "subtopics": []
+        },
+        {
+          "id": "topic-2-5",
+          "title": "respond to a written stimulus and use appropriate register, style and format for the given purpose and audience",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-3",
+      "title": "Listening",
+      "topics": [
+        {
+          "id": "topic-3-1",
+          "title": "identify and understand factual detail and specific information in a range of spoken contexts and from a variety of sources",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-2",
+          "title": "listen for the main information which the intended listener would be interested in – places, names, times, dates, directions",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-3",
+          "title": "identify and understand speakers’ ideas, opinions, feelings and attitudes in a range of spoken contexts and from a variety of sources",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-4",
+          "title": "show understanding of the connections between ideas, opinions, feelings and attitudes in a range of spoken contexts and from a variety of sources",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-5",
+          "title": "show understanding of what is implied but not directly stated",
+          "subtopics": []
+        },
+        {
+          "id": "topic-3-6",
+          "title": "deduce meaning of an unfamiliar word/phrase by listening to the information around it, and making inferences",
+          "subtopics": []
+        }
+      ]
+    },
+    {
+      "id": "section-4",
+      "title": "Speaking",
+      "topics": [
+        {
+          "id": "topic-4-1",
+          "title": "communicate factual information, ideas and opinions with expansion",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-2",
+          "title": "produce coherent and relevant responses",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-3",
+          "title": "engage in different types of interaction (e.g., conversation, short talk, interview)",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-4",
+          "title": "produce responses using a range of grammatical and lexical structures",
+          "subtopics": []
+        },
+        {
+          "id": "topic-4-5",
+          "title": "communicate showing control of pronunciation and intonation",
+          "subtopics": []
+        }
+      ]
+    }
+  ]
+}

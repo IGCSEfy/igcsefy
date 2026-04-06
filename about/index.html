@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>About IGCSEfy - A Student-Built Revision Experience</title>
+  <meta
+    name="description"
+    content="IGCSEfy is a student-built Cambridge IGCSE platform designed to turn scattered revision into a cleaner, faster flow."
+  >
+  <link rel="icon" href="/assets/favicon.png">
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var theme = 'dark';
+      var preference = 'dark';
+
+      try {
+        var raw = localStorage.getItem('igcsefy-settings');
+        var navTheme = localStorage.getItem('igcsefy-nav-theme-icon');
+
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          var appearanceTheme = parsed && parsed.appearance ? parsed.appearance.theme : '';
+          if (appearanceTheme === 'light' || appearanceTheme === 'dark' || appearanceTheme === 'system') {
+            preference = appearanceTheme;
+          }
+        }
+
+        if (preference === 'system') {
+          theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light';
+        } else if (preference === 'light' || preference === 'dark') {
+          theme = preference;
+        } else if (navTheme === 'light') {
+          theme = 'light';
+          preference = 'light';
+        }
+      } catch (error) {
+        theme = 'dark';
+        preference = 'dark';
+      }
+
+      root.classList.remove('light', 'dark');
+      root.classList.add(theme);
+      root.classList.add('about-js');
+      root.dataset.theme = theme;
+      root.dataset.themePreference = preference === 'system' ? 'system' : theme;
+
+      var bootStyle = document.createElement('style');
+      bootStyle.setAttribute('data-about-theme-boot', '');
+      bootStyle.textContent =
+        'html{background:' + (theme === 'light' ? '#F1EFE7' : '#050505') + ';color-scheme:' + theme + ';}' +
+        'body{background:' + (theme === 'light' ? '#F1EFE7' : '#050505') + ';}';
+      document.head.appendChild(bootStyle);
+    })();
+  </script>
+  <link rel="stylesheet" href="./styles/file.css2">
+  <link rel="stylesheet" href="./styles/about-journey.css">
+  <link rel="stylesheet" href="/assets/nav.css?v=20260403n">
+</head>
+<body class="about-body">
+  <div class="about-atmosphere" aria-hidden="true">
+    <div class="about-glow about-glow-1" data-atmosphere data-depth="0.06"></div>
+    <div class="about-glow about-glow-2" data-atmosphere data-depth="0.1"></div>
+    <div class="about-glow about-glow-3" data-atmosphere data-depth="0.08"></div>
+    <div class="about-grid"></div>
+    <div class="about-noise"></div>
+  </div>
+
+  <header></header>
+
+  <main class="about-page">
+    <article class="about-surface" data-surface>
+      <div class="about-thread" aria-hidden="true">
+        <span class="about-thread-progress"></span>
+      </div>
+
+      <h1 class="about-display about-node about-node-center about-node-wide" data-motion data-depth="0.08">
+        Revision should move like one <em>continuous route.</em>
+      </h1>
+
+      <p class="about-copy about-node about-node-center about-node-medium" data-motion data-motion-linger data-depth="0.03">
+        IGCSEfy was built to keep subject, syllabus, past papers, progress, and AI
+        inside one study rhythm. The aim is to remove restart cost, so revision keeps
+        moving instead of repeatedly breaking into separate tasks.
+      </p>
+
+      <div class="about-actions about-node about-node-center" data-motion data-motion-linger data-depth="0.04">
+        <a href="/subjects/" class="about-button about-button-primary">Browse subjects</a>
+        <a href="/past-papers/" class="about-button about-button-secondary">Open past papers</a>
+      </div>
+
+      <p class="about-overline about-node about-node-left about-flow-break" data-motion data-depth="0.02">
+        Why it exists
+      </p>
+
+      <h2 class="about-title about-node about-node-left about-node-title" data-motion data-depth="0.06">
+        Revision breaks when the route feels fragmented.
+      </h2>
+
+      <p class="about-copy about-node about-node-left about-node-medium" data-motion data-depth="0.03">
+        The page should behave like the product itself: one uninterrupted surface that
+        carries the student forward, without visual resets or stacked blocks making the
+        experience feel chopped into parts.
+      </p>
+
+      <p class="about-step-index about-node about-node-right about-step-break" data-motion data-depth="0.04">
+        01
+      </p>
+
+      <h3 class="about-headline about-node about-node-right" data-motion data-depth="0.06">
+        Paper code first, not guesswork.
+      </h3>
+
+      <p class="about-copy about-node about-node-right about-node-medium" data-motion data-depth="0.03">
+        Students should land in the exact subject lane before energy gets wasted on
+        vague categories, wrong variants, or friction that appears before revision has
+        even begun.
+      </p>
+
+      <p class="about-step-index about-node about-node-left about-step-break" data-motion data-depth="0.04">
+        02
+      </p>
+
+      <h3 class="about-headline about-node about-node-left" data-motion data-depth="0.06">
+        The syllabus should behave like a path.
+      </h3>
+
+      <p class="about-copy about-node about-node-left about-node-medium" data-motion data-depth="0.03">
+        Topics work better when they arrive in sequence. The structure should carry the
+        student forward instead of forcing them to rebuild order from a loose list of
+        disconnected labels.
+      </p>
+
+      <p class="about-step-index about-node about-node-right about-step-break" data-motion data-depth="0.04">
+        03
+      </p>
+
+      <h3 class="about-headline about-node about-node-right" data-motion data-depth="0.06">
+        Past papers should open with context already locked in.
+      </h3>
+
+      <p class="about-copy about-node about-node-right about-node-medium" data-motion data-depth="0.03">
+        Core, extended, calculator, question paper, mark scheme. The right frame
+        should already be visible before solving begins, so the session starts inside
+        the work rather than around it.
+      </p>
+
+      <p class="about-step-index about-node about-node-left about-step-break" data-motion data-depth="0.04">
+        04
+      </p>
+
+      <h3 class="about-headline about-node about-node-left" data-motion data-depth="0.06">
+        Progress has to stay visible between sessions.
+      </h3>
+
+      <p class="about-copy about-node about-node-left about-node-medium" data-motion data-depth="0.03">
+        Revision feels lighter when the system remembers where the student is and makes
+        the next move obvious instead of resetting the entire mental stack every time
+        they come back.
+      </p>
+
+      <p class="about-step-index about-node about-node-right about-step-break" data-motion data-depth="0.04">
+        05
+      </p>
+
+      <h3 class="about-headline about-node about-node-right" data-motion data-depth="0.06">
+        AI should help students continue, not leave the flow.
+      </h3>
+
+      <p class="about-copy about-node about-node-right about-node-medium" data-motion data-depth="0.03">
+        Support matters when revision stalls. The right answer is assistance inside the
+        same route, not another detour disguised as help.
+      </p>
+
+      <p class="about-overline about-node about-node-left about-flow-break" data-motion data-depth="0.02">
+        From the founder
+      </p>
+
+      <h2 class="about-title about-node about-node-left about-node-title" data-motion data-depth="0.06">
+        Built by someone still inside the pressure.
+      </h2>
+
+      <blockquote class="about-quote about-node about-node-right about-founder-quote-desktop" data-motion data-depth="0.05" aria-hidden="true">
+        Revision should feel like a route you stay inside, not a set of pages you keep
+        having to rebuild in your head.
+      </blockquote>
+
+      <p class="about-copy about-node about-node-left about-node-medium" data-motion data-depth="0.03">
+        I am Ebrahim Tariq, a 16-year-old Cambridge IGCSE student. IGCSEfy was shaped
+        while I was revising for the same exams, so the structure comes from real
+        friction: lost context, broken flow, and too much time spent getting back on
+        track.
+      </p>
+
+      <p class="about-copy about-node about-node-left about-node-medium" data-motion data-depth="0.03">
+        The goal was never to add more study tools. It was to reduce the space between
+        them and make the next step feel obvious.
+      </p>
+
+      <blockquote class="about-quote about-node about-node-left about-founder-quote-mobile" data-motion data-depth="0.05">
+        Revision should feel like a route you stay inside, not a set of pages you keep
+        having to rebuild in your head.
+      </blockquote>
+
+      <p class="about-overline about-node about-node-center about-flow-break" data-motion data-depth="0.02">
+        What stays true
+      </p>
+
+      <p class="about-mantra about-node about-node-center about-node-wide" data-motion data-depth="0.04">
+        Paper code first. Sequence over clutter.
+      </p>
+
+      <p class="about-mantra about-node about-node-center about-node-wide" data-motion data-depth="0.04">
+        Past papers in context. Progress you can feel.
+      </p>
+
+      <p class="about-mantra about-node about-node-center about-node-wide" data-motion data-depth="0.04">
+        AI that helps you recover without leaving the flow.
+      </p>
+
+      <p class="about-overline about-node about-node-center about-flow-break" data-motion data-motion-linger data-depth="0.02">
+        Where it goes next
+      </p>
+
+      <h2 class="about-title about-node about-node-center about-node-wide" data-motion data-motion-linger data-depth="0.06">
+        Keep the system sharp. Make the path <em>smarter.</em> Built for longer
+        revision journeys.
+      </h2>
+
+      <p class="about-copy about-node about-node-center about-node-medium" data-motion data-motion-linger data-depth="0.03">
+        The direction stays the same: less clutter, more clarity, stronger guidance,
+        and study tools that feel like part of one world instead of separate pages.
+      </p>
+
+      <div class="about-actions about-node about-node-center" data-motion data-motion-linger data-depth="0.04">
+        <a href="/subjects/" class="about-button about-button-primary">Browse subjects</a>
+        <a href="mailto:ebrahim.tariq@icloud.com" class="about-button about-button-secondary">Send feedback</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="about-footer subjects-footer">
+    <div class="about-footer__inner subjects-footer__inner">
+      <p>&copy; 2026 IGCSEfy</p>
+    </div>
+  </footer>
+
+  <script defer src="./scripts/lenis.min.js"></script>
+  <script defer src="./scripts/about-journey.js"></script>
+  <script defer src="/assets/nav.js"></script>
+</body>
+</html>
