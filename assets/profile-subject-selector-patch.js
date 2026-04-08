@@ -35,6 +35,20 @@
     '0620': 'chemistry-0620',
     '0625': 'physics-0625'
   };
+  var SUBJECT_NAME_BY_CODE = {
+    '0266': 'Psychology',
+    '0450': 'Business Studies',
+    '0452': 'Accounting',
+    '0455': 'Economics',
+    '0478': 'Computer Science',
+    '0495': 'Sociology',
+    '0500': 'English Language',
+    '0510': 'English as a Second Language',
+    '0580': 'Mathematics',
+    '0610': 'Biology',
+    '0620': 'Chemistry',
+    '0625': 'Physics'
+  };
   var TRACKING_FILTER_PATCH_FLAG = '__igcsefyProfileTrackingFilterPatched';
 
   function ensureStyles() {
@@ -51,10 +65,11 @@
       '  position: relative;',
       '  display: flex !important;',
       '  align-items: flex-start !important;',
-      '  gap: 16px !important;',
+      '  gap: 12px !important;',
       '  width: 100% !important;',
-      '  padding: 18px !important;',
-      '  border-radius: 22px !important;',
+      '  min-height: 102px !important;',
+      '  padding: 14px 16px !important;',
+      '  border-radius: 16px !important;',
       '  text-align: left !important;',
       '  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease !important;',
       '}',
@@ -83,10 +98,10 @@
       '  border-color: #242424 !important;',
       '}',
       '[data-igcsefy-subject-card-check] {',
-      '  width: 34px;',
-      '  height: 34px;',
-      '  margin-top: 2px;',
-      '  border-radius: 10px;',
+      '  width: 16px;',
+      '  height: 16px;',
+      '  margin-top: 0;',
+      '  border-radius: 4px;',
       '  display: inline-flex;',
       '  align-items: center;',
       '  justify-content: center;',
@@ -117,11 +132,11 @@
       '  min-width: 0;',
       '  display: flex;',
       '  flex-direction: column;',
-      '  gap: 12px;',
+      '  gap: 10px;',
       '}',
       '[data-igcsefy-subject-card-heading] {',
       '  display: flex;',
-      '  align-items: baseline;',
+      '  align-items: center;',
       '  justify-content: space-between;',
       '  gap: 12px;',
       '}',
@@ -154,7 +169,8 @@
       '  display: inline-flex;',
       '  align-items: center;',
       '  gap: 4px;',
-      '  width: fit-content;',
+      '  width: 100%;',
+      '  max-width: 320px;',
       '  padding: 4px;',
       '  border-radius: 999px;',
       '  transition: opacity 0.18s ease, filter 0.18s ease;',
@@ -175,10 +191,11 @@
       '  display: none;',
       '}',
       '[data-igcsefy-subject-level] {',
-      '  min-width: 110px;',
+      '  min-width: 0;',
+      '  flex: 1 1 0;',
       '  border: 0;',
       '  border-radius: 999px;',
-      '  padding: 12px 18px;',
+      '  padding: 10px 14px;',
       '  display: inline-flex;',
       '  align-items: center;',
       '  justify-content: center;',
@@ -216,13 +233,16 @@
       '}',
       '@media (max-width: 640px) {',
       '  button[data-igcsefy-profile-subject-card="true"] {',
-      '    padding: 16px !important;',
-      '    gap: 14px !important;',
+      '    min-height: 96px !important;',
+      '    padding: 13px 14px !important;',
+      '    gap: 10px !important;',
       '  }',
       '  [data-igcsefy-subject-level] {',
-      '    min-width: 96px;',
-      '    padding: 11px 14px;',
-      '    letter-spacing: 0.14em;',
+      '    padding: 9px 12px;',
+      '    letter-spacing: 0.13em;',
+      '  }',
+      '  [data-igcsefy-subject-card-levels] {',
+      '    max-width: 100%;',
       '  }',
       '}',
       'button[data-igcsefy-basic-subject-option="true"] {',
@@ -329,6 +349,49 @@
       'button[data-igcsefy-basic-subject-option="true"][data-theme="light"] [data-igcsefy-basic-subject-code] {',
       '  color: #8E7A63 !important;',
       '}',
+      'html.light #root button.whitespace-nowrap.rounded-full,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full {',
+      '  background: #FBF7EF !important;',
+      '  color: #746A5E !important;',
+      '  border: 1px solid #E6DECF !important;',
+      '  box-shadow: none !important;',
+      '}',
+      'html.light #root button.whitespace-nowrap.rounded-full:hover,',
+      'html.light #root button.whitespace-nowrap.rounded-full:focus-visible,',
+      'html.light #root button.whitespace-nowrap.rounded-full:active,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full:hover,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full:focus-visible,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full:active {',
+      '  background: #F7F2E8 !important;',
+      '  color: #1F1A14 !important;',
+      '  border-color: #D8C9B2 !important;',
+      '  box-shadow: 0 8px 18px rgba(122, 102, 73, 0.08) !important;',
+      '}',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"],',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"],',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"],',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"] {',
+      '  background: #E7DDCF !important;',
+      '  color: #1F1A14 !important;',
+      '  border-color: #C7B59E !important;',
+      '}',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:hover,',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:hover,',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:focus-visible,',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:focus-visible,',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:active,',
+      'html.light #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:active,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:hover,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:hover,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:focus-visible,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:focus-visible,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="#1E1E1E"]:active,',
+      'html[data-theme="light"] #root button.whitespace-nowrap.rounded-full[style*="rgb(30, 30, 30)"]:active {',
+      '  background: #E7DDCF !important;',
+      '  color: #1F1A14 !important;',
+      '  border-color: #C7B59E !important;',
+      '  box-shadow: 0 8px 18px rgba(122, 102, 73, 0.08) !important;',
+      '}',
       'html.light [data-igcsefy-subject-manager-toggle="true"],',
       'html[data-theme="light"] [data-igcsefy-subject-manager-toggle="true"] {',
       '  background: #FFFDF8 !important;',
@@ -433,6 +496,25 @@
     return window.igcsefyDataStore || null;
   }
 
+  function getRawStoreSnapshot() {
+    var store = getStore();
+    var getter = store && typeof store.__igcsefyProfileOriginalGetSnapshot === 'function'
+      ? store.__igcsefyProfileOriginalGetSnapshot
+      : store && typeof store.getSnapshot === 'function'
+        ? store.getSnapshot.bind(store)
+        : null;
+
+    if (!getter) {
+      return {};
+    }
+
+    try {
+      return getter() || {};
+    } catch (error) {
+      return {};
+    }
+  }
+
   function getTrackedCodes(snapshot) {
     var trackedSubjects = snapshot && Array.isArray(snapshot.trackedSubjects)
       ? snapshot.trackedSubjects
@@ -447,9 +529,14 @@
 
   function buildTrackedSubjectsFromCodes(codes) {
     return codes.map(function (code) {
-      var subject = { code: code };
+      var subject = {
+        code: code,
+        slug: SUBJECT_SLUG_BY_CODE[code] || '',
+        name: SUBJECT_NAME_BY_CODE[code] || code
+      };
 
       if (TIERED_SUBJECT_CODES[code]) {
+        subject.hasDistinctLevels = true;
         subject.level = getSubjectLevel(code);
       }
 
@@ -487,11 +574,11 @@
     var currentCodes;
     var nextCodes;
 
-    if (!store || typeof store.getSnapshot !== 'function' || typeof store.setTrackedSubjects !== 'function') {
+    if (!store || typeof store.setTrackedSubjects !== 'function') {
       return;
     }
 
-    snapshot = store.getSnapshot() || {};
+    snapshot = getRawStoreSnapshot();
     currentCodes = getTrackedCodes(snapshot);
     nextCodes = currentCodes.slice();
 
@@ -512,12 +599,9 @@
     store.setTrackedSubjects(buildTrackedSubjectsFromCodes(nextCodes));
   }
 
-  function filterSyllabusStatesByTrackedSubjects(states) {
-    var store = getStore();
-    var snapshot = store && typeof store.getSnapshot === 'function' ? (store.getSnapshot() || {}) : {};
-    var trackedCodes = getTrackedCodes(snapshot);
+  function filterSyllabusStatesByTrackedSubjects(states, trackedCodes) {
     var allowedSlugs = new Set(
-      trackedCodes
+      (Array.isArray(trackedCodes) ? trackedCodes : [])
         .map(function (code) { return SUBJECT_SLUG_BY_CODE[code] || ''; })
         .filter(Boolean)
     );
@@ -533,16 +617,14 @@
     return filtered;
   }
 
-  function filterPastPaperStatusesByTrackedSubjects(statuses) {
-    var store = getStore();
-    var snapshot = store && typeof store.getSnapshot === 'function' ? (store.getSnapshot() || {}) : {};
-    var trackedCodes = new Set(getTrackedCodes(snapshot));
+  function filterPastPaperStatusesByTrackedSubjects(statuses, trackedCodes) {
+    var trackedCodesSet = new Set(Array.isArray(trackedCodes) ? trackedCodes : []);
     var filtered = {};
 
     Object.keys(statuses || {}).forEach(function (key) {
       var parts = String(key || '').split('|');
       var code = parts.length >= 2 ? String(parts[1] || '').trim() : '';
-      if (trackedCodes.has(code)) {
+      if (trackedCodesSet.has(code)) {
         filtered[key] = statuses[key];
       }
     });
@@ -550,31 +632,95 @@
     return filtered;
   }
 
+  function filterSnapshotByTrackedSubjects(snapshot) {
+    var cloned = snapshot && typeof snapshot === 'object' ? snapshot : {};
+    var trackedCodes = getTrackedCodes(cloned);
+
+    return {
+      trackedSubjects: Array.isArray(cloned.trackedSubjects) ? cloned.trackedSubjects.slice() : [],
+      subjectPreferences: cloned.subjectPreferences && typeof cloned.subjectPreferences === 'object'
+        ? Object.assign({}, cloned.subjectPreferences)
+        : {},
+      syllabusTopicStates: filterSyllabusStatesByTrackedSubjects(cloned.syllabusTopicStates || {}, trackedCodes),
+      pastPaperStatuses: filterPastPaperStatusesByTrackedSubjects(cloned.pastPaperStatuses || {}, trackedCodes),
+      updatedAt: cloned.updatedAt || null
+    };
+  }
+
   function applyTrackedSubjectFilters() {
     var store = getStore();
+    var originalGetSnapshot;
     var originalGetSyllabusStates;
+    var originalGetSyllabusState;
     var originalGetPastPaperStatuses;
+    var originalGetPastPaperStatus;
 
     if (!store || store[TRACKING_FILTER_PATCH_FLAG]) {
       return;
     }
 
+    originalGetSnapshot = typeof store.getSnapshot === 'function'
+      ? store.getSnapshot.bind(store)
+      : null;
     originalGetSyllabusStates = typeof store.getSyllabusStates === 'function'
       ? store.getSyllabusStates.bind(store)
+      : null;
+    originalGetSyllabusState = typeof store.getSyllabusState === 'function'
+      ? store.getSyllabusState.bind(store)
       : null;
     originalGetPastPaperStatuses = typeof store.getPastPaperStatuses === 'function'
       ? store.getPastPaperStatuses.bind(store)
       : null;
+    originalGetPastPaperStatus = typeof store.getPastPaperStatus === 'function'
+      ? store.getPastPaperStatus.bind(store)
+      : null;
+
+    if (originalGetSnapshot) {
+      store.__igcsefyProfileOriginalGetSnapshot = originalGetSnapshot;
+    }
+
+    if (originalGetSnapshot) {
+      store.getSnapshot = function () {
+        return filterSnapshotByTrackedSubjects(originalGetSnapshot());
+      };
+    }
 
     if (originalGetSyllabusStates) {
       store.getSyllabusStates = function () {
-        return filterSyllabusStatesByTrackedSubjects(originalGetSyllabusStates());
+        var rawSnapshot = originalGetSnapshot ? (originalGetSnapshot() || {}) : {};
+        return filterSyllabusStatesByTrackedSubjects(originalGetSyllabusStates(), getTrackedCodes(rawSnapshot));
+      };
+    }
+
+    if (originalGetSyllabusState) {
+      store.getSyllabusState = function (topicKey) {
+        var rawSnapshot = originalGetSnapshot ? (originalGetSnapshot() || {}) : {};
+        var filteredStates = filterSyllabusStatesByTrackedSubjects(
+          originalGetSyllabusStates ? originalGetSyllabusStates() : {},
+          getTrackedCodes(rawSnapshot)
+        );
+        return filteredStates[String(topicKey || '')] || 'not_started';
       };
     }
 
     if (originalGetPastPaperStatuses) {
       store.getPastPaperStatuses = function () {
-        return filterPastPaperStatusesByTrackedSubjects(originalGetPastPaperStatuses());
+        var rawSnapshot = originalGetSnapshot ? (originalGetSnapshot() || {}) : {};
+        return filterPastPaperStatusesByTrackedSubjects(
+          originalGetPastPaperStatuses(),
+          getTrackedCodes(rawSnapshot)
+        );
+      };
+    }
+
+    if (originalGetPastPaperStatus) {
+      store.getPastPaperStatus = function (trackKey) {
+        var rawSnapshot = originalGetSnapshot ? (originalGetSnapshot() || {}) : {};
+        var filteredStatuses = filterPastPaperStatusesByTrackedSubjects(
+          originalGetPastPaperStatuses ? originalGetPastPaperStatuses() : {},
+          getTrackedCodes(rawSnapshot)
+        );
+        return filteredStatuses[String(trackKey || '')] || 'none';
       };
     }
 
@@ -880,10 +1026,10 @@
     }
   }
 
-  function renderButton(button) {
+  function renderButton(button, forcedSelected) {
     var code = findSubjectCode(button);
     var name = findSubjectName(button);
-    var selected = detectSelected(button);
+    var selected = typeof forcedSelected === 'boolean' ? forcedSelected : detectSelected(button);
     var tiered = !!TIERED_SUBJECT_CODES[code];
     var activeLevel = tiered ? getSubjectLevel(code) : '';
     var theme = isLightTheme() ? 'light' : 'dark';
@@ -911,10 +1057,10 @@
     bindLevelControls(button, code, selected, tiered);
   }
 
-  function renderBasicButton(button) {
+  function renderBasicButton(button, forcedSelected) {
     var code = findSubjectCode(button);
     var name = findSubjectName(button);
-    var selected = detectSelected(button);
+    var selected = typeof forcedSelected === 'boolean' ? forcedSelected : detectSelected(button);
     var theme = isLightTheme() ? 'light' : 'dark';
     var signature;
 
@@ -938,6 +1084,17 @@
     button.setAttribute('data-theme', theme);
     button.setAttribute('aria-pressed', selected ? 'true' : 'false');
     button.innerHTML = buildBasicMarkup(name, code, selected);
+  }
+
+  function renderSelectorButtonWithState(button, selected) {
+    var code = findSubjectCode(button);
+
+    if (TIERED_SUBJECT_CODES[code]) {
+      renderButton(button, selected);
+      return;
+    }
+
+    renderBasicButton(button, selected);
   }
 
   function findSelectorButtonByCode(code) {
@@ -1038,21 +1195,27 @@
       var target = event.target;
       var button = target && target.closest ? target.closest('#root button') : null;
       var code = button && isSelectorButton(button) ? findSubjectCode(button) : '';
+      var nextSelected;
 
       if (!button) {
         return;
       }
 
+      if (!code) {
+        window.setTimeout(scheduleApply, 0);
+        return;
+      }
+
+      if (target && target.closest && target.closest('[data-igcsefy-subject-level]')) {
+        window.setTimeout(scheduleApply, 0);
+        return;
+      }
+
+      nextSelected = !detectSelected(button);
+      renderSelectorButtonWithState(button, nextSelected);
+      persistTrackedSelection(code, nextSelected);
+
       window.setTimeout(function () {
-        var liveButton;
-
-        if (code) {
-          liveButton = findSelectorButtonByCode(code);
-          if (liveButton) {
-            persistTrackedSelection(code, detectSelected(liveButton));
-          }
-        }
-
         scheduleApply();
       }, 0);
     });
