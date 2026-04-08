@@ -109,6 +109,10 @@
 
   function softenProgressTables(root) {
     Array.prototype.forEach.call(root.querySelectorAll('.rounded-xl.overflow-hidden'), function (table) {
+      if (table.querySelector('input[placeholder="Search subjects…"]')) {
+        return;
+      }
+
       setStyle(table, {
         background: COLORS.surface,
         borderColor: COLORS.dividerSoft
