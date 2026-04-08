@@ -67,8 +67,8 @@
       '  align-items: flex-start !important;',
       '  gap: 12px !important;',
       '  width: 100% !important;',
-      '  min-height: 102px !important;',
-      '  padding: 14px 16px !important;',
+      '  min-height: 88px !important;',
+      '  padding: 12px 16px !important;',
       '  border-radius: 16px !important;',
       '  text-align: left !important;',
       '  transition: border-color 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease !important;',
@@ -132,7 +132,7 @@
       '  min-width: 0;',
       '  display: flex;',
       '  flex-direction: column;',
-      '  gap: 10px;',
+      '  gap: 8px;',
       '}',
       '[data-igcsefy-subject-card-heading] {',
       '  display: flex;',
@@ -143,9 +143,9 @@
       '[data-igcsefy-subject-card-name] {',
       '  display: block;',
       '  min-width: 0;',
-      '  font-size: 15px;',
-      '  font-weight: 700;',
-      '  letter-spacing: -0.01em;',
+      '  font-size: 13px;',
+      '  font-weight: 600;',
+      '  letter-spacing: 0;',
       '  line-height: 1.2;',
       '}',
       'button[data-igcsefy-profile-subject-card="true"][data-theme="light"] [data-igcsefy-subject-card-name] {',
@@ -156,7 +156,7 @@
       '}',
       '[data-igcsefy-subject-card-code] {',
       '  flex-shrink: 0;',
-      '  font-size: 11px;',
+      '  font-size: 10px;',
       '  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;',
       '}',
       'button[data-igcsefy-profile-subject-card="true"][data-theme="light"] [data-igcsefy-subject-card-code] {',
@@ -169,9 +169,9 @@
       '  display: inline-flex;',
       '  align-items: center;',
       '  gap: 4px;',
-      '  width: 100%;',
-      '  max-width: 320px;',
-      '  padding: 4px;',
+      '  width: min(100%, 280px);',
+      '  max-width: 280px;',
+      '  padding: 3px;',
       '  border-radius: 999px;',
       '  transition: opacity 0.18s ease, filter 0.18s ease;',
       '}',
@@ -195,13 +195,13 @@
       '  flex: 1 1 0;',
       '  border: 0;',
       '  border-radius: 999px;',
-      '  padding: 10px 14px;',
+      '  padding: 8px 12px;',
       '  display: inline-flex;',
       '  align-items: center;',
       '  justify-content: center;',
-      '  font-size: 11px;',
+      '  font-size: 10px;',
       '  font-weight: 700;',
-      '  letter-spacing: 0.18em;',
+      '  letter-spacing: 0.16em;',
       '  text-transform: uppercase;',
       '  line-height: 1;',
       '  user-select: none;',
@@ -233,16 +233,17 @@
       '}',
       '@media (max-width: 640px) {',
       '  button[data-igcsefy-profile-subject-card="true"] {',
-      '    min-height: 96px !important;',
-      '    padding: 13px 14px !important;',
+      '    min-height: 84px !important;',
+      '    padding: 11px 14px !important;',
       '    gap: 10px !important;',
       '  }',
       '  [data-igcsefy-subject-level] {',
-      '    padding: 9px 12px;',
+      '    padding: 7px 10px;',
       '    letter-spacing: 0.13em;',
       '  }',
       '  [data-igcsefy-subject-card-levels] {',
-      '    max-width: 100%;',
+      '    width: min(100%, 250px);',
+      '    max-width: 250px;',
       '  }',
       '}',
       'button[data-igcsefy-basic-subject-option="true"] {',
@@ -871,6 +872,25 @@
     return rawStyle.indexOf('#161616') !== -1 || rawStyle.indexOf('rgb(22, 22, 22)') !== -1;
   }
 
+  function isTrackedSubjectRemoveButton(button) {
+    return !!button && getButtonText(button) === 'Remove';
+  }
+
+  function findRemoveButtonSubjectCode(button) {
+    var current = button && button.parentElement ? button.parentElement : null;
+    var code = '';
+
+    while (current && current.id !== 'root') {
+      code = findSubjectCode(current);
+      if (/^\d{4}$/.test(code)) {
+        return code;
+      }
+      current = current.parentElement;
+    }
+
+    return '';
+  }
+
   function isSelectorButton(button) {
     var className = typeof button.className === 'string' ? button.className : '';
 
@@ -971,6 +991,10 @@
         if (button.parentElement) {
           button.parentElement.setAttribute('data-igcsefy-subject-manager-footer', 'true');
         }
+      }
+
+      if (text === 'Remove') {
+        button.setAttribute('data-igcsefy-tracked-subject-remove', 'true');
       }
 
       if (text === 'Add your first subject →') {
@@ -1201,6 +1225,15 @@
         return;
       }
 
+      if (isTrackedSubjectRemoveButton(button)) {
+        code = findRemoveButtonSubjectCode(button);
+        if (code) {
+          persistTrackedSelection(code, false);
+        }
+        window.setTimeout(scheduleApply, 0);
+        return;
+      }
+
       if (!code) {
         window.setTimeout(scheduleApply, 0);
         return;
@@ -1218,7 +1251,7 @@
       window.setTimeout(function () {
         scheduleApply();
       }, 0);
-    });
+    }, true);
   }
 
   window.addEventListener('load', scheduleApply);
