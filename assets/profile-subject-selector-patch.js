@@ -531,24 +531,33 @@
       '  box-shadow: var(--igcsefy-subject-selector-shadow-md) !important;',
       '  outline: none !important;',
       '}',
-      'html.light [data-igcsefy-subject-manager-toggle="true"],',
-      'html[data-theme="light"] [data-igcsefy-subject-manager-toggle="true"] {',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"],',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"] {',
       '  background: var(--igcsefy-subject-selector-surface) !important;',
       '  color: var(--igcsefy-subject-selector-text) !important;',
       '  border: 1px solid var(--igcsefy-subject-selector-border) !important;',
       '  box-shadow: none !important;',
+      '  transition: none !important;',
       '}',
-      'html.light [data-igcsefy-subject-manager-toggle="true"][data-open="true"],',
-      'html[data-theme="light"] [data-igcsefy-subject-manager-toggle="true"][data-open="true"] {',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"],',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"] {',
       '  background: var(--igcsefy-subject-selector-accent) !important;',
       '  color: var(--igcsefy-subject-selector-surface) !important;',
       '  border-color: transparent !important;',
       '  box-shadow: var(--igcsefy-subject-selector-shadow-sm) !important;',
       '}',
-      'html.light [data-igcsefy-subject-manager-toggle="true"][data-open="true"]:hover,',
-      'html.light [data-igcsefy-subject-manager-toggle="true"][data-open="true"]:focus-visible,',
-      'html[data-theme="light"] [data-igcsefy-subject-manager-toggle="true"][data-open="true"]:hover,',
-      'html[data-theme="light"] [data-igcsefy-subject-manager-toggle="true"][data-open="true"]:focus-visible {',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"][data-open="false"]:hover,',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"][data-open="false"]:focus-visible,',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"][data-open="false"]:hover,',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"][data-open="false"]:focus-visible {',
+      '  border-color: var(--igcsefy-subject-selector-border-strong) !important;',
+      '  box-shadow: var(--igcsefy-subject-selector-shadow-sm) !important;',
+      '  outline: none !important;',
+      '}',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"]:hover,',
+      'html.light #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"]:focus-visible,',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"]:hover,',
+      'html[data-theme="light"] #root button[data-igcsefy-subject-manager-toggle="true"][data-open="true"]:focus-visible {',
       '  box-shadow: var(--igcsefy-subject-selector-shadow-md) !important;',
       '  outline: none !important;',
       '}',
@@ -1142,6 +1151,9 @@
       if (text === 'Manage subjects' || text === 'Done') {
         button.setAttribute('data-igcsefy-subject-manager-toggle', 'true');
         button.setAttribute('data-open', text === 'Done' ? 'true' : 'false');
+      } else {
+        button.removeAttribute('data-igcsefy-subject-manager-toggle');
+        button.removeAttribute('data-open');
       }
 
       if (SUBJECT_GROUP_LABELS[text]) {
@@ -1402,9 +1414,17 @@
       var target = event.target;
       var button = target && target.closest ? target.closest('#root button') : null;
       var code = button && isSelectorButton(button) ? findSubjectCode(button) : '';
+      var buttonText = button ? getButtonText(button) : '';
       var nextSelected;
 
       if (!button) {
+        return;
+      }
+
+      if (buttonText === 'Manage subjects' || buttonText === 'Done') {
+        button.setAttribute('data-igcsefy-subject-manager-toggle', 'true');
+        button.setAttribute('data-open', buttonText === 'Manage subjects' ? 'true' : 'false');
+        window.setTimeout(scheduleApply, 0);
         return;
       }
 

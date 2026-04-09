@@ -633,7 +633,7 @@
         root.style.display = '';
         root.style.visibility = 'hidden';
         root.style.opacity = '0';
-        root.style.transition = 'opacity 240ms ease';
+        root.style.transition = 'none';
       }
       if (document.body && document.body.dataset) delete document.body.dataset.authPending;
       clearThemeRefreshTimer();
@@ -649,19 +649,22 @@
         window.requestAnimationFrame(function () {
           var root = document.getElementById('root');
           if (root) {
+            root.style.transition = 'none';
             root.style.visibility = '';
             root.style.opacity = '1';
           }
 
-          revealQueued = false;
-          dispatchProfileReady('dashboard');
+          window.requestAnimationFrame(function () {
+            revealQueued = false;
+            dispatchProfileReady('dashboard');
 
-          window.setTimeout(function () {
-            if (!root) return;
-            root.style.removeProperty('transition');
-            root.style.removeProperty('opacity');
-            root.style.removeProperty('visibility');
-          }, 280);
+            window.setTimeout(function () {
+              if (!root) return;
+              root.style.removeProperty('transition');
+              root.style.removeProperty('opacity');
+              root.style.removeProperty('visibility');
+            }, 40);
+          });
 
           setTimeout(function() {
             try {

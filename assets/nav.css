@@ -79,6 +79,7 @@ body{
 .site-nav-spacer{
   display: block;
   height: var(--site-nav-offset);
+  background: var(--site-nav-page-bg);
 }
 
 .site-nav{

@@ -77,7 +77,8 @@ html.light body[data-profile-page="true"] .igcsefy-profile-syllabus {
   --igcsefy-syllabus-heatmap-completed: #8E7A63;
 }
 
-html.light body[data-profile-page="true"] {
+html.light body[data-profile-page="true"],
+html[data-theme="light"] body[data-profile-page="true"] {
   background: #F1EFE7;
   --igcsefy-profile-surface: #FFFDF8;
   --igcsefy-profile-surface-soft: #FBF7EF;
@@ -90,7 +91,8 @@ html.light body[data-profile-page="true"] {
   --input: 35 28% 83%;
 }
 
-html.light body[data-profile-page="true"] .site-nav {
+html.light body[data-profile-page="true"] .site-nav,
+html[data-theme="light"] body[data-profile-page="true"] .site-nav {
   --site-nav-bg: #F1EFE7;
   --site-nav-bg-strong: #F1EFE7;
   --site-nav-border: rgba(221, 210, 193, 0.9);
@@ -98,7 +100,13 @@ html.light body[data-profile-page="true"] .site-nav {
   --site-nav-shadow: none;
 }
 
-html.light body[data-profile-page="true"] .site-nav .site-nav__bar {
+html.light body[data-profile-page="true"] .site-nav-spacer,
+html[data-theme="light"] body[data-profile-page="true"] .site-nav-spacer {
+  background: #F1EFE7 !important;
+}
+
+html.light body[data-profile-page="true"] .site-nav .site-nav__bar,
+html[data-theme="light"] body[data-profile-page="true"] .site-nav .site-nav__bar {
   background: #F1EFE7 !important;
   border-bottom-color: transparent !important;
   box-shadow: none !important;
@@ -107,6 +115,8 @@ html.light body[data-profile-page="true"] .site-nav .site-nav__bar {
 }
 
 html.light body[data-profile-page="true"] .site-nav[data-scrolled="true"] .site-nav__bar,
+html[data-theme="light"] body[data-profile-page="true"] .site-nav[data-scrolled="true"] .site-nav__bar,
+html[data-theme="light"] body[data-profile-page="true"] .site-nav[data-open="true"] .site-nav__bar,
 html.light body[data-profile-page="true"] .site-nav[data-open="true"] .site-nav__bar {
   background: #F1EFE7 !important;
   border-bottom-color: var(--igcsefy-profile-divider-soft) !important;
@@ -116,11 +126,14 @@ html.light body[data-profile-page="true"] .site-nav[data-open="true"] .site-nav_
 }
 
 html.light body[data-profile-page="true"] #root,
-html.light body[data-profile-page="true"] #root .min-h-screen {
+html.light body[data-profile-page="true"] #root .min-h-screen,
+html[data-theme="light"] body[data-profile-page="true"] #root,
+html[data-theme="light"] body[data-profile-page="true"] #root .min-h-screen {
   background: #F1EFE7 !important;
 }
 
-html.light body[data-profile-page="true"] #root .min-h-screen > div:first-child {
+html.light body[data-profile-page="true"] #root .min-h-screen > div:first-child,
+html[data-theme="light"] body[data-profile-page="true"] #root .min-h-screen > div:first-child {
   background: #F1EFE7 !important;
   border-bottom: 1px solid var(--igcsefy-profile-divider-soft) !important;
 }
