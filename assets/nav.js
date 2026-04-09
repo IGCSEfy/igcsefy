@@ -8,6 +8,22 @@
     { key: 'past-papers', label: 'Past Papers', href: '/past-papers/' },
     { key: 'about', label: 'About', href: '/about/' }
   ];
+  var NAV_READY_EVENT = 'igcsefy:site-nav-ready';
+  var NAV_READY_KEY = '__igcsefySiteNavReady';
+
+  function markNavReady() {
+    if (window[NAV_READY_KEY]) {
+      return;
+    }
+
+    window[NAV_READY_KEY] = true;
+
+    try {
+      window.dispatchEvent(new CustomEvent(NAV_READY_EVENT));
+    } catch (error) {
+      // Ignore dispatch failures.
+    }
+  }
 
   function normalizePath(pathname) {
     var clean = String(pathname || '/')
@@ -621,31 +637,36 @@
 
   function mountNav() {
     var existingNav = document.querySelector('.site-nav');
+    var nav;
 
     if (existingNav) {
       hardenNavRoot(existingNav);
       document.body.classList.add('has-site-nav');
       document.documentElement.classList.add('site-nav-ready');
       bindNav(existingNav, ensureSpacerAfter(existingNav));
-      return;
-    }
-
-    var nav = buildNav();
-    var preserveHeader = document.body.hasAttribute('data-site-nav-preserve-header');
-    var legacyHeader = preserveHeader ? null : findLegacyHeader();
-
-    if (legacyHeader) {
-      legacyHeader.replaceWith(nav);
-    } else if (document.body.firstChild) {
-      document.body.insertBefore(nav, document.body.firstChild);
+      nav = existingNav;
     } else {
-      document.body.appendChild(nav);
+      nav = buildNav();
+      var preserveHeader = document.body.hasAttribute('data-site-nav-preserve-header');
+      var legacyHeader = preserveHeader ? null : findLegacyHeader();
+
+      if (legacyHeader) {
+        legacyHeader.replaceWith(nav);
+      } else if (document.body.firstChild) {
+        document.body.insertBefore(nav, document.body.firstChild);
+      } else {
+        document.body.appendChild(nav);
+      }
+
+      document.body.classList.add('has-site-nav');
+      document.documentElement.classList.add('site-nav-ready');
+
+      bindNav(nav, ensureSpacerAfter(nav));
     }
 
-    document.body.classList.add('has-site-nav');
-    document.documentElement.classList.add('site-nav-ready');
-
-    bindNav(nav, ensureSpacerAfter(nav));
+    requestAnimationFrame(function () {
+      requestAnimationFrame(markNavReady);
+    });
   }
 
   if (document.readyState === 'loading') {

@@ -29,9 +29,33 @@
     'business-studies': 'business-studies-0450',
     accounting: 'accounting-0452'
   };
+  var PROFILE_PATCH_READY_EVENT = 'igcsefy:profile-patch-ready';
+  var PROFILE_PATCH_STATE_KEY = '__igcsefyProfilePatchReady';
 
   var refreshTimer = 0;
   var rootObserver = null;
+  var remoteProfileDataSeen = false;
+
+  function markProfilePatchReady(step) {
+    var state = window[PROFILE_PATCH_STATE_KEY];
+
+    if (!state || typeof state !== 'object') {
+      state = {};
+      window[PROFILE_PATCH_STATE_KEY] = state;
+    }
+
+    if (!step || state[step]) {
+      return;
+    }
+
+    state[step] = true;
+
+    try {
+      window.dispatchEvent(new CustomEvent(PROFILE_PATCH_READY_EVENT, {
+        detail: { step: step }
+      }));
+    } catch (error) {}
+  }
 
   function isLightTheme() {
     return document.documentElement.classList.contains('light');
@@ -474,21 +498,25 @@
       if (!code) return;
       patchOverviewRow(row, summaries[code] || createEmptySummary());
     });
+
+    if (remoteProfileDataSeen) {
+      markProfilePatchReady('progress');
+    }
   }
 
   function scheduleProfileProgressPatch() {
     if (refreshTimer) {
-      clearTimeout(refreshTimer);
+      window.cancelAnimationFrame(refreshTimer);
     }
 
-    refreshTimer = setTimeout(function () {
+    refreshTimer = window.requestAnimationFrame(function () {
       refreshTimer = 0;
       try {
         patchProfileProgress();
       } catch (err) {
         console.error('IGCSEfy profile subject patch failed:', err);
       }
-    }, 60);
+    });
   }
 
   function startObserver() {
@@ -505,6 +533,7 @@
   window.addEventListener('igcsefy:data-change', function (e) {
     var reason = e.detail && e.detail.reason;
     if (reason === 'remote-load' || reason === 'remote-update' || reason === 'auth-dashboard-nudge') {
+      remoteProfileDataSeen = true;
       // Fire a second nudge after 200ms to ensure React has re-mounted its listeners
       setTimeout(function () {
         try {

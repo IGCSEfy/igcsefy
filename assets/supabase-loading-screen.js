@@ -10,6 +10,7 @@
   var PAST_PAPERS_READY_EVENT = 'igcsefy:past-papers-ready';
   var PROFILE_READY_EVENT = 'igcsefy:profile-ready';
   var PROFILE_THEME_READY_EVENT = 'igcsefy:profile-theme-ready';
+  var SITE_NAV_READY_EVENT = 'igcsefy:site-nav-ready';
   var OVERLAY_ID = 'igcsefy-loading-overlay';
 
   function isLightTheme() {
@@ -105,6 +106,7 @@
   var remoteReady = false;
   var pageReady = !isPastPapersPage && !isProfilePage;
   var themeReady = !waitForProfileThemePaint;
+  var navReady = !!window.__igcsefySiteNavReady;
   var waitingForRemoteData = false;
 
   function dismiss() {
@@ -128,6 +130,7 @@
     if (!remoteReady) return;
     if (!pageReady) return;
     if (!themeReady) return;
+    if (!navReady) return;
     dismiss();
   }
 
@@ -188,6 +191,11 @@
       remoteReady = true;
     }
 
+    maybeDismiss();
+  });
+
+  window.addEventListener(SITE_NAV_READY_EVENT, function () {
+    navReady = true;
     maybeDismiss();
   });
 

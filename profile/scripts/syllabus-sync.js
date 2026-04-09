@@ -25,7 +25,29 @@
   let transitionObserver = null;
   let subjectManagerObserver = null;
   let subjectManagerEnhanceScheduled = false;
+  let remoteSyllabusDataSeen = false;
   const SUBJECTS_WITH_LEVELS = new Set(["0580", "0610", "0620", "0625"]);
+  const PROFILE_PATCH_READY_EVENT = "igcsefy:profile-patch-ready";
+  const PROFILE_PATCH_STATE_KEY = "__igcsefyProfilePatchReady";
+
+  function markProfilePatchReady(step) {
+    let state = window[PROFILE_PATCH_STATE_KEY];
+
+    if (!state || typeof state !== "object") {
+      state = {};
+      window[PROFILE_PATCH_STATE_KEY] = state;
+    }
+
+    if (!step || state[step]) return;
+
+    state[step] = true;
+
+    try {
+      window.dispatchEvent(new CustomEvent(PROFILE_PATCH_READY_EVENT, {
+        detail: { step }
+      }));
+    } catch (error) {}
+  }
 
   function ensureIgcsefyDataStore() {
     if (typeof window === "undefined") {
@@ -1283,6 +1305,7 @@
     if (!isSyllabusTabVisible()) {
       delete document.body.dataset.profileSyllabusPending;
       teardownMounted(root);
+      markProfilePatchReady("syllabus");
       return;
     }
 
@@ -1294,6 +1317,9 @@
       getMountedHost(root)
     ) {
       delete document.body.dataset.profileSyllabusPending;
+      if (remoteSyllabusDataSeen) {
+        markProfilePatchReady("syllabus");
+      }
       return;
     }
 
@@ -1303,6 +1329,9 @@
         root.dataset.igcsefySyllabusMounted = "true";
         root.dataset.igcsefyCodes = "";
         delete document.body.dataset.profileSyllabusPending;
+        if (remoteSyllabusDataSeen) {
+          markProfilePatchReady("syllabus");
+        }
       }
       return;
     }
@@ -1329,6 +1358,9 @@
         dataStore.getSyllabusStates(),
         captureUiState(getMountedHost(root) || root)
       );
+      if (remoteSyllabusDataSeen) {
+        markProfilePatchReady("syllabus");
+      }
     } catch (error) {
       console.error(error);
       delete document.body.dataset.profileSyllabusPending;
@@ -1436,7 +1468,12 @@
       window.setTimeout(scheduleSubjectManagerEnhancement, 30);
     });
 
-    window.addEventListener("igcsefy:data-change", () => {
+    window.addEventListener("igcsefy:data-change", (event) => {
+      const reason = event && event.detail ? event.detail.reason : "";
+      if (reason === "remote-load" || reason === "remote-update" || reason === "auth-dashboard-nudge") {
+        remoteSyllabusDataSeen = true;
+        scheduleMount();
+      }
       scheduleSubjectManagerEnhancement();
       // Re-prefetch in case tracked subjects changed (e.g. after Supabase load)
       prefetchTrackedSyllabi();

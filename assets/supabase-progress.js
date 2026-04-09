@@ -4,6 +4,9 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFreG5xd2N2Z2NsY3htZ2hiamFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2MTc5NTgsImV4cCI6MjA4MzE5Mzk1OH0.Oguf5ne0-tp6MKqj2SN2dEKA4Sl7mdmNgMLJ4BrZScw';
   const ADAPTER_READY_EVENT = 'igcsefy:data-adapter-ready';
   const AUTH_EVENT          = 'igcsefy:supabase-auth-change';
+  const PROFILE_PATCH_READY_EVENT = 'igcsefy:profile-patch-ready';
+  const PROFILE_PATCH_STATE_KEY = '__igcsefyProfilePatchReady';
+  const REQUIRED_PROFILE_PATCH_STEPS = ['subject-filter', 'progress', 'syllabus'];
 
   // ─── Key prefix for past papers stored in user_topic_states ────────────────
   // Past paper track keys are stored with this prefix so they share the table
@@ -20,6 +23,22 @@
 
   function fromDbState(dbState) {
     return dbState;
+  }
+
+  function getProfilePatchState() {
+    if (!window[PROFILE_PATCH_STATE_KEY] || typeof window[PROFILE_PATCH_STATE_KEY] !== 'object') {
+      window[PROFILE_PATCH_STATE_KEY] = {};
+    }
+
+    return window[PROFILE_PATCH_STATE_KEY];
+  }
+
+  function hasRequiredProfilePatchSteps() {
+    var state = getProfilePatchState();
+
+    return REQUIRED_PROFILE_PATCH_STEPS.every(function (step) {
+      return !!state[step];
+    });
   }
 
   const SUBJECTS = {
@@ -62,7 +81,11 @@
     currentUser = (session && session.user) ? session.user : null;
     authResolve();
     window.dispatchEvent(new CustomEvent(AUTH_EVENT, {
-      detail: { user: currentUser, isAuthenticated: !!currentUser }
+      detail: {
+        event: String(event || ''),
+        user: currentUser,
+        isAuthenticated: !!currentUser
+      }
     }));
     window.dispatchEvent(new CustomEvent(ADAPTER_READY_EVENT));
 
@@ -487,6 +510,8 @@
     var dashboardPrepared = false;
     var remoteSnapshotReady = false;
     var profileUserReady = false;
+    var profileDataReady = hasRequiredProfilePatchSteps();
+    var lastProfileViewState = null;
     var revealQueued = false;
 
     function isLightTheme() {
@@ -650,10 +675,13 @@
     }
 
     function maybeRevealDashboard() {
+      profileDataReady = profileDataReady || hasRequiredProfilePatchSteps();
+
       if (!currentUser) return;
       if (!dashboardPrepared) return;
       if (!remoteSnapshotReady) return;
       if (!profileUserReady) return;
+      if (!profileDataReady) return;
       finalizeDashboardReveal();
     }
 
@@ -662,6 +690,7 @@
       dashboardRevealTimer = window.setTimeout(function () {
         remoteSnapshotReady = true;
         profileUserReady = true;
+        profileDataReady = true;
         maybeRevealDashboard();
       }, 3200);
     }
@@ -669,6 +698,8 @@
     function showDashboard() {
       remoteSnapshotReady = false;
       profileUserReady = false;
+      profileDataReady = hasRequiredProfilePatchSteps();
+      lastProfileViewState = 'dashboard';
       prepareDashboardShell();
       startDashboardRevealFallback();
 
@@ -698,6 +729,7 @@
       dashboardPrepared = false;
       remoteSnapshotReady = true;
       profileUserReady = true;
+      lastProfileViewState = 'signin';
 
       var root = document.getElementById('root');
       resetSignInView(root);
@@ -846,6 +878,29 @@
       dispatchProfileReady('signin');
     }
 
+    function syncProfileView(forceRefresh) {
+      var nextState = currentUser ? 'dashboard' : 'signin';
+      var bodyPending = !!(document.body && document.body.dataset && document.body.dataset.authPending);
+      var gateVisible = !!document.getElementById(GATE_ID);
+
+      if (!forceRefresh && lastProfileViewState === nextState) {
+        if (nextState === 'dashboard' && !bodyPending && !gateVisible) {
+          return;
+        }
+
+        if (nextState === 'signin' && gateVisible) {
+          return;
+        }
+      }
+
+      if (nextState === 'dashboard') {
+        showDashboard();
+        return;
+      }
+
+      showSignInGate(!!forceRefresh);
+    }
+
     document.addEventListener('click', function (e) {
       var btn = e.target && e.target.closest ? e.target.closest('button') : null;
       if (!btn) return;
@@ -871,13 +926,27 @@
       maybeRevealDashboard();
     });
 
-    window.addEventListener(AUTH_EVENT, function () {
-      if (currentUser) { showDashboard(); } else { showSignInGate(); }
+    window.addEventListener(PROFILE_PATCH_READY_EVENT, function () {
+      if (!currentUser) return;
+      if (hasRequiredProfilePatchSteps()) {
+        profileDataReady = true;
+        maybeRevealDashboard();
+      }
+    });
+
+    window.addEventListener(AUTH_EVENT, function (event) {
+      var authEventType = event && event.detail ? String(event.detail.event || '') : '';
+
+      if (authEventType === 'TOKEN_REFRESHED' || authEventType === 'USER_UPDATED') {
+        return;
+      }
+
+      syncProfileView(false);
     });
     window.addEventListener('igcsefy:theme-change', queueGateRefresh);
 
     authReady.then(function () {
-      if (currentUser) { showDashboard(); } else { showSignInGate(); }
+      syncProfileView(false);
     });
   }
 

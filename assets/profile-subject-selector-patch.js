@@ -50,6 +50,29 @@
     '0625': 'Physics'
   };
   var TRACKING_FILTER_PATCH_FLAG = '__igcsefyProfileTrackingFilterPatched';
+  var PROFILE_PATCH_READY_EVENT = 'igcsefy:profile-patch-ready';
+  var PROFILE_PATCH_STATE_KEY = '__igcsefyProfilePatchReady';
+
+  function markProfilePatchReady(step) {
+    var state = window[PROFILE_PATCH_STATE_KEY];
+
+    if (!state || typeof state !== 'object') {
+      state = {};
+      window[PROFILE_PATCH_STATE_KEY] = state;
+    }
+
+    if (!step || state[step]) {
+      return;
+    }
+
+    state[step] = true;
+
+    try {
+      window.dispatchEvent(new CustomEvent(PROFILE_PATCH_READY_EVENT, {
+        detail: { step: step }
+      }));
+    } catch (error) {}
+  }
 
   function ensureStyles() {
     var style;
@@ -1337,6 +1360,7 @@
       }
     }
 
+    markProfilePatchReady('subject-filter');
     startObserver();
   }
 
