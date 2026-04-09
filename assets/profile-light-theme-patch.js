@@ -7,8 +7,11 @@
 
   var observer = null;
   var scheduled = false;
+  var initialLightThemeReady = false;
+  var lightThemeReadyQueued = false;
   var ORIGINAL_STYLE_ATTR = 'data-igcsefy-profile-light-orig-style';
   var LEGACY_TAB_STATE_ATTR = 'data-igcsefy-profile-tab-state';
+  var PROFILE_THEME_READY_EVENT = 'igcsefy:profile-theme-ready';
 
   var COLORS = {
     page: '#F1EFE7',
@@ -195,6 +198,15 @@
     softenProgressTables(root);
     softenTracks(root);
     softenActivityBars(root);
+
+    if (!initialLightThemeReady && !lightThemeReadyQueued) {
+      lightThemeReadyQueued = true;
+      requestAnimationFrame(function () {
+        lightThemeReadyQueued = false;
+        initialLightThemeReady = true;
+        window.dispatchEvent(new CustomEvent(PROFILE_THEME_READY_EVENT));
+      });
+    }
   }
 
   function scheduleApply() {

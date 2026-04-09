@@ -9,6 +9,7 @@
   var DATA_EVENT = 'igcsefy:data-change';
   var PAST_PAPERS_READY_EVENT = 'igcsefy:past-papers-ready';
   var PROFILE_READY_EVENT = 'igcsefy:profile-ready';
+  var PROFILE_THEME_READY_EVENT = 'igcsefy:profile-theme-ready';
   var OVERLAY_ID = 'igcsefy-loading-overlay';
 
   function isLightTheme() {
@@ -99,9 +100,11 @@
   var path = getNormalizedPath();
   var isPastPapersPage = isPastPapersPath(path);
   var isProfilePage = isProfilePath(path);
+  var waitForProfileThemePaint = isProfilePage && lightTheme;
   var authResolved = false;
   var remoteReady = false;
   var pageReady = !isPastPapersPage && !isProfilePage;
+  var themeReady = !waitForProfileThemePaint;
   var waitingForRemoteData = false;
 
   function dismiss() {
@@ -124,6 +127,7 @@
     if (!authResolved) return;
     if (!remoteReady) return;
     if (!pageReady) return;
+    if (!themeReady) return;
     dismiss();
   }
 
@@ -165,6 +169,13 @@
       pageReady = true;
       maybeDismiss();
     });
+
+    if (waitForProfileThemePaint) {
+      window.addEventListener(PROFILE_THEME_READY_EVENT, function () {
+        themeReady = true;
+        maybeDismiss();
+      });
+    }
   }
 
   window.addEventListener(AUTH_EVENT, function (e) {
