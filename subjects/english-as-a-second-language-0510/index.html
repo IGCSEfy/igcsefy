@@ -20,14 +20,14 @@
         var parsed = JSON.parse(raw);
         preference = parsed && parsed.appearance ? parsed.appearance.theme : "";
       }
-      var resolved = preference === "system" || !preference
+      var resolved = preference === "system"
         ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-        : preference;
+        : (preference === "light" || preference === "dark" ? preference : "dark");
       var root = document.documentElement;
       root.classList.remove("light", "dark");
       root.classList.add(resolved === "dark" ? "dark" : "light");
       root.dataset.theme = resolved;
-      root.dataset.themePreference = preference || "system";
+      root.dataset.themePreference = preference === "system" ? "system" : resolved;
     } catch (error) {}
   })();
 </script>
@@ -38,7 +38,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap" rel="stylesheet"/>
 <link href="/assets/styles.css" rel="stylesheet"/>
 <link href="/assets/nav.css?v=20260403n" rel="stylesheet"/><style>header:not(.site-nav){visibility:hidden}main .hero,[data-tabs] > .tabs[role="tablist"],[id^="syllabus-"] > p{display:none!important}body,main,main.container,.section,#tab-syl,#tab-syl > div[id^="syllabus-"]{background:#0A0A0B}#tab-syl{padding:0;margin:0}#tab-syl > div[id^="syllabus-"]{display:block;min-height:100vh}</style><style>footer.subjects-footer{width:min(100%,calc(var(--maxw,1180px) + 40px));margin:96px auto 0;padding:0 20px 52px;border-top:0;color:inherit;opacity:0;animation:footer-fade-in 0.3s ease 0.6s forwards}.subjects-footer__inner{border-top:1px solid rgba(255,255,255,0.11);padding-top:30px}.subjects-footer__inner p{margin:0;text-align:center;color:rgba(255,255,255,0.5);font-size:0.76rem;letter-spacing:0.18em;font-family:"SFMono-Regular","SF Mono",Consolas,"Liberation Mono",Menlo,monospace}@keyframes footer-fade-in{to{opacity:1}}</style><style>html.light{color-scheme:light}html.light body.subject-syllabus-v2,html.light body.subject-syllabus-v2 main,html.light body.subject-syllabus-v2 main.container,html.light body.subject-syllabus-v2 .section,html.light body.subject-syllabus-v2 #tab-syl,html.light body.subject-syllabus-v2 #tab-syl > div[id^="syllabus-"]{background:#F1EFE7}html.light body.subject-syllabus-v2 .subjects-footer__inner{border-top-color:#E9E3D8}html.light body.subject-syllabus-v2 .subjects-footer__inner p{color:#666666}</style></head><body class="subject-syllabus-v2">
-<script src="/assets/supabase-loading-screen.js"></script>
+<script src="/assets/supabase-loading-screen.js?v=20260409k"></script>
 <header style="visibility:hidden"><div class="container nav"><div class="brand"><img alt="IGCSEfy logo" src="/assets/logo-main.png"/><span>IGCSEfy</span></div>
 <nav class="links"><a class="link" href="/">Home</a><a class="link" href="/subjects/">Subjects</a><a class="link" href="/past-papers/">Past Papers</a><a class="link" href="/help">AI</a><a class="link" href="/about/">About</a></nav></div></header>
 <main class="container">
@@ -58,8 +58,8 @@
 <footer class="subjects-footer"><div class="subjects-footer__inner"><p>&copy; 2026 IGCSEfy</p></div></footer><script defer="" src="/assets/past-papers.js?v=20260405k"></script>
 <script defer="" src="/assets/app.js?v=20260405f"></script>
 <script>window.addEventListener('DOMContentLoaded',()=>{ igcsefy.loadSyllabus("syllabus-english-as-a-second-language-0510", "resources/english-as-a-second-language-0510/syllabus.json"); });</script>
-<script defer="" src="/assets/nav.js"></script>
+<script defer="" src="/assets/nav.js?v=20260409m"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="/assets/supabase-progress.js?v=20260403v"></script>
+<script defer src="/assets/supabase-progress.js?v=20260409n"></script>
 </body></html>

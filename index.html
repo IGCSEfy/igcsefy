@@ -1,8 +1,8 @@
 <html lang="en"><head>
   <meta charset="utf-8">
-  <link href="/assets/favicon.png" rel="icon" type="image/svg+xml">
+  <link href="/assets/favicon.png" rel="icon" type="image/png">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <link href="https://igcsefy.com/manifest.json" rel="manifest">
+  <link href="/manifest.json" rel="manifest">
   <title>
    IGCSEfy
   </title>
@@ -191,10 +191,122 @@
     transform: translate3d(0,0,0) scale(1.018) !important;
   }
 </style>
+<style id="home-footer-style">
+  .home-page-footer {
+    padding: 52px 24px 72px;
+    background: transparent;
+  }
+
+  .home-page-footer__inner {
+    width: min(100%, 1840px);
+    margin: 0 auto;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .home-page-footer__copy {
+    margin: 0;
+    font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: clamp(0.98rem, 1vw, 1.12rem);
+    letter-spacing: 0.28em;
+    color: rgba(255, 255, 255, 0.54);
+  }
+
+  .home-page-footer__links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 0.96rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .home-page-footer__link {
+    color: rgba(255, 255, 255, 0.68);
+    text-decoration: none;
+    transition: color 0.2s ease, opacity 0.2s ease;
+  }
+
+  .home-page-footer__link:hover,
+  .home-page-footer__link:focus-visible {
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  .home-page-footer__separator {
+    color: rgba(255, 255, 255, 0.24);
+    user-select: none;
+  }
+
+  html.light .home-page-footer__inner,
+  html[data-theme="light"] .home-page-footer__inner {
+    border-top-color: #e1dacd;
+  }
+
+  html.light .home-page-footer__copy,
+  html[data-theme="light"] .home-page-footer__copy {
+    color: #6f6a61;
+  }
+
+  html.light .home-page-footer__link,
+  html[data-theme="light"] .home-page-footer__link {
+    color: #747067;
+  }
+
+  html.light .home-page-footer__link:hover,
+  html.light .home-page-footer__link:focus-visible,
+  html[data-theme="light"] .home-page-footer__link:hover,
+  html[data-theme="light"] .home-page-footer__link:focus-visible {
+    color: #2a2722;
+  }
+
+  html.light .home-page-footer__separator,
+  html[data-theme="light"] .home-page-footer__separator {
+    color: #c9bfaf;
+  }
+
+  @media (max-width: 768px) {
+    .home-page-footer {
+      padding: 40px 18px 52px;
+    }
+
+    .home-page-footer__inner {
+      padding-top: 24px;
+    }
+
+    .home-page-footer__copy {
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      text-align: center;
+    }
+
+    .home-page-footer__links {
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+  }
+</style>
 
 </head>
  <body>
   <div id="root"></div>
+  <footer class="home-page-footer" aria-label="Homepage footer">
+    <div class="home-page-footer__inner">
+      <p class="home-page-footer__copy">&copy; 2026 IGCSEfy</p>
+      <div class="home-page-footer__links">
+        <a class="home-page-footer__link" href="/privacy/">Privacy Policy</a>
+        <span class="home-page-footer__separator" aria-hidden="true">•</span>
+        <a class="home-page-footer__link" href="/terms/">Terms of Use</a>
+      </div>
+    </div>
+  </footer>
  <script>
       const uiState = window.__igcsefyHomeUi || (window.__igcsefyHomeUi = {});
       const HOME_SEARCH_DATA_URL = "/assets/home-search-data.json";
@@ -388,6 +500,20 @@
       };
 
       const isSignedIn = () => {
+        try {
+          if (window.igcsefySupabase && window.igcsefySupabase.currentUser) {
+            return true;
+          }
+
+          const hasSupabaseSession = Object.keys(window.localStorage || {}).some((key) => {
+            if (!key || !key.startsWith("sb-") || !key.endsWith("-auth-token")) return false;
+            const value = readLocalStorage(key);
+            return !!String(value || "").trim();
+          });
+
+          if (hasSupabaseSession) return true;
+        } catch (error) {}
+
         const token = readLocalStorage("igcsefy_access_token") || readLocalStorage("token");
         return !!String(token || "").trim();
       };
@@ -2732,9 +2858,9 @@
         attributeFilter: ["class", "data-theme"]
       });
       window.addEventListener("popstate", removeHomeChrome);
-    </script><script defer="" src="/assets/nav.js"></script>
+    </script><script defer="" src="/assets/nav.js?v=20260409m"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script defer src="/assets/supabase-progress.js?v=20260405g"></script>
+<script defer src="/assets/supabase-progress.js?v=20260409n"></script>
 <script defer src="/assets/user-identity.js?v=20260405g"></script>
 <script defer src="/assets/welcome-back.js?v=20260405g"></script>
 </body></html>

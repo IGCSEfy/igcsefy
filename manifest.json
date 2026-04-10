@@ -1,0 +1,18 @@
+{
+  "name": "IGCSEfy",
+  "short_name": "IGCSEfy",
+  "description": "Track IGCSE syllabus progress, manage past papers, and study across your subjects in one place.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0B0B0F",
+  "theme_color": "#0B0B0F",
+  "icons": [
+    {
+      "src": "/assets/favicon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

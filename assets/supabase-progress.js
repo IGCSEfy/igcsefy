@@ -7,11 +7,259 @@
   const PROFILE_PATCH_READY_EVENT = 'igcsefy:profile-patch-ready';
   const PROFILE_PATCH_STATE_KEY = '__igcsefyProfilePatchReady';
   const REQUIRED_PROFILE_PATCH_STEPS = ['subject-filter', 'progress', 'syllabus'];
+  const SETTINGS_STORAGE_KEY = 'igcsefy-settings';
+  const SETTINGS_METADATA_KEY = 'igcsefy_settings';
+  const SETTINGS_SYNC_EVENT = 'igcsefy:settings-sync';
+  const SETTINGS_DEFAULTS = {
+    appearance: {
+      theme: 'dark',
+      reducedMotion: false
+    },
+    studyPreferences: {
+      defaultSubjectDestination: 'syllabus',
+      rememberLastSubjectTab: true,
+      pdfOpeningMode: 'preview',
+      autoOpenMarkScheme: false,
+      markSchemeOpenBehavior: 'same-tab',
+      afterDownloadBehavior: 'stay',
+      markAsInProgress: false,
+      paperTargets: []
+    }
+  };
 
   // ─── Key prefix for past papers stored in user_topic_states ────────────────
   // Past paper track keys are stored with this prefix so they share the table
   // with syllabus topic states but can be distinguished on read.
   const PAPER_PREFIX = 'pp|';
+
+  function readStoredJson(key) {
+    try {
+      var raw = window.localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function normalizeSubjectDestination(value) {
+    return String(value || '').trim().toLowerCase() === 'past-papers'
+      ? 'past-papers'
+      : 'syllabus';
+  }
+
+  function sanitizePaperTargets(raw) {
+    var list = Array.isArray(raw) ? raw : [];
+    var dedupe = {};
+
+    return list.map(function (entry) {
+      var subjectId = typeof entry === 'object' && entry && typeof entry.subjectId === 'string'
+        ? entry.subjectId.trim()
+        : '';
+      var level = entry && entry.level === 'core' ? 'core' : 'extended';
+      var target = Math.max(0, Math.round(Number(entry && entry.target) || 0));
+      var key;
+
+      if (!subjectId || !target) return null;
+
+      key = subjectId + ':' + level;
+      dedupe[key] = {
+        subjectId: subjectId,
+        level: level,
+        target: target
+      };
+      return key;
+    }).filter(Boolean).map(function (key) {
+      return dedupe[key];
+    });
+  }
+
+  function sanitizeSettingsPayload(raw, options) {
+    var source = raw && typeof raw === 'object' ? raw : {};
+    var appearance = source.appearance && typeof source.appearance === 'object' ? source.appearance : {};
+    var studyPreferences = source.studyPreferences && typeof source.studyPreferences === 'object'
+      ? source.studyPreferences
+      : {};
+    var updatedAt = typeof source.updatedAt === 'string' && !Number.isNaN(Date.parse(source.updatedAt))
+      ? new Date(source.updatedAt).toISOString()
+      : '';
+    var next = {
+      appearance: {
+        theme: appearance.theme === 'light' || appearance.theme === 'dark' || appearance.theme === 'system'
+          ? appearance.theme
+          : SETTINGS_DEFAULTS.appearance.theme,
+        reducedMotion: appearance.reducedMotion === true
+      },
+      studyPreferences: {
+        defaultSubjectDestination: normalizeSubjectDestination(studyPreferences.defaultSubjectDestination),
+        rememberLastSubjectTab: studyPreferences.rememberLastSubjectTab !== false,
+        pdfOpeningMode: studyPreferences.pdfOpeningMode === 'direct-download'
+          ? 'direct-download'
+          : 'preview',
+        autoOpenMarkScheme: studyPreferences.autoOpenMarkScheme === true,
+        markSchemeOpenBehavior: studyPreferences.markSchemeOpenBehavior === 'side-by-side'
+          ? 'side-by-side'
+          : 'same-tab',
+        afterDownloadBehavior: studyPreferences.afterDownloadBehavior === 'jump-next'
+          ? 'jump-next'
+          : 'stay',
+        markAsInProgress: studyPreferences.markAsInProgress === true,
+        paperTargets: sanitizePaperTargets(studyPreferences.paperTargets)
+      },
+      updatedAt: updatedAt
+    };
+
+    if ((options && options.touchUpdatedAt !== false) || !next.updatedAt) {
+      next.updatedAt = new Date().toISOString();
+    }
+
+    return next;
+  }
+
+  function readStoredSettings() {
+    var parsed = readStoredJson(SETTINGS_STORAGE_KEY);
+    return parsed && typeof parsed === 'object'
+      ? sanitizeSettingsPayload(parsed, { touchUpdatedAt: false })
+      : null;
+  }
+
+  function dispatchSettingsSync(settings, reason) {
+    try {
+      window.dispatchEvent(new CustomEvent(SETTINGS_SYNC_EVENT, {
+        detail: {
+          reason: reason || 'local-write',
+          settings: settings
+        }
+      }));
+    } catch (error) {}
+  }
+
+  function writeStoredSettings(settings, reason) {
+    if (!settings || typeof settings !== 'object') return null;
+
+    try {
+      window.localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    } catch (error) {}
+
+    dispatchSettingsSync(settings, reason);
+    return settings;
+  }
+
+  function stripSettingsTimestamp(settings) {
+    if (!settings || typeof settings !== 'object') return null;
+
+    return {
+      appearance: settings.appearance,
+      studyPreferences: settings.studyPreferences
+    };
+  }
+
+  function settingsSignature(settings) {
+    try {
+      return JSON.stringify(stripSettingsTimestamp(settings));
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function hasMeaningfulSettings(settings) {
+    return settingsSignature(settings) !== settingsSignature(SETTINGS_DEFAULTS);
+  }
+
+  function getSettingsTimestamp(settings) {
+    var value = settings && settings.updatedAt ? Date.parse(settings.updatedAt) : 0;
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function choosePreferredSettings(localSettings, remoteSettings) {
+    var localTime = getSettingsTimestamp(localSettings);
+    var remoteTime = getSettingsTimestamp(remoteSettings);
+
+    if (localSettings && remoteSettings) {
+      if (localTime && remoteTime && localTime !== remoteTime) {
+        return remoteTime > localTime ? remoteSettings : localSettings;
+      }
+      if (!localTime && remoteTime) {
+        return remoteSettings;
+      }
+      if (localTime && !remoteTime) {
+        return localSettings;
+      }
+      if (!hasMeaningfulSettings(localSettings) && hasMeaningfulSettings(remoteSettings)) {
+        return remoteSettings;
+      }
+      return localSettings;
+    }
+
+    return remoteSettings || localSettings || null;
+  }
+
+  function getRemoteSettingsForUser(user) {
+    var metadata = user && user.user_metadata && typeof user.user_metadata === 'object'
+      ? user.user_metadata
+      : null;
+    var raw = metadata && metadata[SETTINGS_METADATA_KEY] && typeof metadata[SETTINGS_METADATA_KEY] === 'object'
+      ? metadata[SETTINGS_METADATA_KEY]
+      : null;
+
+    return raw ? sanitizeSettingsPayload(raw, { touchUpdatedAt: false }) : null;
+  }
+
+  function syncStoredSettingsFromUser(user) {
+    var remoteSettings = getRemoteSettingsForUser(user);
+    var localSettings = readStoredSettings();
+    var preferredSettings = choosePreferredSettings(localSettings, remoteSettings);
+
+    if (!preferredSettings) {
+      return null;
+    }
+
+    if (settingsSignature(preferredSettings) !== settingsSignature(localSettings)
+      || getSettingsTimestamp(preferredSettings) !== getSettingsTimestamp(localSettings)) {
+      writeStoredSettings(preferredSettings, 'remote-load');
+    }
+
+    return preferredSettings;
+  }
+
+  async function saveUserMetadataPatch(patch) {
+    var existingMeta = currentUser && currentUser.user_metadata && typeof currentUser.user_metadata === 'object'
+      ? currentUser.user_metadata
+      : {};
+    var mergedMeta = Object.assign({}, existingMeta, patch || {});
+    var result;
+
+    if (!currentUser) {
+      return null;
+    }
+
+    result = await client.auth.updateUser({ data: mergedMeta });
+    if (result && result.error) throw result.error;
+
+    if (result && result.data && result.data.user) {
+      currentUser = result.data.user;
+      return result.data.user;
+    }
+
+    return currentUser;
+  }
+
+  async function saveUserSettings(settings, options) {
+    var normalized = sanitizeSettingsPayload(settings, options);
+
+    writeStoredSettings(normalized, 'local-save');
+
+    if (!currentUser) {
+      return normalized;
+    }
+
+    await saveUserMetadataPatch((function () {
+      var patch = {};
+      patch[SETTINGS_METADATA_KEY] = normalized;
+      return patch;
+    })());
+
+    return normalized;
+  }
 
   // ─── DB state values ───────────────────────────────────────────────────────
   // The Supabase schema now accepts the same topic states the client uses, so
@@ -68,7 +316,7 @@
       persistSession:     true,
       autoRefreshToken:   true,
       detectSessionInUrl: true,
-      flowType:           'implicit'
+      flowType:           'pkce'
     }
   });
 
@@ -79,6 +327,9 @@
 
   client.auth.onAuthStateChange(function (event, session) {
     currentUser = (session && session.user) ? session.user : null;
+    if (currentUser) {
+      syncStoredSettingsFromUser(currentUser);
+    }
     authResolve();
     window.dispatchEvent(new CustomEvent(AUTH_EVENT, {
       detail: {
@@ -456,6 +707,9 @@
     signOut:          signOut,
     loadSnapshot:     loadSnapshot,
     saveSnapshot:     saveDelta,
+    saveUserMetadataPatch: saveUserMetadataPatch,
+    saveUserSettings: saveUserSettings,
+    readStoredSettings: readStoredSettings,
     get currentUser() { return currentUser; }
   };
 
@@ -818,14 +1072,19 @@
 
         authPromise.then(function (res) {
           if (res.error) throw res.error;
-          var user = res.data && (res.data.user || (res.data.session && res.data.session.user));
-          if (user) {
+          var session = res.data && res.data.session ? res.data.session : null;
+          var user = res.data && (res.data.user || (session && session.user));
+          if (session && session.user) {
             window.location.replace('/profile/');
+            return;
+          }
+          if (mode === 'signup' && user) {
+            showErr('Check your inbox to confirm your account, then sign in.', 'info');
             return;
           }
           showErr(
             mode === 'signup'
-              ? 'Check your inbox to confirm your account, then sign in.'
+              ? 'Account created. Check your inbox to confirm your account.'
               : 'Signed in. Redirecting\u2026',
             'info'
           );

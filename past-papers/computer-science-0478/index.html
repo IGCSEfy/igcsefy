@@ -10,14 +10,14 @@
         var parsed = JSON.parse(raw);
         preference = parsed && parsed.appearance ? parsed.appearance.theme : "";
       }
-      var resolved = preference === "system" || !preference
+      var resolved = preference === "system"
         ? (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-        : preference;
+        : (preference === "light" || preference === "dark" ? preference : "dark");
       var root = document.documentElement;
       root.classList.remove("light", "dark");
       root.classList.add(resolved === "dark" ? "dark" : "light");
       root.dataset.theme = resolved;
-      root.dataset.themePreference = preference || "system";
+      root.dataset.themePreference = preference === "system" ? "system" : resolved;
     } catch (error) {}
   })();
 </script>
@@ -47,7 +47,7 @@
 </style>
 </head>
 <body class="pp-subject-route-page">
-<script src="/assets/supabase-loading-screen.js"></script>
+<script src="/assets/supabase-loading-screen.js?v=20260409k"></script>
 <header style="visibility:hidden">
   <div class="container nav">
     <a class="brand" href="/" aria-label="IGCSEfy Home">
@@ -67,9 +67,9 @@
   <div id="past-papers-app" data-subject="computer-science-0478"></div>
 </main>
 <script defer src="/assets/past-papers.js?v=20260405k"></script>
-<script defer src="/assets/nav.js"></script>
+<script defer src="/assets/nav.js?v=20260409m"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="/assets/supabase-progress.js?v=20260403v"></script>
+<script defer src="/assets/supabase-progress.js?v=20260409n"></script>
 </body>
 </html>

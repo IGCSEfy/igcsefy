@@ -210,9 +210,13 @@
       ? settings.appearance
       : {};
     var nextPreference = themePreference === 'light' ? 'light' : 'dark';
+    var nextSettings;
 
-    settings.appearance = Object.assign({}, appearance, { theme: nextPreference });
-    writeStoredSettings(settings);
+    nextSettings = Object.assign({}, settings, {
+      appearance: Object.assign({}, appearance, { theme: nextPreference }),
+      updatedAt: new Date().toISOString()
+    });
+    writeStoredSettings(nextSettings);
 
     try {
       localStorage.setItem(NAV_THEME_ICON_KEY, nextPreference);
@@ -232,6 +236,16 @@
       }));
     } catch (error) {
       // Ignore dispatch failures.
+    }
+
+    try {
+      if (window.igcsefySupabase && typeof window.igcsefySupabase.saveUserSettings === 'function') {
+        window.igcsefySupabase.saveUserSettings(nextSettings, { touchUpdatedAt: false }).catch(function (error) {
+          console.error('IGCSEfy theme sync failed:', error);
+        });
+      }
+    } catch (error) {
+      // Ignore sync failures; the local theme is already updated.
     }
 
     return themeState;
@@ -610,6 +624,10 @@
       if (event && event.detail && event.detail.source === 'site-nav') {
         return;
       }
+      syncThemeState();
+    });
+
+    window.addEventListener('igcsefy:settings-sync', function () {
       syncThemeState();
     });
 

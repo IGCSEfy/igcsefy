@@ -53,6 +53,11 @@
     overflow-x: hidden;
   }
 
+  body.subjects-page .site-nav-spacer{
+    display: none !important;
+    height: 0 !important;
+  }
+
   html.light body.subjects-page{
     background: #F1EFE7;
     color: #000000;
@@ -100,7 +105,7 @@
   .subjects-layout{
     width: min(100%, calc(var(--subjects-page-width) + 40px));
     margin: 0 auto;
-    padding: 78px 20px 0;
+    padding: calc(max(var(--site-nav-offset, 48px), 48px) + 30px) 20px 0;
     position: relative;
     z-index: 1;
   }
@@ -142,9 +147,9 @@
   }
 
   .subject-entry{
-    opacity: 0;
-    animation: subject-fade-up 0.5s ease-out forwards;
-    animation-delay: var(--subject-delay, 0ms);
+    opacity: 1;
+    animation: none;
+    transform: none;
   }
 
   .subject-tile{
@@ -303,21 +308,9 @@
     font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   }
 
-  @keyframes subject-fade-up{
-    0%{
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    100%{
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   @media (max-width: 960px){
     .subjects-layout{
-      padding-top: 70px;
+      padding-top: calc(max(var(--site-nav-offset, 48px), 48px) + 22px);
     }
 
     .subjects-grid{
@@ -327,7 +320,7 @@
 
   @media (max-width: 640px){
     .subjects-layout{
-      padding-top: 58px;
+      padding-top: calc(max(var(--site-nav-offset, 48px), 48px) + 10px);
     }
 
     .subjects-title{
@@ -366,6 +359,7 @@
     .subject-entry{
       opacity: 1;
       animation: none;
+      transform: none;
     }
 
     .subject-tile,
@@ -561,6 +555,6 @@
     <p>&copy; 2026 IGCSEfy</p>
   </div>
 </footer>
-<script defer="" src="/assets/nav.js"></script>
+<script defer="" src="/assets/nav.js?v=20260409m"></script>
 </body>
 </html>

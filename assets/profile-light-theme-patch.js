@@ -77,6 +77,8 @@
 
   function softenHeader(root) {
     var screen = root.querySelector('.min-h-screen');
+    var title;
+    var subtitle;
     if (!screen) return;
 
     setStyle(screen, { background: COLORS.page });
@@ -86,6 +88,12 @@
       background: COLORS.hero,
       borderBottom: '1px solid ' + COLORS.dividerSoft
     });
+
+    title = hero ? hero.querySelector('h1') : null;
+    subtitle = title && title.parentElement ? title.parentElement.querySelector('p') : null;
+
+    setStyle(title, { color: COLORS.textStrong });
+    setStyle(subtitle, { color: COLORS.textStrong });
 
     var tabs = hero ? hero.querySelector('.flex.gap-0.-mb-px') : null;
     if (!tabs) return;

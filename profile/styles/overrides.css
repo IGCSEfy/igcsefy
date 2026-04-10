@@ -138,8 +138,9 @@ html[data-theme="light"] body[data-profile-page="true"] #root .min-h-screen > di
   border-bottom: 1px solid var(--igcsefy-profile-divider-soft) !important;
 }
 
-html.light body[data-profile-page="true"] #root h1[style*="color: rgb(236, 234, 221)"] {
-  color: #666666 !important;
+html.light body[data-profile-page="true"] #root h1[style*="color: rgb(236, 234, 221)"],
+html[data-theme="light"] body[data-profile-page="true"] #root h1[style*="color: rgb(236, 234, 221)"] {
+  color: #1F1A14 !important;
 }
 
 html.light body[data-profile-page="true"] #root .flex.gap-0.-mb-px {

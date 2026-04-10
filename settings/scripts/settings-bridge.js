@@ -10,8 +10,8 @@
     'igcsefy-recent-searches'
   ];
   var ACCOUNT_DEFAULTS = {
-    name: 'Alex K.',
-    email: 'alex@example.com',
+    name: 'Student',
+    email: '',
     avatar: ''
   };
   var STUDY_PREFERENCES_DEFAULTS = {
@@ -132,6 +132,8 @@
   var patchQueued = false;
   var exportInFlight = false;
   var resetInFlight = false;
+  var settingsSyncInFlight = false;
+  var lastSettingsSyncSignature = '';
   var accountUiState = {
     editingName: false,
     nameDraft: ''
@@ -181,6 +183,23 @@
     try {
       window.localStorage.setItem(key, value);
     } catch (error) {}
+  }
+
+  function isIsoDateString(value) {
+    return typeof value === 'string' && !Number.isNaN(Date.parse(value));
+  }
+
+  function getSettingsSignature(settings) {
+    if (!settings || typeof settings !== 'object') return '';
+
+    try {
+      return JSON.stringify({
+        appearance: settings.appearance || SETTINGS_DEFAULTS.appearance,
+        studyPreferences: settings.studyPreferences || STUDY_PREFERENCES_DEFAULTS
+      });
+    } catch (error) {
+      return '';
+    }
   }
 
   function normalizeMarkSchemeOpenBehavior(value) {
@@ -574,7 +593,8 @@
       studyPreferences: Object.assign({}, STUDY_PREFERENCES_DEFAULTS, studyPreferences, {
         markSchemeOpenBehavior: normalizeMarkSchemeOpenBehavior(studyPreferences.markSchemeOpenBehavior),
         paperTargets: sanitizePaperTargets(studyPreferences.paperTargets)
-      })
+      }),
+      updatedAt: isIsoDateString(parsed && parsed.updatedAt) ? parsed.updatedAt : ''
     };
   }
 
@@ -585,7 +605,8 @@
       studyPreferences: Object.assign({}, STUDY_PREFERENCES_DEFAULTS, next.studyPreferences, {
         markSchemeOpenBehavior: normalizeMarkSchemeOpenBehavior(next.studyPreferences && next.studyPreferences.markSchemeOpenBehavior),
         paperTargets: sanitizePaperTargets(next.studyPreferences && next.studyPreferences.paperTargets)
-      })
+      }),
+      updatedAt: new Date().toISOString()
     };
     writeStorage(SETTINGS_KEY, JSON.stringify(sanitized));
     return sanitized;
@@ -601,6 +622,8 @@
     if (!options || options.schedule !== false) {
       schedulePatch();
     }
+
+    syncStoredSettingsIfNeeded();
 
     return next.studyPreferences;
   }
@@ -730,32 +753,69 @@
 
   async function syncAccountToSupabase(account) {
     var supabaseApi = window.igcsefySupabase;
+    var syncedUser;
 
     if (!authState.isAuthenticated || !supabaseApi || !supabaseApi.client || !supabaseApi.client.auth) {
       return account;
     }
 
-    var result = await supabaseApi.client.auth.updateUser({
-      data: buildSupabaseAccountMetadata(account)
-    });
-    if (result && result.error) throw result.error;
+    if (typeof supabaseApi.saveUserMetadataPatch === 'function') {
+      syncedUser = await supabaseApi.saveUserMetadataPatch(buildSupabaseAccountMetadata(account));
+    } else {
+      var result = await supabaseApi.client.auth.updateUser({
+        data: buildSupabaseAccountMetadata(account)
+      });
+      if (result && result.error) throw result.error;
+      syncedUser = result && result.data ? result.data.user : null;
+    }
 
-    if (result && result.data && result.data.user) {
+    if (syncedUser) {
       if (window.igcsefyUser && typeof window.igcsefyUser.fromSupabaseUser === 'function') {
-        var syncedUser = window.igcsefyUser.fromSupabaseUser(result.data.user, true);
-        if (syncedUser) {
-          syncAccountStorageFromIdentity(syncedUser);
+        var sharedUser = window.igcsefyUser.fromSupabaseUser(syncedUser, true);
+        if (sharedUser) {
+          syncAccountStorageFromIdentity(sharedUser);
         }
       } else {
         syncAccountStorageFromIdentity({
           name: account.name,
-          email: result.data.user.email || account.email,
-          avatar: getSupabaseAvatar(result.data.user) || account.avatar
+          email: syncedUser.email || account.email,
+          avatar: getSupabaseAvatar(syncedUser) || account.avatar
         });
       }
     }
 
     return account;
+  }
+
+  function syncStoredSettingsIfNeeded() {
+    var supabaseApi = window.igcsefySupabase;
+    var currentSettings;
+    var signature;
+
+    if (!authState.isAuthenticated || !supabaseApi || typeof supabaseApi.saveUserSettings !== 'function') {
+      return;
+    }
+
+    currentSettings = loadSettings();
+    signature = getSettingsSignature(currentSettings);
+
+    if (!signature || signature === lastSettingsSyncSignature || settingsSyncInFlight) {
+      return;
+    }
+
+    settingsSyncInFlight = true;
+    supabaseApi.saveUserSettings(currentSettings, { touchUpdatedAt: false }).then(function (savedSettings) {
+      var nextSettings = savedSettings && typeof savedSettings === 'object' ? savedSettings : loadSettings();
+      lastSettingsSyncSignature = getSettingsSignature(nextSettings);
+    }).catch(function (error) {
+      console.error('IGCSEFy settings sync failed:', error);
+    }).finally(function () {
+      var latestSignature = getSettingsSignature(loadSettings());
+      settingsSyncInFlight = false;
+      if (latestSignature && latestSignature !== lastSettingsSyncSignature) {
+        syncStoredSettingsIfNeeded();
+      }
+    });
   }
 
   function persistAccountUpdate(patch) {
@@ -1183,8 +1243,10 @@
   function patchStudyPreferencesSection() {
     var section = document.getElementById('study-preferences');
     var settings;
+    var pdfOpeningRow;
     var autoOpenRow;
     var behaviorRow;
+    var pdfOpeningControl;
     var autoOpenControl;
     var autoOpenCopy;
     var behaviorCopy;
@@ -1197,6 +1259,9 @@
     var storedSettings;
     var markSchemeAvailable;
     var behaviorDisabled;
+    var effectivePdfOpeningMode;
+    var effectiveAutoOpenMarkScheme;
+    var autoOpenThumb;
 
     function findSettingRow(label) {
       return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
@@ -1204,6 +1269,45 @@
         var title = copy && copy.querySelector ? copy.querySelector('p') : null;
         return title && (title.textContent || '').trim() === label;
       }) || null;
+    }
+
+    function isSwitchChecked(control, fallback) {
+      var ariaChecked;
+      var dataState;
+
+      if (!control || !control.getAttribute) return !!fallback;
+
+      ariaChecked = control.getAttribute('aria-checked');
+      dataState = control.getAttribute('data-state');
+
+      if (ariaChecked === 'true' || dataState === 'checked' || control.checked === true) return true;
+      if (ariaChecked === 'false' || dataState === 'unchecked' || control.checked === false) return false;
+      return !!fallback;
+    }
+
+    function isSegmentActive(button) {
+      if (!button) return false;
+      if (button.getAttribute && button.getAttribute('aria-pressed') === 'true') return true;
+      if (button.getAttribute && button.getAttribute('aria-checked') === 'true') return true;
+      if (button.dataset && (button.dataset.state === 'active' || button.dataset.state === 'checked')) return true;
+      return button.classList.contains('bg-card');
+    }
+
+    function getSegmentedValue(control, fallback) {
+      var active = null;
+      var label;
+
+      if (!control || !control.querySelectorAll) return fallback;
+      active = Array.from(control.querySelectorAll('button')).find(isSegmentActive) || null;
+      if (!active) return fallback;
+
+      label = String(active.textContent || '').trim().toLowerCase();
+      if (label === 'preview first') return 'preview';
+      if (label === 'direct download') return 'direct-download';
+      if (label === 'side by side') return 'side-by-side';
+      if (label === 'same tab') return 'same-tab';
+
+      return fallback;
     }
 
     function getBehaviorDescription(value) {
@@ -1217,6 +1321,8 @@
 
     storedSettings = readJson(SETTINGS_KEY);
     settings = loadSettings().studyPreferences;
+    effectivePdfOpeningMode = settings.pdfOpeningMode;
+    effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
     if (
       storedSettings
       && storedSettings.studyPreferences
@@ -1225,18 +1331,15 @@
       updateStudyPreferences({ markSchemeOpenBehavior: 'same-tab' }, { schedule: false });
       settings = loadSettings().studyPreferences;
     }
-    if (settings.pdfOpeningMode === 'direct-download' && settings.autoOpenMarkScheme) {
-      updateStudyPreferences({ autoOpenMarkScheme: false }, { schedule: false });
-      settings = loadSettings().studyPreferences;
-    }
+    effectivePdfOpeningMode = settings.pdfOpeningMode;
+    effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
+    pdfOpeningRow = findSettingRow('PDF opening mode');
     autoOpenRow = findSettingRow('Auto-open mark scheme');
     behaviorRow = findSettingRow('Mark scheme opening behavior') || findSettingRow('Opening behaviour');
-    if (!autoOpenRow || !behaviorRow) return;
-
-    markSchemeAvailable = settings.pdfOpeningMode === 'preview';
-    behaviorDisabled = !markSchemeAvailable || !settings.autoOpenMarkScheme;
+    if (!pdfOpeningRow || !autoOpenRow || !behaviorRow) return;
 
     pausePatchObserver(function () {
+      pdfOpeningControl = pdfOpeningRow.lastElementChild;
       autoOpenControl = autoOpenRow.lastElementChild;
       autoOpenCopy = autoOpenRow.firstElementChild;
       behaviorCopy = behaviorRow.firstElementChild;
@@ -1250,6 +1353,18 @@
         ? behaviorCopy.querySelectorAll('p')[1]
         : null;
       heading = section.querySelector('[data-igcsefy-mark-scheme-heading]');
+
+      effectivePdfOpeningMode = getSegmentedValue(pdfOpeningControl, settings.pdfOpeningMode);
+      effectiveAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
+
+      if (effectivePdfOpeningMode === 'direct-download' && settings.autoOpenMarkScheme) {
+        updateStudyPreferences({ autoOpenMarkScheme: false }, { schedule: false });
+        settings = loadSettings().studyPreferences;
+        effectiveAutoOpenMarkScheme = false;
+      }
+
+      markSchemeAvailable = effectivePdfOpeningMode === 'preview';
+      behaviorDisabled = !markSchemeAvailable || !effectiveAutoOpenMarkScheme;
 
       if (!heading) {
         heading = createElement('div', 'igcsefy-mark-scheme-heading');
@@ -1278,14 +1393,26 @@
       if (behaviorDescription) {
         if (!markSchemeAvailable) {
           behaviorDescription.textContent = 'Split and same-tab mark scheme views are only available with Preview first.';
-        } else if (!settings.autoOpenMarkScheme) {
+        } else if (!effectiveAutoOpenMarkScheme) {
           behaviorDescription.textContent = 'Turn on Auto-open mark scheme to choose how it opens.';
         } else {
           behaviorDescription.textContent = getBehaviorDescription(settings.markSchemeOpenBehavior);
         }
       }
       if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
+        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
+
+        autoOpenControl.setAttribute('aria-checked', effectiveAutoOpenMarkScheme ? 'true' : 'false');
+        autoOpenControl.setAttribute('data-state', effectiveAutoOpenMarkScheme ? 'checked' : 'unchecked');
         autoOpenControl.disabled = !markSchemeAvailable;
+
+        if (autoOpenThumb && autoOpenThumb.classList) {
+          autoOpenThumb.classList.toggle('translate-x-[22px]', effectiveAutoOpenMarkScheme);
+          autoOpenThumb.classList.toggle('bg-foreground', effectiveAutoOpenMarkScheme);
+          autoOpenThumb.classList.toggle('translate-x-[3px]', !effectiveAutoOpenMarkScheme);
+          autoOpenThumb.classList.toggle('bg-muted-foreground', !effectiveAutoOpenMarkScheme);
+        }
+
         if (!markSchemeAvailable) {
           autoOpenControl.setAttribute('aria-disabled', 'true');
           autoOpenControl.title = 'Switch PDF opening mode to Preview first to use mark scheme auto-open.';
@@ -1818,9 +1945,10 @@
     resetInFlight = true;
 
     var emptySnapshot = createEmptySnapshot();
+    var resetSettings = saveSettings(SETTINGS_DEFAULTS);
     clearRecentSearches();
-    removeStorage(SETTINGS_KEY);
     removeStorage(LEGACY_PROGRESS_KEY);
+    lastSettingsSyncSignature = '';
 
     if (window.igcsefyDataStore && typeof window.igcsefyDataStore.replaceSnapshot === 'function') {
       try {
@@ -1833,6 +1961,10 @@
     try {
       if (window.igcsefySupabase && authState.isAuthenticated && typeof window.igcsefySupabase.saveSnapshot === 'function') {
         await window.igcsefySupabase.saveSnapshot(emptySnapshot);
+      }
+      if (window.igcsefySupabase && authState.isAuthenticated && typeof window.igcsefySupabase.saveUserSettings === 'function') {
+        await window.igcsefySupabase.saveUserSettings(resetSettings);
+        lastSettingsSyncSignature = getSettingsSignature(loadSettings());
       }
       window.dispatchEvent(new CustomEvent('igcsefy:data-change', {
         detail: { reason: 'settings-reset', snapshot: emptySnapshot }
@@ -1914,6 +2046,7 @@
       patchAccountSection();
       patchSyncStatus();
       patchStudyPreferencesSection();
+      syncStoredSettingsIfNeeded();
     });
   }
 
@@ -2015,6 +2148,8 @@
           avatar: getSupabaseAvatar(authState.user)
         });
       }
+
+      lastSettingsSyncSignature = getSettingsSignature(loadSettings());
     }
 
     schedulePatch();
@@ -2029,6 +2164,11 @@
     if (authState.isAuthenticated && user) {
       syncAccountStorageFromIdentity(user);
     }
+    schedulePatch();
+  });
+
+  window.addEventListener('igcsefy:settings-sync', function () {
+    lastSettingsSyncSignature = getSettingsSignature(loadSettings());
     schedulePatch();
   });
 

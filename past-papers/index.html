@@ -20,14 +20,14 @@
         var parsed = JSON.parse(raw);
         preference = parsed && parsed.appearance ? parsed.appearance.theme : '';
       }
-      var resolved = preference === 'system' || !preference
+      var resolved = preference === 'system'
         ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : preference;
+        : (preference === 'light' || preference === 'dark' ? preference : 'dark');
       var root = document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(resolved === 'dark' ? 'dark' : 'light');
       root.dataset.theme = resolved;
-      root.dataset.themePreference = preference || 'system';
+      root.dataset.themePreference = preference === 'system' ? 'system' : resolved;
     } catch (error) {}
   })();
 </script>
@@ -983,7 +983,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <style>footer.subjects-footer{width:min(100%,calc(var(--maxw,1180px) + 40px));margin:96px auto 0;padding:0 20px 52px;border-top:0;color:inherit;opacity:0;animation:footer-fade-in 0.3s ease 0.6s forwards}.subjects-footer__inner{border-top:1px solid rgba(255,255,255,0.11);padding-top:30px}.subjects-footer__inner p{margin:0;text-align:center;color:rgba(255,255,255,0.5);font-size:0.76rem;letter-spacing:0.18em;font-family:"SFMono-Regular","SF Mono",Consolas,"Liberation Mono",Menlo,monospace}@keyframes footer-fade-in{to{opacity:1}}</style></head>
 <body class="past-papers-journey">
-<script src="/assets/supabase-loading-screen.js"></script>
+<script src="/assets/supabase-loading-screen.js?v=20260409k"></script>
 <header style="visibility:hidden">
   <div class="container nav">
     <a aria-label="IGCSEfy Home" class="brand" href="/">
@@ -1015,9 +1015,9 @@
 <footer class="subjects-footer"><div class="subjects-footer__inner"><p>&copy; 2026 IGCSEfy</p></div></footer>
 <script defer="" src="/assets/past-papers.js?v=20260405k"></script>
 <script defer="" src="/assets/past-papers-journey.js"></script>
-<script defer="" src="/assets/nav.js"></script>
+<script defer="" src="/assets/nav.js?v=20260409m"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="/assets/supabase-progress.js?v=20260403v"></script>
+<script defer src="/assets/supabase-progress.js?v=20260409n"></script>
 </body>
 </html>

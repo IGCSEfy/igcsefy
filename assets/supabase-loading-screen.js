@@ -107,11 +107,28 @@
   var pageReady = !isPastPapersPage && !isProfilePage;
   var themeReady = !waitForProfileThemePaint;
   var navReady = !!window.__igcsefySiteNavReady;
+  var navFallbackTimer = 0;
   var waitingForRemoteData = false;
+
+  function clearNavFallbackTimer() {
+    if (!navFallbackTimer) return;
+    window.clearTimeout(navFallbackTimer);
+    navFallbackTimer = 0;
+  }
+
+  function armNavFallbackTimer() {
+    if (navReady || navFallbackTimer) return;
+    navFallbackTimer = window.setTimeout(function () {
+      navFallbackTimer = 0;
+      navReady = true;
+      maybeDismiss();
+    }, 1200);
+  }
 
   function dismiss() {
     if (dismissed) return;
     dismissed = true;
+    clearNavFallbackTimer();
     var elapsed = Date.now() - shownAt;
     var remaining = Math.max(0, minShowMs - elapsed);
     setTimeout(function () {
@@ -195,9 +212,12 @@
   });
 
   window.addEventListener(SITE_NAV_READY_EVENT, function () {
+    clearNavFallbackTimer();
     navReady = true;
     maybeDismiss();
   });
+
+  armNavFallbackTimer();
 
   // Final safety net
   window.addEventListener('load', function () {

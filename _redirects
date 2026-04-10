@@ -1,2 +1,2 @@
-/help https://chatbase.co/ZKjOrUixUnYZUETT6w95H/help 200
-/help/* https://chatbase.co/ZKjOrUixUnYZUETT6w95H/help/:splat 200
+/help /help/index.html 200
+/help/* /help/index.html 200

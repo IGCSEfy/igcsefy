@@ -2,12 +2,12 @@
 // The React profile bundle uses Sr.auth.me() (Base44 SDK) to load the user
 // and renders their full_name, email, and initials directly in the component.
 //
-// The static HTML in profile/index.html shows a placeholder "?" and "Student"
-// before React hydrates. This script replaces those placeholders immediately
-// using the cached Supabase user identity, so there's no visible flash.
+// The profile root mounts before React finishes painting user identity.
+// This script patches the visible header from Supabase user data immediately,
+// so there is no visible placeholder or empty-state flash.
 //
-// PERFORMANCE: The observer disconnects as soon as all targets are patched.
-// It never scans the full DOM in a loop — it stops the moment work is done.
+// PERFORMANCE: The observer is lightweight and debounced to animation frames.
+// It stays active so React re-renders cannot drop the patched identity UI.
 
 (function () {
   'use strict';
@@ -46,6 +46,10 @@
         }
       }));
     } catch (error) {}
+  }
+
+  function resetPatchState() {
+    _done = { avatar: false, name: false, email: false, provider: false };
   }
 
   function applyAvatar(el, avatar, initials) {
@@ -117,22 +121,24 @@
       });
     }
 
-    // Disconnect as soon as all patches are applied — no ongoing overhead
     if (allDone()) {
       notifyReady();
-      if (_observer) { _observer.disconnect(); _observer = null; }
     }
   }
 
   function startObserver() {
-    if (_observer || allDone()) return;
+    if (_observer) return;
     var root = document.getElementById('root');
     if (!root) return;
     var ticking = false;
     _observer = new MutationObserver(function () {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(function () { ticking = false; applyUser(); });
+      requestAnimationFrame(function () {
+        ticking = false;
+        resetPatchState();
+        applyUser();
+      });
     });
     _observer.observe(root, { childList: true, subtree: true });
   }
@@ -140,7 +146,7 @@
   window.addEventListener('igcsefy:supabase-auth-change', function (e) {
     if (e.detail && e.detail.isAuthenticated && e.detail.user) {
       _sbUser = e.detail.user;
-      _done.provider = false;
+      resetPatchState();
       applyUser();
     } else if (e.detail && !e.detail.isAuthenticated) {
       _readyNotified = false;
@@ -150,7 +156,7 @@
   window.addEventListener('igcsefy:user-ready', function (e) {
     if (e.detail && e.detail.user) {
       _user = e.detail.user;
-      _done = { avatar: false, name: false, email: false, provider: false };
+      resetPatchState();
       _readyNotified = false;
       applyUser();
       startObserver();

@@ -10,14 +10,14 @@
         var parsed = JSON.parse(raw);
         preference = parsed && parsed.appearance ? parsed.appearance.theme : '';
       }
-      var resolved = preference === 'system' || !preference
+      var resolved = preference === 'system'
         ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : preference;
+        : (preference === 'light' || preference === 'dark' ? preference : 'dark');
       var root = document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(resolved === 'dark' ? 'dark' : 'light');
       root.dataset.theme = resolved;
-      root.dataset.themePreference = preference || 'system';
+      root.dataset.themePreference = preference === 'system' ? 'system' : resolved;
     } catch (error) {}
   })();
 </script>
@@ -30,6 +30,7 @@
 </script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>Settings — IGCSEfy</title>
 <meta name="description" content="Personalise your IGCSEfy experience with appearance, study, account, and data settings.">
 <meta name="theme-color" content="#0B0B0F">
@@ -42,14 +43,14 @@
 <link rel="stylesheet" href="/settings/styles/overrides.css?v=20260403l">
 </head>
 <body data-settings-page="true" data-site-nav-preserve-header="true">
-<script src="/assets/supabase-loading-screen.js"></script>
+<script src="/assets/supabase-loading-screen.js?v=20260409k"></script>
 <div id="root"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script defer src="/assets/supabase-progress.js"></script>
+<script defer src="/assets/supabase-progress.js?v=20260409n"></script>
 <script defer src="/assets/user-identity.js"></script>
-<script defer src="/assets/nav.js"></script>
+<script defer src="/assets/nav.js?v=20260409m"></script>
 <script type="module" src="/settings/scripts/index-DJ4_c7Og.js"></script>
-<script defer src="/settings/scripts/settings-bridge.js?v=20260405l"></script>
+<script defer src="/settings/scripts/settings-bridge.js?v=20260409n"></script>
 </body>
 </html>
