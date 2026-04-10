@@ -104,6 +104,13 @@ body{
   font-family: Inter, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
 }
 
+.site-nav,
+.site-nav *,
+.site-nav *::before,
+.site-nav *::after{
+  box-sizing: border-box;
+}
+
 .site-nav.scrolled,
 .site-nav.is-hidden{
   background: transparent !important;
@@ -148,7 +155,7 @@ html.light .site-nav__bar{
 }
 
 .site-nav__inner{
-  width: min(100%, var(--site-nav-shell-width));
+  width: min(100%, calc(var(--site-nav-shell-width) + (var(--site-nav-shell-padding) * 2)));
   height: 100%;
   margin: 0 auto;
   padding: 0 var(--site-nav-shell-padding);
@@ -329,7 +336,7 @@ html.light .site-nav__bar{
 }
 
 .site-nav__panel-outer{
-  width: min(100%, var(--site-nav-shell-width));
+  width: min(100%, calc(var(--site-nav-shell-width) + (var(--site-nav-shell-padding) * 2)));
   margin: 0 auto;
   padding: 1rem var(--site-nav-shell-padding) 1.5rem;
 }
@@ -396,10 +403,13 @@ html.light .site-nav__bar{
 }
 
 .site-nav__actions{
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
   align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
+  justify-items: center;
+  width: max-content;
+  margin: 0 auto;
   gap: 0.6rem;
 }
 

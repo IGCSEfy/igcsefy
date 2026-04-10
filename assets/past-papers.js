@@ -6312,6 +6312,358 @@ function buildSubjectPastPapersZipModel(subjectSlug){
   };
 }
 
+function resolveUnavailablePastPapersSubjectMeta(subjectSlug, container){
+  const slug = String(subjectSlug || "").trim();
+
+  try{
+    if(typeof extractSubjectMeta === "function"){
+      const meta = extractSubjectMeta(
+        {},
+        `syllabus-${slug}`,
+        `resources/${slug}/syllabus.json`,
+        container || null
+      );
+      if(meta && (meta.name || meta.code || meta.slug)){
+        return {
+          slug: meta.slug || slug,
+          name: meta.name || (typeof formatSubjectNameFromSlug === "function" ? formatSubjectNameFromSlug(slug) : slug),
+          code: meta.code || (((slug.match(/(\d{4})$/) || [])[1]) || "")
+        };
+      }
+    }
+  }catch(error){}
+
+  const code = ((slug.match(/(\d{4})$/) || [])[1]) || "";
+  const name = typeof formatSubjectNameFromSlug === "function"
+    ? formatSubjectNameFromSlug(slug)
+    : slug
+        .replace(/-\d{4}$/, "")
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, char => char.toUpperCase());
+
+  return {
+    slug,
+    name: name || "Subject",
+    code
+  };
+}
+
+function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options = {}, message){
+  const embeddedGlobalBrowser = !!(options && options.embeddedGlobalBrowser);
+  const meta = resolveUnavailablePastPapersSubjectMeta(subjectSlug, container);
+  const tabsRoot = container.closest("[data-tabs]");
+
+  container.__ppActiveSubject = subjectSlug;
+  container.__ppActivateYear = null;
+  container.__ppRevealTrackKey = null;
+  if(container.__ppThemeObserver){
+    container.__ppThemeObserver.disconnect();
+    container.__ppThemeObserver = null;
+  }
+
+  container.innerHTML = "";
+  const host = document.createElement("div");
+  host.className = "past-papers-zip-host";
+  host.style.display = "block";
+  container.appendChild(host);
+
+  const resolveShellTheme = () => {
+    const root = document.documentElement;
+    return root.dataset.theme === "light"
+      || root.classList.contains("light")
+      || (!root.classList.contains("dark") && root.dataset.theme !== "dark")
+      ? "light"
+      : "dark";
+  };
+
+  const shadow = host.attachShadow({ mode: "open" });
+  let shell = null;
+  let syllabusTabButton = null;
+  let pastPapersTabButton = null;
+
+  function applyShellTabVisualState(){
+    const isLight = resolveShellTheme() === "light";
+    const tabsWrap = syllabusTabButton && syllabusTabButton.parentElement;
+    const tabs = [syllabusTabButton, pastPapersTabButton].filter(Boolean);
+    if(tabsWrap){
+      tabsWrap.style.background = isLight ? "#FFFFFF" : "rgba(255,255,255,.05)";
+      tabsWrap.style.boxShadow = isLight ? "0 0 0 1px #E9E3D8 inset" : "";
+    }
+    tabs.forEach((button) => {
+      const isActive = button.classList.contains("is-active");
+      if(isLight){
+        button.style.background = isActive ? "#000000" : "transparent";
+        button.style.color = isActive ? "#FFFFFF" : "#666666";
+        button.style.boxShadow = "none";
+      }else{
+        button.style.background = isActive ? "#FFFFFF" : "transparent";
+        button.style.color = isActive ? "#000000" : "rgba(255,255,255,.5)";
+        button.style.boxShadow = isActive ? "0 1px 3px rgba(0,0,0,.1)" : "none";
+      }
+    });
+  }
+
+  const syncHostTheme = () => {
+    const resolvedTheme = resolveShellTheme();
+    host.dataset.theme = resolvedTheme;
+    if(shell){
+      shell.dataset.theme = resolvedTheme;
+      applyShellTabVisualState();
+    }
+  };
+
+  const themeObserver = new MutationObserver(syncHostTheme);
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ["class", "data-theme"]
+  });
+  container.__ppThemeObserver = themeObserver;
+
+  shadow.innerHTML = `
+    <style>
+      :host{ display:block; }
+      .pp-subject-shell{
+        min-height:${embeddedGlobalBrowser ? "0" : "100vh"};
+        background:${embeddedGlobalBrowser ? "transparent" : "#0A0A0B"};
+        color:#fff;
+      }
+      .pp-subject-shell__header{
+        border-bottom:1px solid rgba(255,255,255,.06);
+      }
+      .pp-subject-shell__inner{
+        max-width:${embeddedGlobalBrowser ? "none" : "56rem"};
+        width:100%;
+        margin:0 auto;
+        padding:0 1.5rem;
+      }
+      .pp-subject-shell__header .pp-subject-shell__inner{
+        padding-top:${embeddedGlobalBrowser ? "1.35rem" : "2rem"};
+        padding-bottom:${embeddedGlobalBrowser ? "1.35rem" : "2rem"};
+      }
+      .pp-subject-shell__body{
+        padding-top:${embeddedGlobalBrowser ? "1.35rem" : "2rem"};
+        padding-bottom:${embeddedGlobalBrowser ? "1.5rem" : "4rem"};
+      }
+      .pp-subject-shell__crumb{
+        margin:0 0 1.25rem;
+        display:flex;
+        align-items:center;
+        gap:.5rem;
+        font-size:.875rem;
+        color:rgba(255,255,255,.3);
+        letter-spacing:.01em;
+      }
+      .pp-subject-shell__crumb-current{
+        color:rgba(255,255,255,.6);
+      }
+      .pp-subject-shell__head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        gap:1rem;
+      }
+      .pp-subject-shell__meta{
+        min-width:min(100%,24rem);
+      }
+      .pp-subject-shell__title{
+        margin:0;
+        font-size:1.5rem;
+        line-height:2rem;
+        letter-spacing:-.025em;
+        font-weight:600;
+      }
+      .pp-subject-shell__subtitle{
+        margin:.25rem 0 0;
+        font-size:.875rem;
+        color:rgba(255,255,255,.4);
+      }
+      .pp-subject-shell__tabs{
+        display:flex;
+        gap:.25rem;
+        padding:.25rem;
+        border-radius:9999px;
+        background:rgba(255,255,255,.05);
+      }
+      .pp-subject-shell__tab{
+        appearance:none;
+        min-height:auto;
+        padding:.5rem 1.25rem;
+        border:0;
+        border-radius:9999px;
+        background:transparent;
+        color:rgba(255,255,255,.5);
+        font:inherit;
+        font-size:.875rem;
+        font-weight:500;
+        line-height:1.25rem;
+        transition:all .2s ease;
+      }
+      .pp-subject-shell__tab:hover{
+        color:rgba(255,255,255,.8);
+      }
+      .pp-subject-shell__tab.is-active{
+        background:#fff;
+        color:#000;
+        box-shadow:0 1px 3px rgba(0,0,0,.1);
+      }
+      .pp-subject-empty-state{
+        padding:.25rem 0 0;
+      }
+      .pp-subject-empty-copy{
+        margin:0;
+        font-size:.95rem;
+        line-height:1.7;
+        color:rgba(255,255,255,.72);
+      }
+      :host([data-theme="light"]) .pp-subject-shell,
+      :host-context(html.light) .pp-subject-shell,
+      .pp-subject-shell[data-theme="light"]{
+        background:${embeddedGlobalBrowser ? "transparent" : "#F1EFE7"};
+        color:#000000;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__header,
+      :host-context(html.light) .pp-subject-shell__header,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__header{
+        border-bottom-color:#E9E3D8;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__crumb,
+      :host([data-theme="light"]) .pp-subject-shell__subtitle,
+      :host-context(html.light) .pp-subject-shell__crumb,
+      :host-context(html.light) .pp-subject-shell__subtitle,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__crumb,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__subtitle{
+        color:#666666;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__crumb-current,
+      :host([data-theme="light"]) .pp-subject-shell__title,
+      :host-context(html.light) .pp-subject-shell__crumb-current,
+      :host-context(html.light) .pp-subject-shell__title,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__crumb-current,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__title{
+        color:#000000;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__tabs,
+      :host-context(html.light) .pp-subject-shell__tabs,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__tabs{
+        background:#FFFFFF;
+        box-shadow:0 0 0 1px #E9E3D8 inset;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__tab,
+      :host-context(html.light) .pp-subject-shell__tab,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__tab{
+        color:#666666;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__tab:hover,
+      :host-context(html.light) .pp-subject-shell__tab:hover,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__tab:hover{
+        color:#000000;
+      }
+      :host([data-theme="light"]) .pp-subject-shell__tab.is-active,
+      :host-context(html.light) .pp-subject-shell__tab.is-active,
+      .pp-subject-shell[data-theme="light"] .pp-subject-shell__tab.is-active{
+        background:#000000;
+        color:#FFFFFF;
+        box-shadow:none;
+      }
+      :host([data-theme="light"]) .pp-subject-empty-copy,
+      :host-context(html.light) .pp-subject-empty-copy,
+      .pp-subject-shell[data-theme="light"] .pp-subject-empty-copy{
+        color:#666666;
+      }
+      @media (max-width:640px){
+        .pp-subject-shell__inner{
+          padding:0 1rem;
+        }
+        .pp-subject-shell__header .pp-subject-shell__inner{
+          padding-top:1.5rem;
+          padding-bottom:1.5rem;
+        }
+      }
+    </style>
+    <div class="pp-subject-shell" data-theme="${escapePastPapersZipHtml(resolveShellTheme())}">
+      <div class="pp-subject-shell__header">
+        <div class="pp-subject-shell__inner">
+          <div class="pp-subject-shell__crumb">
+            <span>${escapePastPapersZipHtml(meta.name)}</span>
+            <span>/</span>
+            <span class="pp-subject-shell__crumb-current">Past Papers</span>
+          </div>
+          <div class="pp-subject-shell__head">
+            <div class="pp-subject-shell__meta">
+              <h1 class="pp-subject-shell__title">${escapePastPapersZipHtml(meta.name)}</h1>
+              <p class="pp-subject-shell__subtitle">Cambridge IGCSE${meta.code ? ` · ${escapePastPapersZipHtml(meta.code)}` : ""}</p>
+            </div>
+            ${embeddedGlobalBrowser ? "" : `
+              <div class="pp-subject-shell__tabs">
+                <button type="button" data-top-tab="syllabus" class="pp-subject-shell__tab">Syllabus</button>
+                <button type="button" data-top-tab="past-papers" class="pp-subject-shell__tab is-active">Past Papers</button>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+      <div class="pp-subject-shell__inner pp-subject-shell__body">
+        <div class="pp-subject-empty-state">
+          <p class="pp-subject-empty-copy">${escapePastPapersZipHtml(message || "Past papers for this subject are coming soon.")}</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  shell = shadow.querySelector(".pp-subject-shell");
+  syllabusTabButton = shadow.querySelector('[data-top-tab="syllabus"]');
+  pastPapersTabButton = shadow.querySelector('[data-top-tab="past-papers"]');
+  syncHostTheme();
+
+  function setShellTab(nextTab){
+    if(syllabusTabButton){
+      syllabusTabButton.classList.toggle("is-active", nextTab !== "past-papers");
+    }
+    if(pastPapersTabButton){
+      pastPapersTabButton.classList.toggle("is-active", nextTab === "past-papers");
+    }
+    applyShellTabVisualState();
+  }
+
+  function syncShellTabWithActivePanel(){
+    if(!tabsRoot) return;
+    const activeTab = tabsRoot.querySelector('[role="tab"][aria-selected="true"]');
+    const activePanelId = activeTab ? String(activeTab.getAttribute("aria-controls") || "") : "";
+    setShellTab(activePanelId === "tab-syl" ? "syllabus" : "past-papers");
+  }
+
+  if(tabsRoot){
+    if(container.__ppSubjectTabSyncHandler){
+      tabsRoot.removeEventListener("igcsefy:subject-tab-change", container.__ppSubjectTabSyncHandler);
+    }
+    container.__ppSubjectTabSyncHandler = syncShellTabWithActivePanel;
+    tabsRoot.addEventListener("igcsefy:subject-tab-change", syncShellTabWithActivePanel);
+    syncShellTabWithActivePanel();
+  }
+
+  if(syllabusTabButton){
+    syllabusTabButton.addEventListener("click", () => {
+      if(tabsRoot && typeof setActiveSubjectTab === "function"){
+        setActiveSubjectTab(tabsRoot, "tab-syl");
+        return;
+      }
+      const level = typeof ensureIgcsefyDataStore === "function"
+        ? ensureIgcsefyDataStore().getSubjectLevel({ slug: meta.slug, code: meta.code, name: meta.name }, "core")
+        : "core";
+      window.location.href = `/subjects/${meta.slug}/?level=${encodeURIComponent(level)}`;
+    });
+  }
+
+  if(pastPapersTabButton){
+    pastPapersTabButton.addEventListener("click", () => {
+      if(tabsRoot && typeof setActiveSubjectTab === "function"){
+        setActiveSubjectTab(tabsRoot, "tab-pp");
+      }
+    });
+  }
+}
+
 async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
   const embeddedGlobalBrowser = !!(options && options.embeddedGlobalBrowser);
   const model = buildSubjectPastPapersZipModel(subjectSlug);
@@ -6324,12 +6676,22 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
     container.__ppThemeObserver = null;
   }
   if(!model){
-    container.innerHTML = `<p class="muted">Past papers for this subject are coming soon.</p>`;
+    renderUnavailableSubjectPastPapersZip(
+      container,
+      subjectSlug,
+      options,
+      "Past papers for this subject are coming soon."
+    );
     return;
   }
 
   if(!model.years.length){
-    container.innerHTML = `<p class="muted">No past paper files are available for this subject yet.</p>`;
+    renderUnavailableSubjectPastPapersZip(
+      container,
+      subjectSlug,
+      options,
+      "No past paper files are available for this subject yet."
+    );
     return;
   }
 

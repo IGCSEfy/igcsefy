@@ -1,15 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
-    {
-      "source": "/help-center",
-      "destination": "https://chatbase.co/ZKjOrUixUnYZUETT6w95H/help"
-    },
-    {
-      "source": "/help-center/:path*",
-      "destination": "https://chatbase.co/ZKjOrUixUnYZUETT6w95H/help/:path*"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -19,12 +9,16 @@
           "value": "SAMEORIGIN"
         },
         {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
           "key": "X-Content-Type-Options",
           "value": "nosniff"
         },
         {
           "key": "Referrer-Policy",
-          "value": "strict-origin"
+          "value": "strict-origin-when-cross-origin"
         },
         {
           "key": "Permissions-Policy",

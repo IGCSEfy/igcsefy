@@ -2090,6 +2090,7 @@
     var disabledMarkSchemeRow = event.target && event.target.closest
       ? event.target.closest('.igcsefy-mark-scheme-row--disabled')
       : null;
+    var studyPreferencesControl;
     var settingsNavControl;
 
     if (disabledMarkSchemeRow) {
@@ -2098,6 +2099,24 @@
     }
 
     if (!control) return;
+
+    studyPreferencesControl = control.closest('#study-preferences');
+    if (studyPreferencesControl) {
+      var studyLabel = String(control.textContent || '').trim().toLowerCase();
+      if (studyLabel === 'direct download') {
+        window.setTimeout(function () {
+          updateStudyPreferences({
+            pdfOpeningMode: 'direct-download',
+            autoOpenMarkScheme: false,
+            markSchemeOpenBehavior: 'same-tab'
+          });
+        }, 0);
+      } else if (studyLabel === 'preview first') {
+        window.setTimeout(schedulePatch, 0);
+      } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
+        window.setTimeout(schedulePatch, 0);
+      }
+    }
 
     if (control.hasAttribute('data-igcsefy-paper-targets-back')) {
       stopEvent(event);

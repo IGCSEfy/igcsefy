@@ -949,7 +949,7 @@
         profileUserReady = true;
         profileDataReady = true;
         maybeRevealDashboard();
-      }, 3200);
+      }, 2400);
     }
 
     function showDashboard() {
