@@ -1815,6 +1815,27 @@ function normalizeSubjectDestination(value){
   return 'syllabus';
 }
 
+function subjectSupportsPastPapers(subjectSlug){
+  const normalized = String(subjectSlug || '').trim().toLowerCase();
+  if(!normalized){
+    return true;
+  }
+  if(typeof window !== 'undefined' && typeof window.igcsefyHasPastPapersForSubject === 'function'){
+    try{
+      return window.igcsefyHasPastPapersForSubject(normalized) !== false;
+    }catch(error){}
+  }
+  return true;
+}
+
+function resolveSupportedSubjectDestination(value, subjectSlug){
+  const destination = normalizeSubjectDestination(value);
+  if(destination === 'past-papers' && !subjectSupportsPastPapers(subjectSlug)){
+    return 'syllabus';
+  }
+  return destination;
+}
+
 function getSubjectPanelIdForDestination(tab){
   return normalizeSubjectDestination(tab) === 'past-papers' ? 'tab-pp' : 'tab-syl';
 }
@@ -1871,10 +1892,10 @@ function rememberLastSubjectDestination(tab){
   }catch(error){}
 }
 
-function resolveInitialSubjectDestination(locationIntent){
+function resolveInitialSubjectDestination(locationIntent, subjectSlug){
   const intent = locationIntent || {};
   if(intent.explicitTab){
-    return normalizeSubjectDestination(intent.explicitTab);
+    return resolveSupportedSubjectDestination(intent.explicitTab, subjectSlug);
   }
   if(intent.hasSyllabusIntent){
     return 'syllabus';
@@ -1883,10 +1904,10 @@ function resolveInitialSubjectDestination(locationIntent){
   if(preferences.rememberLastSubjectTab){
     const remembered = readLastSubjectDestination();
     if(remembered){
-      return remembered;
+      return resolveSupportedSubjectDestination(remembered, subjectSlug);
     }
   }
-  return preferences.defaultSubjectDestination;
+  return resolveSupportedSubjectDestination(preferences.defaultSubjectDestination, subjectSlug);
 }
 
 function getActiveSubjectTabId(tabsRoot){
@@ -2380,11 +2401,11 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
 
   const dataStore = ensureIgcsefyDataStore();
   const locationIntent = readSubjectNavigationIntent();
-  const initialSubjectDestination = resolveInitialSubjectDestination(locationIntent);
   const subjectRef = {
     code: subjectMeta && subjectMeta.code ? subjectMeta.code : '',
     slug: subjectMeta && subjectMeta.slug ? subjectMeta.slug : ''
   };
+  const initialSubjectDestination = resolveInitialSubjectDestination(locationIntent, subjectRef.slug);
   const levels = prepareSyllabusLevels(data || {});
   const topicsByLevel = {
     core: buildZipTopics(levels.foundation || []),
@@ -3824,8 +3845,9 @@ async function loadSyllabus(containerId, jsonPath){
   const el = document.getElementById(containerId);
   if(!el) return;
   if(el.__igcsefySyllabusRendered || el.__igcsefySyllabusLoading) return;
+  const initialMeta = extractSubjectMeta({}, containerId, jsonPath, el);
   const locationIntent = readSubjectNavigationIntent();
-  const initialSubjectDestination = resolveInitialSubjectDestination(locationIntent);
+  const initialSubjectDestination = resolveInitialSubjectDestination(locationIntent, initialMeta.slug);
   const panel = el.closest('[role="tabpanel"]');
   const shouldDefer = !!(
     panel &&
@@ -3843,7 +3865,6 @@ async function loadSyllabus(containerId, jsonPath){
   }
   el.__igcsefySyllabusLoading = true;
   const zipContext = setupSubjectSyllabusZipContext(el);
-  const initialMeta = extractSubjectMeta({}, containerId, jsonPath, el);
   el.innerHTML = '';
   const bootShell = scheduleSyllabusBootShell(el, initialMeta, { delay: 900, minVisible: 180 });
   try{

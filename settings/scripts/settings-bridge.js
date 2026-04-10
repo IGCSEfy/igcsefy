@@ -143,6 +143,22 @@
     selectedSubject: PAPER_TARGET_SUBJECTS[0].id,
     selectedLevel: 'extended'
   };
+  var PATCH_OBSERVER_OPTIONS = {
+    childList: true,
+    subtree: true,
+    characterData: true,
+    attributes: true,
+    attributeFilter: [
+      'class',
+      'style',
+      'disabled',
+      'aria-disabled',
+      'aria-checked',
+      'aria-pressed',
+      'aria-selected',
+      'data-state'
+    ]
+  };
 
   function getInitials(name) {
     if (!name) return '?';
@@ -888,7 +904,7 @@
       callback();
     } finally {
       if (root) {
-        patchObserver.observe(root, { childList: true, subtree: true, characterData: true });
+        patchObserver.observe(root, PATCH_OBSERVER_OPTIONS);
       }
     }
   }
@@ -1416,9 +1432,13 @@
         if (!markSchemeAvailable) {
           autoOpenControl.setAttribute('aria-disabled', 'true');
           autoOpenControl.title = 'Switch PDF opening mode to Preview first to use mark scheme auto-open.';
+          autoOpenControl.style.pointerEvents = 'none';
+          autoOpenControl.setAttribute('tabindex', '-1');
         } else {
           autoOpenControl.removeAttribute('aria-disabled');
           autoOpenControl.removeAttribute('title');
+          autoOpenControl.style.removeProperty('pointer-events');
+          autoOpenControl.removeAttribute('tabindex');
         }
       }
       if (behaviorControl) {
@@ -1445,6 +1465,8 @@
           button.disabled = behaviorDisabled;
           if (behaviorDisabled) {
             button.setAttribute('aria-disabled', 'true');
+            button.style.pointerEvents = 'none';
+            button.setAttribute('tabindex', '-1');
             if (!markSchemeAvailable) {
               button.title = 'Switch PDF opening mode to Preview first to choose a mark scheme layout.';
             } else {
@@ -1453,6 +1475,8 @@
           } else {
             button.removeAttribute('aria-disabled');
             button.removeAttribute('title');
+            button.style.removeProperty('pointer-events');
+            button.removeAttribute('tabindex');
           }
         });
       }
@@ -2058,12 +2082,21 @@
     patchObserver = new MutationObserver(function () {
       schedulePatch();
     });
-    patchObserver.observe(root, { childList: true, subtree: true, characterData: true });
+    patchObserver.observe(root, PATCH_OBSERVER_OPTIONS);
   }
 
   function onDocumentClick(event) {
     var control = event.target && event.target.closest ? event.target.closest('button, a') : null;
+    var disabledMarkSchemeRow = event.target && event.target.closest
+      ? event.target.closest('.igcsefy-mark-scheme-row--disabled')
+      : null;
     var settingsNavControl;
+
+    if (disabledMarkSchemeRow) {
+      stopEvent(event);
+      return;
+    }
+
     if (!control) return;
 
     if (control.hasAttribute('data-igcsefy-paper-targets-back')) {

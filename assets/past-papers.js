@@ -2844,6 +2844,18 @@ const PAPERS_CONFIG = {
   }
 };
 
+function hasPastPapersForSubject(subjectSlug){
+  const normalized = String(subjectSlug || "").trim().toLowerCase();
+  if(!normalized){
+    return false;
+  }
+  return !!PAPERS_CONFIG[normalized];
+}
+
+if(typeof window !== "undefined"){
+  window.igcsefyHasPastPapersForSubject = hasPastPapersForSubject;
+}
+
 
 const MATH0580_FILESET = new Set([
   "/past-papers/mathematics-0580/2020/m/0580_m20_ms_12.pdf",

@@ -58,6 +58,11 @@
   opacity: 0 !important;
   pointer-events: none !important;
 }
+html[data-home-auth-gate="pending"] .home-page-footer {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
   </style>
   <script>
    (function () {
@@ -193,12 +198,17 @@
 </style>
 <style id="home-footer-style">
   .home-page-footer {
-    padding: 52px 24px 72px;
+    width: min(100%, calc(var(--maxw, 1180px) + 40px));
+    margin: 0 auto;
+    padding: 52px 20px 72px;
     background: transparent;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.18s ease;
   }
 
   .home-page-footer__inner {
-    width: min(100%, 1840px);
+    width: 100%;
     margin: 0 auto;
     padding-top: 30px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -223,10 +233,10 @@
     justify-content: center;
     gap: 18px;
     flex-wrap: wrap;
-    font-family: Inter, system-ui, sans-serif;
-    font-size: 0.96rem;
-    font-weight: 500;
-    letter-spacing: 0.02em;
+    font-family: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: clamp(0.82rem, 0.88vw, 0.92rem);
+    font-weight: 400;
+    letter-spacing: 0.16em;
   }
 
   .home-page-footer__link {
@@ -274,7 +284,7 @@
 
   @media (max-width: 768px) {
     .home-page-footer {
-      padding: 40px 18px 52px;
+      padding: 40px 16px 52px;
     }
 
     .home-page-footer__inner {
@@ -289,7 +299,7 @@
 
     .home-page-footer__links {
       gap: 12px;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
     }
   }
 </style>
