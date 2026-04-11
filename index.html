@@ -1,6 +1,9 @@
 <html lang="en"><head>
   <meta charset="utf-8">
-  <link href="/assets/favicon.png" rel="icon" type="image/png">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32x32.png" sizes="32x32" type="image/png">
+  <link rel="icon" href="/favicon-16x16.png" sizes="16x16" type="image/png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <link href="/manifest.json" rel="manifest">
   <title>
@@ -183,7 +186,6 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 }
 </style>
 
-
 <style id="pill-keep-glow-stop-motion">
   .pill-card{
     --shift-x: 0px !important;
@@ -341,7 +343,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         "0455": ["economics", "econ"],
         "0478": ["computer science", "cs", "computer"],
         "0495": ["sociology"],
-        "0500": ["english language", "first language english", "fle", "english"],
+        "0500": ["english as first language", "english language", "first language english", "fle", "english"],
         "0510": ["english as a second language", "esl", "english second language"],
         "0580": ["mathematics", "math", "maths"],
         "0610": ["biology", "bio"],
@@ -2703,7 +2705,6 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         syncState(true);
       };
 
-
       const getSearchHost = () => {
         if (!uiState.searchHost) {
           uiState.searchHost = document.createElement("div");
@@ -2712,7 +2713,6 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         }
         return uiState.searchHost;
       };
-
 
       const ensureSearchBar = () => {
         const host = getSearchHost();
@@ -2730,7 +2730,6 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           description.insertAdjacentElement("afterend", host);
         }
       };
-
 
       const ensureHomeMockupUi = () => {
         ensureSearchBar();
@@ -2870,9 +2869,9 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         attributeFilter: ["class", "data-theme"]
       });
       window.addEventListener("popstate", removeHomeChrome);
-    </script><script defer="" src="/assets/nav.js?v=20260409m"></script>
+    </script><script defer="" src="/assets/nav.js?v=20260410o"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-<script defer src="/assets/supabase-progress.js?v=20260410i"></script>
+<script defer src="/assets/supabase-progress.js?v=20260410m"></script>
 <script defer src="/assets/user-identity.js?v=20260410j"></script>
 <script defer src="/assets/welcome-back.js?v=20260405g"></script>
 </body></html>

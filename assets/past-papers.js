@@ -6352,6 +6352,7 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
   const embeddedGlobalBrowser = !!(options && options.embeddedGlobalBrowser);
   const meta = resolveUnavailablePastPapersSubjectMeta(subjectSlug, container);
   const tabsRoot = container.closest("[data-tabs]");
+  const embeddedSubjectTabs = !embeddedGlobalBrowser && !!tabsRoot;
 
   container.__ppActiveSubject = subjectSlug;
   container.__ppActivateYear = null;
@@ -6419,7 +6420,175 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
   });
   container.__ppThemeObserver = themeObserver;
 
-  shadow.innerHTML = `
+  shadow.innerHTML = embeddedSubjectTabs ? `
+    <style>
+      :host{ display:block; }
+      .subject-section-shell{
+        min-height:100vh;
+        background:#0A0A0B;
+        color:#fff;
+      }
+      .subject-section-shell__header{
+        border-bottom:1px solid rgba(255,255,255,.06);
+      }
+      .subject-section-shell__inner{
+        width:100%;
+        max-width:56rem;
+        margin:0 auto;
+        padding:0 1.5rem;
+      }
+      .subject-section-shell__header .subject-section-shell__inner{
+        padding-top:2rem;
+        padding-bottom:2rem;
+      }
+      .subject-section-shell__body{
+        padding-top:2rem;
+        padding-bottom:4rem;
+      }
+      .subject-section-shell__crumb{
+        margin:0 0 1.25rem;
+        display:flex;
+        align-items:center;
+        gap:.5rem;
+        font-size:.875rem;
+        color:rgba(255,255,255,.3);
+        letter-spacing:.01em;
+      }
+      .subject-section-shell__crumb-current{
+        color:rgba(255,255,255,.6);
+      }
+      .subject-section-shell__head{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        gap:1rem;
+      }
+      .subject-section-shell__meta{
+        min-width:min(100%,24rem);
+      }
+      .subject-section-shell__title{
+        margin:0;
+        font-size:1.5rem;
+        line-height:2rem;
+        letter-spacing:-.025em;
+        font-weight:600;
+      }
+      .subject-section-shell__subtitle{
+        margin:.25rem 0 0;
+        font-size:.875rem;
+        color:rgba(255,255,255,.4);
+      }
+      .subject-section-shell__tabs{
+        display:flex;
+        gap:.25rem;
+        padding:.25rem;
+        border-radius:9999px;
+        background:rgba(255,255,255,.05);
+      }
+      .subject-section-shell__tab{
+        appearance:none;
+        min-height:auto;
+        padding:.5rem 1.25rem;
+        border:0;
+        border-radius:9999px;
+        background:transparent;
+        color:rgba(255,255,255,.5);
+        font:inherit;
+        font-size:.875rem;
+        font-weight:500;
+        line-height:1.25rem;
+        transition:
+          background-color .2s ease,
+          color .2s ease,
+          box-shadow .2s ease;
+      }
+      .subject-section-shell__tab:hover{
+        color:rgba(255,255,255,.8);
+      }
+      .subject-section-shell__tab.is-active{
+        background:#fff;
+        color:#000;
+        box-shadow:0 1px 3px rgba(0,0,0,.1);
+      }
+      .subject-section-shell__content{
+        width:100%;
+        margin-top:2rem;
+      }
+      .subject-section-shell__empty-copy{
+        margin:0;
+        font-size:.95rem;
+        line-height:1.7;
+        color:rgba(255,255,255,.72);
+      }
+      .subject-section-shell[data-theme="light"]{
+        background:#F1EFE7;
+        color:#000000;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__header{
+        border-bottom-color:#E9E3D8;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__crumb,
+      .subject-section-shell[data-theme="light"] .subject-section-shell__subtitle,
+      .subject-section-shell[data-theme="light"] .subject-section-shell__empty-copy{
+        color:#666666;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__crumb-current,
+      .subject-section-shell[data-theme="light"] .subject-section-shell__title{
+        color:#000000;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__tabs{
+        background:#FFFFFF;
+        box-shadow:0 0 0 1px #E9E3D8 inset;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__tab{
+        color:#666666;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__tab:hover{
+        color:#000000;
+      }
+      .subject-section-shell[data-theme="light"] .subject-section-shell__tab.is-active{
+        background:#000000;
+        color:#FFFFFF;
+        box-shadow:none;
+      }
+      @media (max-width:640px){
+        .subject-section-shell__inner{
+          padding:0 1rem;
+        }
+        .subject-section-shell__header .subject-section-shell__inner{
+          padding-top:1.5rem;
+          padding-bottom:1.5rem;
+        }
+      }
+    </style>
+    <div class="subject-section-shell" data-theme="${escapePastPapersZipHtml(resolveShellTheme())}">
+      <div class="subject-section-shell__header">
+        <div class="subject-section-shell__inner">
+          <div class="subject-section-shell__crumb">
+            <span>${escapePastPapersZipHtml(meta.name)}</span>
+            <span>/</span>
+            <span class="subject-section-shell__crumb-current">Past Papers</span>
+          </div>
+          <div class="subject-section-shell__head">
+            <div class="subject-section-shell__meta">
+              <h1 class="subject-section-shell__title">${escapePastPapersZipHtml(meta.name)}</h1>
+              <p class="subject-section-shell__subtitle">Cambridge IGCSE${meta.code ? ` · ${escapePastPapersZipHtml(meta.code)}` : ""}</p>
+            </div>
+            <div class="subject-section-shell__tabs">
+              <button type="button" data-top-tab="syllabus" class="subject-section-shell__tab">Syllabus</button>
+              <button type="button" data-top-tab="past-papers" class="subject-section-shell__tab is-active">Past Papers</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="subject-section-shell__inner subject-section-shell__body">
+        <div class="subject-section-shell__content">
+          <p class="subject-section-shell__empty-copy">${escapePastPapersZipHtml(message || "Past papers for this subject are coming soon.")}</p>
+        </div>
+      </div>
+    </div>
+  ` : `
     <style>
       :host{ display:block; }
       .pp-subject-shell{
@@ -6611,7 +6780,7 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
     </div>
   `;
 
-  shell = shadow.querySelector(".pp-subject-shell");
+  shell = shadow.querySelector(embeddedSubjectTabs ? ".subject-section-shell" : ".pp-subject-shell");
   syllabusTabButton = shadow.querySelector('[data-top-tab="syllabus"]');
   pastPapersTabButton = shadow.querySelector('[data-top-tab="past-papers"]');
   syncHostTheme();
@@ -6711,6 +6880,7 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
 
     const cssText = await loadSubjectPastPapersZipCss();
     const tabsRoot = container.closest("[data-tabs]");
+    const embeddedSubjectTabs = !embeddedGlobalBrowser && !!tabsRoot;
     const navigationIntent = typeof readSubjectNavigationIntent === "function"
       ? readSubjectNavigationIntent()
       : null;
@@ -6759,6 +6929,135 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
     shadow.innerHTML = `
       <style>
         ${cssText}
+        ${embeddedSubjectTabs ? `
+        .subject-section-shell{
+          background:#0A0A0B;
+          color:#fff;
+        }
+        .subject-section-shell__header{
+          border-bottom:1px solid rgba(255,255,255,.06);
+        }
+        .subject-section-shell__inner{
+          width:100%;
+          max-width:56rem;
+          margin:0 auto;
+          padding:0 1.5rem;
+        }
+        .subject-section-shell__header .subject-section-shell__inner{
+          padding-top:2rem;
+          padding-bottom:2rem;
+        }
+        .subject-section-shell__body{
+          padding-top:2rem;
+          padding-bottom:4rem;
+        }
+        .subject-section-shell__crumb{
+          margin:0 0 1.25rem;
+          display:flex;
+          align-items:center;
+          gap:.5rem;
+          font-size:.875rem;
+          color:rgba(255,255,255,.3);
+          letter-spacing:.01em;
+        }
+        .subject-section-shell__crumb-current{
+          color:rgba(255,255,255,.6);
+        }
+        .subject-section-shell__head{
+          display:flex;
+          align-items:flex-start;
+          justify-content:space-between;
+          flex-wrap:wrap;
+          gap:1rem;
+        }
+        .subject-section-shell__meta{
+          min-width:min(100%,24rem);
+        }
+        .subject-section-shell__title{
+          margin:0;
+          font-size:1.5rem;
+          line-height:2rem;
+          letter-spacing:-.025em;
+          font-weight:600;
+        }
+        .subject-section-shell__subtitle{
+          margin:.25rem 0 0;
+          font-size:.875rem;
+          color:rgba(255,255,255,.4);
+        }
+        .subject-section-shell__tabs{
+          display:flex;
+          gap:.25rem;
+          padding:.25rem;
+          border-radius:9999px;
+          background:rgba(255,255,255,.05);
+        }
+        .subject-section-shell__tab{
+          appearance:none;
+          min-height:auto;
+          padding:.5rem 1.25rem;
+          border:0;
+          border-radius:9999px;
+          background:transparent;
+          color:rgba(255,255,255,.5);
+          font:inherit;
+          font-size:.875rem;
+          font-weight:500;
+          line-height:1.25rem;
+          transition:background-color .2s ease,color .2s ease,box-shadow .2s ease;
+        }
+        .subject-section-shell__tab:hover{
+          color:rgba(255,255,255,.8);
+        }
+        .subject-section-shell__tab.is-active{
+          background:#fff;
+          color:#000;
+          box-shadow:0 1px 3px rgba(0,0,0,.1);
+        }
+        .subject-section-shell__content{
+          width:100%;
+          margin-top:2rem;
+        }
+        .subject-section-shell[data-theme="light"]{
+          background:#F1EFE7;
+          color:#000000;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__header{
+          border-bottom-color:#E9E3D8;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__crumb,
+        .subject-section-shell[data-theme="light"] .subject-section-shell__subtitle{
+          color:#666666;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__crumb-current,
+        .subject-section-shell[data-theme="light"] .subject-section-shell__title{
+          color:#000000;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__tabs{
+          background:#FFFFFF;
+          box-shadow:0 0 0 1px #E9E3D8 inset;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__tab{
+          color:#666666;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__tab:hover{
+          color:#000000;
+        }
+        .subject-section-shell[data-theme="light"] .subject-section-shell__tab.is-active{
+          background:#000000;
+          color:#FFFFFF;
+          box-shadow:none;
+        }
+        @media (max-width:640px){
+          .subject-section-shell__inner{
+            padding:0 1rem;
+          }
+          .subject-section-shell__header .subject-section-shell__inner{
+            padding-top:1.5rem;
+            padding-bottom:1.5rem;
+          }
+        }
+        ` : ""}
         :host{
           display:block;
         }
@@ -7718,44 +8017,46 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
           }
         }
       </style>
-      <div class="pp-subject-shell" data-theme="${escapePastPapersZipHtml(host.dataset.theme || 'dark')}">
-        <div class="pp-subject-shell__header">
-          <div class="pp-subject-shell__inner">
-            <div class="pp-subject-shell__crumb">
+      <div class="${embeddedSubjectTabs ? "pp-subject-shell subject-section-shell" : "pp-subject-shell"}" data-theme="${escapePastPapersZipHtml(host.dataset.theme || 'dark')}">
+        <div class="${embeddedSubjectTabs ? "subject-section-shell__header" : "pp-subject-shell__header"}">
+          <div class="${embeddedSubjectTabs ? "subject-section-shell__inner" : "pp-subject-shell__inner"}">
+            <div class="${embeddedSubjectTabs ? "subject-section-shell__crumb" : "pp-subject-shell__crumb"}">
               <span>${escapePastPapersZipHtml(model.cfg.name)}</span>
               <span>/</span>
-              <span class="pp-subject-shell__crumb-current">Past Papers</span>
+              <span class="${embeddedSubjectTabs ? "subject-section-shell__crumb-current" : "pp-subject-shell__crumb-current"}">Past Papers</span>
             </div>
-            <div class="pp-subject-shell__head">
-              <div class="pp-subject-shell__meta">
-                <h1 class="pp-subject-shell__title">${escapePastPapersZipHtml(model.cfg.name)}</h1>
-                <p class="pp-subject-shell__subtitle">Cambridge IGCSE · ${escapePastPapersZipHtml(model.cfg.code)}</p>
+            <div class="${embeddedSubjectTabs ? "subject-section-shell__head" : "pp-subject-shell__head"}">
+              <div class="${embeddedSubjectTabs ? "subject-section-shell__meta" : "pp-subject-shell__meta"}">
+                <h1 class="${embeddedSubjectTabs ? "subject-section-shell__title" : "pp-subject-shell__title"}">${escapePastPapersZipHtml(model.cfg.name)}</h1>
+                <p class="${embeddedSubjectTabs ? "subject-section-shell__subtitle" : "pp-subject-shell__subtitle"}">Cambridge IGCSE · ${escapePastPapersZipHtml(model.cfg.code)}</p>
               </div>
               ${embeddedGlobalBrowser ? "" : `
-                <div class="pp-subject-shell__tabs">
-                  <button type="button" data-top-tab="syllabus" class="pp-subject-shell__tab">Syllabus</button>
-                  <button type="button" data-top-tab="past-papers" class="pp-subject-shell__tab is-active">Past Papers</button>
+                <div class="${embeddedSubjectTabs ? "subject-section-shell__tabs" : "pp-subject-shell__tabs"}">
+                  <button type="button" data-top-tab="syllabus" class="${embeddedSubjectTabs ? "subject-section-shell__tab" : "pp-subject-shell__tab"}">Syllabus</button>
+                  <button type="button" data-top-tab="past-papers" class="${embeddedSubjectTabs ? "subject-section-shell__tab" : "pp-subject-shell__tab"} is-active">Past Papers</button>
                 </div>
               `}
             </div>
           </div>
         </div>
-        <div class="pp-subject-shell__inner pp-subject-shell__body">
-          <div class="pp-subject-search">
-            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="M21 21l-4.35-4.35"></path>
-            </svg>
-            <input data-role="search-input" type="text" placeholder="Search papers..." class="w-full rounded-2xl pl-9 ${embeddedGlobalBrowser ? "pr-11" : "pr-4"} py-2.5 text-sm text-white placeholder-white/25 focus:outline-none transition-all duration-200" style="background:#111;border:1px solid #252525;">
-            ${embeddedGlobalBrowser ? `<button type="button" data-role="search-clear" class="pp-subject-search__clear" aria-label="Clear search" hidden>&times;</button>` : ""}
-            ${embeddedGlobalBrowser ? `<div data-role="search-results" class="pp-subject-search__results" hidden></div>` : ""}
+        <div class="${embeddedSubjectTabs ? "subject-section-shell__inner subject-section-shell__body" : "pp-subject-shell__inner pp-subject-shell__body"}">
+          <div class="${embeddedSubjectTabs ? "subject-section-shell__content" : ""}">
+            <div class="pp-subject-search">
+              <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="M21 21l-4.35-4.35"></path>
+              </svg>
+              <input data-role="search-input" type="text" placeholder="Search papers..." class="w-full rounded-2xl pl-9 ${embeddedGlobalBrowser ? "pr-11" : "pr-4"} py-2.5 text-sm text-white placeholder-white/25 focus:outline-none transition-all duration-200" style="background:#111;border:1px solid #252525;">
+              ${embeddedGlobalBrowser ? `<button type="button" data-role="search-clear" class="pp-subject-search__clear" aria-label="Clear search" hidden>&times;</button>` : ""}
+              ${embeddedGlobalBrowser ? `<div data-role="search-results" class="pp-subject-search__results" hidden></div>` : ""}
+            </div>
+            <div data-role="subject-body"></div>
           </div>
-          <div data-role="subject-body"></div>
         </div>
       </div>
     `;
 
-    shell = shadow.querySelector('.pp-subject-shell');
+    shell = shadow.querySelector(embeddedSubjectTabs ? '.subject-section-shell' : '.pp-subject-shell');
     const syllabusTabButton = shadow.querySelector('[data-top-tab="syllabus"]');
     const pastPapersTabButton = shadow.querySelector('[data-top-tab="past-papers"]');
     const searchInput = shadow.querySelector('[data-role="search-input"]');

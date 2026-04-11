@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" role="img" aria-label="IGCSEfy logo">
+  <rect width="1000" height="1000" fill="#000"/>
+  <polygon points="500,70 240,230 760,230" fill="#fff"/>
+  <rect x="150" y="300" width="700" height="500" fill="#fff"/>
+  <polygon points="150,300 500,630 850,300" fill="#000"/>
+</svg>

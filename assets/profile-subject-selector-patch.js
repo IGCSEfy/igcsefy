@@ -42,7 +42,7 @@
     '0455': 'Economics',
     '0478': 'Computer Science',
     '0495': 'Sociology',
-    '0500': 'English Language',
+    '0500': 'English as First Language',
     '0510': 'English as a Second Language',
     '0580': 'Mathematics',
     '0610': 'Biology',

@@ -36,7 +36,7 @@
     { id: 'physics-0625', label: 'Physics' },
     { id: 'chemistry-0620', label: 'Chemistry' },
     { id: 'biology-0610', label: 'Biology' },
-    { id: 'english-first-language-0500', label: 'English Language' },
+    { id: 'english-first-language-0500', label: 'English as First Language' },
     { id: 'english-as-a-second-language-0510', label: 'English as a Second Language' },
     { id: 'computer-science-0478', label: 'Computer Science' },
     { id: 'economics-0455', label: 'Economics' },
@@ -81,8 +81,8 @@
     physics: 'Physics',
     chemistry: 'Chemistry',
     biology: 'Biology',
-    'english-language': 'English Language',
-    'english-first-language-0500': 'English Language',
+    'english-language': 'English as First Language',
+    'english-first-language-0500': 'English as First Language',
     'english-as-a-second-language-0510': 'English as a Second Language',
     'english-literature': 'English Literature',
     'computer-science': 'Computer Science',
@@ -105,10 +105,33 @@
     'sociology-0495': 'Sociology',
     'psychology-0266': 'Psychology'
   };
-  var PAPER_TARGET_SUBJECTS = PAPER_TARGET_SUBJECTS_FALLBACK.slice();
+  function normalizePaperTargetSubjectLabel(subjectId, label) {
+    var normalizedSubjectId = normalizePaperTargetSubjectId(subjectId);
+    if (normalizedSubjectId && Object.prototype.hasOwnProperty.call(LEGACY_PAPER_TARGET_SUBJECT_LABELS, normalizedSubjectId)) {
+      return LEGACY_PAPER_TARGET_SUBJECT_LABELS[normalizedSubjectId];
+    }
+    if (label === 'English Language') {
+      return 'English as First Language';
+    }
+    return label;
+  }
+
+  function isSupportedPaperTargetSubject(subjectId) {
+    var normalizedSubjectId = normalizePaperTargetSubjectId(subjectId);
+    var limits = normalizedSubjectId ? PAPER_TARGET_LIMITS_FALLBACK[normalizedSubjectId] : null;
+    return !!(limits && ((limits.core || 0) > 0 || (limits.extended || 0) > 0));
+  }
+
+  function filterSupportedPaperTargetSubjects(subjects) {
+    return (Array.isArray(subjects) ? subjects : []).filter(function (subject) {
+      return isSupportedPaperTargetSubject(subject && subject.id);
+    });
+  }
+
+  var PAPER_TARGET_SUBJECTS = filterSupportedPaperTargetSubjects(PAPER_TARGET_SUBJECTS_FALLBACK.slice());
   var PAPER_TARGET_LIMITS = PAPER_TARGET_LIMITS_FALLBACK;
   var paperTargetSubjectsRequest = null;
-  var SUPPORT_EMAIL = 'ebrahim.tariq@icloud.com';
+  var SUPPORT_EMAIL = 'support@igcsefy.com';
   var HELP_ACTIONS = {
     'Report a bug': {
       subject: 'IGCSEfy bug report',
@@ -140,7 +163,7 @@
   };
   var paperTargetsUiState = {
     activeSection: '',
-    selectedSubject: PAPER_TARGET_SUBJECTS[0].id,
+    selectedSubject: PAPER_TARGET_SUBJECTS[0] ? PAPER_TARGET_SUBJECTS[0].id : '',
     selectedLevel: 'extended'
   };
   var PATCH_OBSERVER_OPTIONS = {
@@ -423,9 +446,12 @@
     var seen = {};
     var next = rawSubjects.map(function (subject) {
       var id = normalizePaperTargetSubjectId(subject && subject.slug);
-      var label = String(subject && subject.name ? subject.name : id).trim();
+      var label = normalizePaperTargetSubjectLabel(
+        id,
+        String(subject && subject.name ? subject.name : id).trim()
+      );
 
-      if (!id || !label || seen[id]) {
+      if (!id || !label || seen[id] || !isSupportedPaperTargetSubject(id)) {
         return null;
       }
 
@@ -435,7 +461,7 @@
 
     next.sort(comparePaperTargetSubjects);
 
-    return next.length ? next : PAPER_TARGET_SUBJECTS_FALLBACK.slice();
+    return next.length ? next : filterSupportedPaperTargetSubjects(PAPER_TARGET_SUBJECTS_FALLBACK.slice());
   }
 
   function extractPaperTargetLimits(payload, subjects) {
@@ -443,7 +469,7 @@
     var limits = {};
     var seenEntries = {};
 
-    (Array.isArray(subjects) && subjects.length ? subjects : PAPER_TARGET_SUBJECTS_FALLBACK).forEach(function (subject) {
+    (Array.isArray(subjects) && subjects.length ? subjects : filterSupportedPaperTargetSubjects(PAPER_TARGET_SUBJECTS_FALLBACK)).forEach(function (subject) {
       limits[subject.id] = PAPER_TARGET_LIMITS_FALLBACK[subject.id]
         ? {
             core: PAPER_TARGET_LIMITS_FALLBACK[subject.id].core,
@@ -511,8 +537,8 @@
 
   function setPaperTargetCatalog(subjects, limits) {
     PAPER_TARGET_SUBJECTS = Array.isArray(subjects) && subjects.length
-      ? subjects.slice().sort(comparePaperTargetSubjects)
-      : PAPER_TARGET_SUBJECTS_FALLBACK.slice();
+      ? filterSupportedPaperTargetSubjects(subjects.slice()).sort(comparePaperTargetSubjects)
+      : filterSupportedPaperTargetSubjects(PAPER_TARGET_SUBJECTS_FALLBACK.slice());
     PAPER_TARGET_LIMITS = limits && typeof limits === 'object'
       ? limits
       : PAPER_TARGET_LIMITS_FALLBACK;
@@ -1373,9 +1399,14 @@
       effectivePdfOpeningMode = getSegmentedValue(pdfOpeningControl, settings.pdfOpeningMode);
       effectiveAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
 
-      if (effectivePdfOpeningMode === 'direct-download' && settings.autoOpenMarkScheme) {
-        updateStudyPreferences({ autoOpenMarkScheme: false }, { schedule: false });
-        settings = loadSettings().studyPreferences;
+      if (effectivePdfOpeningMode === 'direct-download') {
+        if (settings.autoOpenMarkScheme || settings.markSchemeOpenBehavior !== 'same-tab') {
+          updateStudyPreferences({
+            autoOpenMarkScheme: false,
+            markSchemeOpenBehavior: 'same-tab'
+          }, { schedule: false });
+          settings = loadSettings().studyPreferences;
+        }
         effectiveAutoOpenMarkScheme = false;
       }
 
@@ -1421,6 +1452,13 @@
         autoOpenControl.setAttribute('aria-checked', effectiveAutoOpenMarkScheme ? 'true' : 'false');
         autoOpenControl.setAttribute('data-state', effectiveAutoOpenMarkScheme ? 'checked' : 'unchecked');
         autoOpenControl.disabled = !markSchemeAvailable;
+        if ('checked' in autoOpenControl) {
+          autoOpenControl.checked = effectiveAutoOpenMarkScheme;
+        }
+        if (autoOpenControl.classList) {
+          autoOpenControl.classList.toggle('bg-foreground/20', effectiveAutoOpenMarkScheme);
+          autoOpenControl.classList.toggle('bg-secondary/60', !effectiveAutoOpenMarkScheme);
+        }
 
         if (autoOpenThumb && autoOpenThumb.classList) {
           autoOpenThumb.classList.toggle('translate-x-[22px]', effectiveAutoOpenMarkScheme);

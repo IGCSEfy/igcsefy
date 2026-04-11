@@ -6,7 +6,7 @@
     "0266": { slug: "psychology-0266", name: "Psychology" },
     "0478": { slug: "computer-science-0478", name: "Computer Science" },
     "0495": { slug: "sociology-0495", name: "Sociology" },
-    "0500": { slug: "english-first-language-0500", name: "English Language" },
+    "0500": { slug: "english-first-language-0500", name: "English as First Language" },
     "0510": { slug: "english-as-a-second-language-0510", name: "English as a Second Language" },
     "0580": { slug: "mathematics-0580", name: "Mathematics" },
     "0610": { slug: "biology-0610", name: "Biology" },

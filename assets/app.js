@@ -1781,7 +1781,7 @@ function prepareSyllabusLevels(data){
   };
 }
 
-const SYLLABUS_ZIP_CSS_PATH = '/assets/syllabus-zip/styles/index-DYkgcpNz.css';
+const SYLLABUS_ZIP_CSS_PATH = '/assets/syllabus-zip/styles/index.css';
 let syllabusZipCssPromise = null;
 
 function loadSyllabusZipCss(){

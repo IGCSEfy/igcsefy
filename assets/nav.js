@@ -10,6 +10,31 @@
   ];
   var NAV_READY_EVENT = 'igcsefy:site-nav-ready';
   var NAV_READY_KEY = '__igcsefySiteNavReady';
+  var ANALYTICS_BOOTSTRAP_SRC = '/assets/analytics.js?v=20260410o';
+  var ANALYTICS_BOOTSTRAP_KEY = '__igcsefyAnalyticsBootstrapRequested';
+  var ANALYTICS_TAG_ID = 'G-T6XYBEBL4Z';
+
+  function ensureAnalyticsBootstrap() {
+    if (window[ANALYTICS_BOOTSTRAP_KEY]) {
+      return;
+    }
+
+    if (
+      typeof window.gtag === 'function' ||
+      document.querySelector('script[src*="googletagmanager.com/gtag/js?id=' + ANALYTICS_TAG_ID + '"]') ||
+      document.querySelector('script[src^="/assets/analytics.js"]')
+    ) {
+      window[ANALYTICS_BOOTSTRAP_KEY] = true;
+      return;
+    }
+
+    window[ANALYTICS_BOOTSTRAP_KEY] = true;
+
+    var script = document.createElement('script');
+    script.defer = true;
+    script.src = ANALYTICS_BOOTSTRAP_SRC;
+    document.head.appendChild(script);
+  }
 
   function markNavReady() {
     if (window[NAV_READY_KEY]) {
@@ -686,6 +711,8 @@
       requestAnimationFrame(markNavReady);
     });
   }
+
+  ensureAnalyticsBootstrap();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mountNav, { once: true });
