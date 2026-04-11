@@ -1445,6 +1445,8 @@
     var behaviorDisabled;
     var effectivePdfOpeningMode;
     var effectiveAutoOpenMarkScheme;
+    var domPdfOpeningMode;
+    var domAutoOpenMarkScheme;
     var autoOpenThumb;
 
     function findSettingRow(label) {
@@ -1538,8 +1540,17 @@
         : null;
       heading = section.querySelector('[data-igcsefy-mark-scheme-heading]');
 
-      effectivePdfOpeningMode = getSegmentedValue(pdfOpeningControl, settings.pdfOpeningMode);
-      effectiveAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
+      effectivePdfOpeningMode = settings.pdfOpeningMode;
+      domPdfOpeningMode = getSegmentedValue(pdfOpeningControl, '');
+      if (effectivePdfOpeningMode !== 'direct-download' && domPdfOpeningMode) {
+        effectivePdfOpeningMode = domPdfOpeningMode;
+      }
+
+      effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
+      domAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
+      if (effectivePdfOpeningMode !== 'direct-download') {
+        effectiveAutoOpenMarkScheme = domAutoOpenMarkScheme;
+      }
 
       if (effectivePdfOpeningMode === 'direct-download') {
         if (settings.autoOpenMarkScheme || settings.markSchemeOpenBehavior !== 'same-tab') {
@@ -1665,6 +1676,8 @@
 
   function forceDirectDownloadStudyPreferencesUi() {
     var section = document.getElementById('study-preferences');
+    var pdfOpeningRow;
+    var pdfOpeningControl;
     var autoOpenRow;
     var behaviorRow;
     var autoOpenControl;
@@ -1687,11 +1700,13 @@
 
     if (!section) return;
 
+    pdfOpeningRow = findSettingRow('PDF opening mode');
     autoOpenRow = findSettingRow('Auto-open mark scheme');
     behaviorRow = findSettingRow('Mark scheme opening behavior') || findSettingRow('Opening behaviour');
-    if (!autoOpenRow || !behaviorRow) return;
+    if (!pdfOpeningRow || !autoOpenRow || !behaviorRow) return;
 
     pausePatchObserver(function () {
+      pdfOpeningControl = pdfOpeningRow.lastElementChild;
       autoOpenControl = autoOpenRow.lastElementChild;
       autoOpenCopy = autoOpenRow.firstElementChild;
       behaviorCopy = behaviorRow.firstElementChild;
@@ -1721,6 +1736,19 @@
         behaviorDescription.textContent = 'Split and same-tab mark scheme views are only available with Preview first.';
       }
 
+      if (pdfOpeningControl) {
+        Array.from(pdfOpeningControl.querySelectorAll('button')).forEach(function (button) {
+          var buttonText = String(button.textContent || '').trim().toLowerCase();
+          var isDirectDownload = buttonText === 'direct download';
+          button.setAttribute('aria-pressed', isDirectDownload ? 'true' : 'false');
+          button.setAttribute('aria-checked', isDirectDownload ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isDirectDownload ? 'active' : 'inactive';
+          }
+          button.classList.toggle('bg-card', isDirectDownload);
+        });
+      }
+
       if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
         autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
 
@@ -1748,7 +1776,9 @@
 
       if (behaviorControl) {
         Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
-          button.classList.remove('igcsefy-mark-scheme-pill--active');
+          var buttonText = String(button.textContent || '').trim().toLowerCase();
+          var isSameTab = buttonText === 'same tab';
+          button.classList.toggle('igcsefy-mark-scheme-pill--active', isSameTab);
           button.disabled = true;
           button.setAttribute('aria-disabled', 'true');
           button.style.pointerEvents = 'none';
@@ -2382,6 +2412,7 @@
     if (studyPreferencesControl) {
       var studyLabel = String(control.textContent || '').trim().toLowerCase();
       if (studyLabel === 'direct download') {
+        stopEvent(event);
         updateStudyPreferences({
           pdfOpeningMode: 'direct-download',
           autoOpenMarkScheme: false,
@@ -2389,6 +2420,7 @@
         }, { schedule: false });
         forceDirectDownloadStudyPreferencesUi();
         window.setTimeout(schedulePatch, 0);
+        return;
       } else if (studyLabel === 'preview first') {
         window.setTimeout(schedulePatch, 0);
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {

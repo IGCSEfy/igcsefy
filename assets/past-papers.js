@@ -6511,11 +6511,13 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
         color:#000;
         box-shadow:0 1px 3px rgba(0,0,0,.1);
       }
-      .subject-section-shell__content{
+      .subject-section-shell__content,
+      .pp-subject-empty-state{
         width:100%;
         margin-top:2rem;
       }
-      .subject-section-shell__empty-copy{
+      .subject-section-shell__empty-copy,
+      .pp-subject-empty-copy{
         margin:0;
         font-size:.95rem;
         line-height:1.7;
@@ -6530,7 +6532,8 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
       }
       .subject-section-shell[data-theme="light"] .subject-section-shell__crumb,
       .subject-section-shell[data-theme="light"] .subject-section-shell__subtitle,
-      .subject-section-shell[data-theme="light"] .subject-section-shell__empty-copy{
+      .subject-section-shell[data-theme="light"] .subject-section-shell__empty-copy,
+      .pp-subject-shell[data-theme="light"] .pp-subject-empty-copy{
         color:#666666;
       }
       .subject-section-shell[data-theme="light"] .subject-section-shell__crumb-current,
@@ -6583,8 +6586,8 @@ function renderUnavailableSubjectPastPapersZip(container, subjectSlug, options =
         </div>
       </div>
       <div class="subject-section-shell__inner subject-section-shell__body">
-        <div class="subject-section-shell__content">
-          <p class="subject-section-shell__empty-copy">${escapePastPapersZipHtml(message || "Past papers for this subject are coming soon.")}</p>
+        <div class="subject-section-shell__content pp-subject-empty-state">
+          <p class="subject-section-shell__empty-copy pp-subject-empty-copy">${escapePastPapersZipHtml(message || "Past papers for this subject are coming soon.")}</p>
         </div>
       </div>
     </div>
