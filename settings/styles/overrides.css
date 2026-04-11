@@ -122,11 +122,11 @@ html.light body[data-settings-page="true"] #root header {
 }
 
 body[data-settings-page="true"] #root aside {
-  background: rgba(11, 11, 15, 0.86);
+  background: rgb(15, 15, 15);
 }
 
 html.light body[data-settings-page="true"] #root aside {
-  background: rgba(255, 255, 255, 0.82);
+  background: rgb(255, 255, 255);
 }
 
 body[data-settings-page="true"] #root main {
@@ -139,11 +139,11 @@ body[data-settings-page="true"] #root .border-border {
 }
 
 body[data-settings-page="true"] #root .bg-card {
-  background-color: rgba(15, 15, 15, 0.94);
+  background-color: rgb(15, 15, 15);
 }
 
 html.light body[data-settings-page="true"] #root .bg-card {
-  background-color: rgba(255, 255, 255, 0.96);
+  background-color: rgb(255, 255, 255);
 }
 
 body[data-settings-page="true"] #root .shadow-sm,

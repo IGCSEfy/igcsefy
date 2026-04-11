@@ -2507,6 +2507,15 @@
     schedulePatch();
   });
 
+  window.addEventListener('igcsefy:theme-change', function () {
+    schedulePatch();
+  });
+
+  window.addEventListener('storage', function (event) {
+    if (!event || event.key !== SETTINGS_KEY) return;
+    schedulePatch();
+  });
+
   document.addEventListener('click', onDocumentClick, true);
   window.addEventListener('resize', schedulePatch);
 
