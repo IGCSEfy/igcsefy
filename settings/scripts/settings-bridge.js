@@ -166,6 +166,7 @@
     selectedSubject: PAPER_TARGET_SUBJECTS[0] ? PAPER_TARGET_SUBJECTS[0].id : '',
     selectedLevel: 'extended'
   };
+  var studyPreferencesUiOverride = null;
   var PATCH_OBSERVER_OPTIONS = {
     childList: true,
     subtree: true,
@@ -282,36 +283,43 @@
     return resolveThemePreference(SETTINGS_DEFAULTS.appearance.theme);
   }
 
+  function getDocumentThemePreference() {
+    var root = document.documentElement;
+    var datasetPreference = root && root.dataset ? root.dataset.themePreference : '';
+
+    if (datasetPreference === 'light' || datasetPreference === 'dark' || datasetPreference === 'system') {
+      return datasetPreference;
+    }
+
+    if (root.classList.contains('light')) return 'light';
+    if (root.classList.contains('dark')) return 'dark';
+    return SETTINGS_DEFAULTS.appearance.theme;
+  }
+
   function applyResolvedDocumentTheme(value) {
     var root = document.documentElement;
-    var resolved = value === 'light' ? 'light' : 'dark';
+    var preference = normalizeThemePreference(value);
+    var resolved = resolveThemePreference(preference);
 
     root.classList.remove('light', 'dark');
     root.classList.add(resolved);
     root.dataset.theme = resolved;
-    root.dataset.themePreference = resolved;
+    root.dataset.themePreference = preference;
 
-    return resolved;
+    return {
+      preference: preference,
+      resolved: resolved
+    };
   }
 
   function reconcileAppearanceSettings() {
     var settings = loadSettings();
     var storedPreference = normalizeThemePreference(settings.appearance.theme);
     var storedResolved = resolveThemePreference(storedPreference);
+    var documentPreference = getDocumentThemePreference();
     var documentResolved = getResolvedDocumentTheme();
 
-    if (storedResolved !== documentResolved) {
-      settings = saveSettings({
-        appearance: Object.assign({}, settings.appearance, {
-          theme: documentResolved
-        }),
-        studyPreferences: settings.studyPreferences
-      });
-      storedPreference = settings.appearance.theme;
-      storedResolved = resolveThemePreference(storedPreference);
-    }
-
-    if (documentResolved !== storedResolved) {
+    if (storedPreference !== documentPreference || storedResolved !== documentResolved) {
       applyResolvedDocumentTheme(storedResolved);
     }
 
@@ -724,6 +732,14 @@
       updatedAt: new Date().toISOString()
     };
     writeStorage(SETTINGS_KEY, JSON.stringify(sanitized));
+    try {
+      window.dispatchEvent(new CustomEvent('igcsefy:settings-sync', {
+        detail: {
+          reason: 'settings-bridge-local-write',
+          settings: sanitized
+        }
+      }));
+    } catch (error) {}
     return sanitized;
   }
 
@@ -1013,6 +1029,17 @@
     if (className) node.className = className;
     if (typeof textContent === 'string') node.textContent = textContent;
     return node;
+  }
+
+  function getSwitchControl(container) {
+    if (!container) return null;
+    if (container.getAttribute && container.getAttribute('role') === 'switch') {
+      return container;
+    }
+    if (container.querySelector) {
+      return container.querySelector('[role="switch"]');
+    }
+    return null;
   }
 
   function createSvgIcon(name, className) {
@@ -1402,7 +1429,7 @@
       }
 
       if (reducedMotionRow) {
-        reducedMotionControl = reducedMotionRow.lastElementChild;
+        reducedMotionControl = getSwitchControl(reducedMotionRow.lastElementChild);
         if (reducedMotionControl && reducedMotionControl.getAttribute && reducedMotionControl.getAttribute('role') === 'switch') {
           reducedMotionThumb = reducedMotionControl.querySelector ? reducedMotionControl.querySelector('span') : null;
           reducedMotionControl.setAttribute('aria-checked', appearance.reducedMotion ? 'true' : 'false');
@@ -1427,6 +1454,7 @@
   function patchStudyPreferencesSection() {
     var section = document.getElementById('study-preferences');
     var settings;
+    var overrideSettings;
     var pdfOpeningRow;
     var autoOpenRow;
     var behaviorRow;
@@ -1507,6 +1535,12 @@
 
     storedSettings = readJson(SETTINGS_KEY);
     settings = loadSettings().studyPreferences;
+    overrideSettings = studyPreferencesUiOverride && typeof studyPreferencesUiOverride === 'object'
+      ? studyPreferencesUiOverride
+      : null;
+    if (overrideSettings) {
+      settings = Object.assign({}, settings, overrideSettings);
+    }
     effectivePdfOpeningMode = settings.pdfOpeningMode;
     effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
     if (
@@ -1526,7 +1560,7 @@
 
     pausePatchObserver(function () {
       pdfOpeningControl = pdfOpeningRow.lastElementChild;
-      autoOpenControl = autoOpenRow.lastElementChild;
+      autoOpenControl = getSwitchControl(autoOpenRow.lastElementChild);
       autoOpenCopy = autoOpenRow.firstElementChild;
       behaviorCopy = behaviorRow.firstElementChild;
       behaviorControl = behaviorRow.lastElementChild;
@@ -1542,13 +1576,20 @@
 
       effectivePdfOpeningMode = settings.pdfOpeningMode;
       domPdfOpeningMode = getSegmentedValue(pdfOpeningControl, '');
-      if (effectivePdfOpeningMode !== 'direct-download' && domPdfOpeningMode) {
+      if (
+        !(overrideSettings && Object.prototype.hasOwnProperty.call(overrideSettings, 'pdfOpeningMode'))
+        && effectivePdfOpeningMode !== 'direct-download'
+        && domPdfOpeningMode
+      ) {
         effectivePdfOpeningMode = domPdfOpeningMode;
       }
 
       effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
       domAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
-      if (effectivePdfOpeningMode !== 'direct-download') {
+      if (
+        !(overrideSettings && Object.prototype.hasOwnProperty.call(overrideSettings, 'autoOpenMarkScheme'))
+        && effectivePdfOpeningMode !== 'direct-download'
+      ) {
         effectiveAutoOpenMarkScheme = domAutoOpenMarkScheme;
       }
 
@@ -1559,6 +1600,9 @@
             markSchemeOpenBehavior: 'same-tab'
           }, { schedule: false });
           settings = loadSettings().studyPreferences;
+          if (overrideSettings) {
+            settings = Object.assign({}, settings, overrideSettings);
+          }
         }
         effectiveAutoOpenMarkScheme = false;
       }
@@ -1707,7 +1751,7 @@
 
     pausePatchObserver(function () {
       pdfOpeningControl = pdfOpeningRow.lastElementChild;
-      autoOpenControl = autoOpenRow.lastElementChild;
+      autoOpenControl = getSwitchControl(autoOpenRow.lastElementChild);
       autoOpenCopy = autoOpenRow.firstElementChild;
       behaviorCopy = behaviorRow.firstElementChild;
       behaviorControl = behaviorRow.lastElementChild;
@@ -2412,6 +2456,11 @@
     if (studyPreferencesControl) {
       var studyLabel = String(control.textContent || '').trim().toLowerCase();
       if (studyLabel === 'direct download') {
+        studyPreferencesUiOverride = {
+          pdfOpeningMode: 'direct-download',
+          autoOpenMarkScheme: false,
+          markSchemeOpenBehavior: 'same-tab'
+        };
         stopEvent(event);
         updateStudyPreferences({
           pdfOpeningMode: 'direct-download',
@@ -2419,11 +2468,19 @@
           markSchemeOpenBehavior: 'same-tab'
         }, { schedule: false });
         forceDirectDownloadStudyPreferencesUi();
-        window.setTimeout(schedulePatch, 0);
+        requestAnimationFrame(function () {
+          forceDirectDownloadStudyPreferencesUi();
+          schedulePatch();
+        });
         return;
       } else if (studyLabel === 'preview first') {
+        studyPreferencesUiOverride = null;
         window.setTimeout(schedulePatch, 0);
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
+        studyPreferencesUiOverride = null;
+        window.setTimeout(schedulePatch, 0);
+      } else if (control.getAttribute && control.getAttribute('role') === 'switch') {
+        studyPreferencesUiOverride = null;
         window.setTimeout(schedulePatch, 0);
       }
     }

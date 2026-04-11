@@ -2405,6 +2405,7 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
     code: subjectMeta && subjectMeta.code ? subjectMeta.code : '',
     slug: subjectMeta && subjectMeta.slug ? subjectMeta.slug : ''
   };
+  const supportsPastPapers = subjectSupportsPastPapers(subjectRef.slug);
   const initialSubjectDestination = resolveInitialSubjectDestination(locationIntent, subjectRef.slug);
   const levels = prepareSyllabusLevels(data || {});
   const topicsByLevel = {
@@ -2595,6 +2596,15 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
       .subject-section-shell__content{
         width:100%;
         margin-top:2rem;
+      }
+      .subject-section-shell__empty-state{
+        padding:0;
+      }
+      .subject-section-shell__empty-copy{
+        margin:0;
+        color:rgba(255,255,255,.65);
+        font-size:1rem;
+        line-height:1.75rem;
       }
       @media (max-width:640px){
         .subject-section-shell__inner{
@@ -2795,6 +2805,10 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
         background:#000000 !important;
         color:#FFFFFF !important;
         box-shadow:none !important;
+      }
+      :host([data-theme="light"]) .subject-section-shell__empty-copy,
+      :host-context(html.light) .subject-section-shell__empty-copy{
+        color:#666666;
       }
       :host([data-theme="light"]) .sv-topic-row-btn[data-open="true"],
       :host-context(html.light) .sv-topic-row-btn[data-open="true"]{
@@ -3328,6 +3342,7 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
   syncHostTheme();
   topSyllabusButton = shadow.querySelector('[data-top-tab="syllabus"]');
   topPastPapersButton = shadow.querySelector('[data-top-tab="past-papers"]');
+  const crumbCurrent = shadow.querySelector('.subject-section-shell__crumb-current');
   const sectionRow = shadow.querySelector('[data-role="section-row"]');
   const levelSwitch = shadow.querySelector('[data-role="level-switch"]');
   const levelNote = shadow.querySelector('[data-role="level-note"]');
@@ -3336,13 +3351,18 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
   const levelCount = shadow.querySelector('[data-role="level-count"]');
   const topicList = shadow.querySelector('[data-role="topic-list"]');
   const contentRoot = shadow.querySelector('.subject-section-shell__content');
+  const syllabusContent = contentRoot ? contentRoot.firstElementChild : null;
   const levelButtons = shadow.querySelectorAll('[data-level]');
+  const unsupportedPastPapersView = document.createElement('div');
+  unsupportedPastPapersView.className = 'subject-section-shell__empty-state';
+  unsupportedPastPapersView.innerHTML = '<p class="subject-section-shell__empty-copy">Past papers for this subject are coming soon.</p>';
   const levelNoteText = {
     core: 'Suitable for all students',
     extended: 'Includes additional topics beyond Core'
   };
   let highlightTimer = 0;
   let activeFocusTargets = new Map();
+  let localShellTab = 'syllabus';
 
   if(!levels.hasDistinctLevels){
     if(sectionRow) sectionRow.style.display = 'none';
@@ -3380,13 +3400,55 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
   }
 
   function setShellTab(nextTab){
+    localShellTab = nextTab === 'past-papers' ? 'past-papers' : 'syllabus';
     if(topSyllabusButton){
-      topSyllabusButton.classList.toggle('is-active', nextTab !== 'past-papers');
+      topSyllabusButton.classList.toggle('is-active', localShellTab !== 'past-papers');
     }
     if(topPastPapersButton){
-      topPastPapersButton.classList.toggle('is-active', nextTab === 'past-papers');
+      topPastPapersButton.classList.toggle('is-active', localShellTab === 'past-papers');
     }
     applyShellTabVisualState();
+  }
+
+  function setUnsupportedShellTab(nextTab){
+    const targetTab = nextTab === 'past-papers' ? 'past-papers' : 'syllabus';
+    const showingPastPapers = targetTab === 'past-papers';
+    setShellTab(targetTab);
+    if(crumbCurrent){
+      crumbCurrent.textContent = showingPastPapers ? 'Past Papers' : 'Syllabus';
+    }
+    if(sectionRow){
+      if(showingPastPapers){
+        sectionRow.style.display = 'none';
+      }else if(levels.hasDistinctLevels){
+        sectionRow.style.removeProperty('display');
+      }else{
+        sectionRow.style.display = 'none';
+      }
+    }
+    if(!contentRoot || !syllabusContent){
+      return;
+    }
+    if(showingPastPapers || !levels.hasDistinctLevels){
+      contentRoot.style.marginTop = '0';
+    }else{
+      contentRoot.style.removeProperty('margin-top');
+    }
+    if(showingPastPapers){
+      if(syllabusContent.parentNode === contentRoot){
+        contentRoot.removeChild(syllabusContent);
+      }
+      if(unsupportedPastPapersView.parentNode !== contentRoot){
+        contentRoot.appendChild(unsupportedPastPapersView);
+      }
+      return;
+    }
+    if(unsupportedPastPapersView.parentNode === contentRoot){
+      contentRoot.removeChild(unsupportedPastPapersView);
+    }
+    if(syllabusContent.parentNode !== contentRoot){
+      contentRoot.appendChild(syllabusContent);
+    }
   }
 
   function syncShellTabWithActivePanel(){
@@ -3394,7 +3456,7 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
     setShellTab(getActiveSubjectTabId(zipContext.tabsRoot) === 'tab-pp' ? 'past-papers' : 'syllabus');
   }
 
-  if(zipContext && zipContext.tabsRoot){
+  if(zipContext && zipContext.tabsRoot && supportsPastPapers){
     if(root.__igcsefySubjectTabSyncHandler){
       zipContext.tabsRoot.removeEventListener('igcsefy:subject-tab-change', root.__igcsefySubjectTabSyncHandler);
     }
@@ -3455,19 +3517,29 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
     }, 2860);
   }
 
-  if(topSyllabusButton && zipContext && zipContext.tabsRoot){
+  if(topSyllabusButton){
     topSyllabusButton.addEventListener('click', () => {
-      setShellTab('syllabus');
-      setActiveSubjectTab(zipContext.tabsRoot, 'tab-syl');
-      requestAnimationFrame(zipContext.syncNativeTabsVisibility);
+      rememberLastSubjectDestination('syllabus');
+      if(zipContext && zipContext.tabsRoot && supportsPastPapers){
+        setShellTab('syllabus');
+        setActiveSubjectTab(zipContext.tabsRoot, 'tab-syl');
+        requestAnimationFrame(zipContext.syncNativeTabsVisibility);
+        return;
+      }
+      setUnsupportedShellTab('syllabus');
     });
   }
 
-  if(topPastPapersButton && zipContext && zipContext.tabsRoot){
+  if(topPastPapersButton){
     topPastPapersButton.addEventListener('click', () => {
-      setShellTab('past-papers');
-      setActiveSubjectTab(zipContext.tabsRoot, 'tab-pp');
-      requestAnimationFrame(zipContext.syncNativeTabsVisibility);
+      rememberLastSubjectDestination('past-papers');
+      if(zipContext && zipContext.tabsRoot && supportsPastPapers){
+        setShellTab('past-papers');
+        setActiveSubjectTab(zipContext.tabsRoot, 'tab-pp');
+        requestAnimationFrame(zipContext.syncNativeTabsVisibility);
+        return;
+      }
+      setUnsupportedShellTab('past-papers');
     });
   }
 
@@ -3738,14 +3810,18 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
   }
 
   function applyLocationIntent(immediate){
-    if(initialSubjectDestination === 'past-papers' && zipContext && zipContext.tabsRoot){
+    if(initialSubjectDestination === 'past-papers' && zipContext && zipContext.tabsRoot && supportsPastPapers){
       setShellTab('past-papers');
       setActiveSubjectTab(zipContext.tabsRoot, getSubjectPanelIdForDestination(initialSubjectDestination));
       requestAnimationFrame(zipContext.syncNativeTabsVisibility);
       return;
     }
 
-    setShellTab('syllabus');
+    if(!supportsPastPapers){
+      setUnsupportedShellTab(initialSubjectDestination === 'past-papers' ? 'past-papers' : 'syllabus');
+    }else{
+      setShellTab('syllabus');
+    }
 
     if(!(locationIntent.sectionId || locationIntent.topicId)){
       return;
