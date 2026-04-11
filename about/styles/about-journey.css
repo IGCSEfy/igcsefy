@@ -54,10 +54,7 @@ body.about-body {
 }
 
 html.light body.about-body {
-  background:
-    radial-gradient(circle at 20% 12%, rgba(0, 0, 0, 0.035), transparent 24%),
-    radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.03), transparent 28%),
-    linear-gradient(180deg, #F1EFE7 0%, #F1EFE7 45%, #F1EFE7 100%);
+  background: #F1EFE7;
 }
 
 img {
@@ -129,7 +126,8 @@ textarea {
 html.light .about-glow-1,
 html.light .about-glow-2,
 html.light .about-glow-3 {
-  background: radial-gradient(circle, rgba(0, 0, 0, 0.05), transparent 70%);
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.03), transparent 70%);
+  opacity: 0.28;
 }
 
 .about-grid {
@@ -143,9 +141,11 @@ html.light .about-glow-3 {
 }
 
 html.light .about-grid {
-  background-image:
-    linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+  display: none;
+}
+
+html.light .about-noise {
+  display: none;
 }
 
 .about-noise {

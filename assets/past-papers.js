@@ -8017,30 +8017,30 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
           }
         }
       </style>
-      <div class="${embeddedSubjectTabs ? "pp-subject-shell subject-section-shell" : "pp-subject-shell"}" data-theme="${escapePastPapersZipHtml(host.dataset.theme || 'dark')}">
-        <div class="${embeddedSubjectTabs ? "subject-section-shell__header" : "pp-subject-shell__header"}">
-          <div class="${embeddedSubjectTabs ? "subject-section-shell__inner" : "pp-subject-shell__inner"}">
-            <div class="${embeddedSubjectTabs ? "subject-section-shell__crumb" : "pp-subject-shell__crumb"}">
+      <div class="pp-subject-shell" data-theme="${escapePastPapersZipHtml(host.dataset.theme || 'dark')}">
+        <div class="pp-subject-shell__header">
+          <div class="pp-subject-shell__inner">
+            <div class="pp-subject-shell__crumb">
               <span>${escapePastPapersZipHtml(model.cfg.name)}</span>
               <span>/</span>
-              <span class="${embeddedSubjectTabs ? "subject-section-shell__crumb-current" : "pp-subject-shell__crumb-current"}">Past Papers</span>
+              <span class="pp-subject-shell__crumb-current">Past Papers</span>
             </div>
-            <div class="${embeddedSubjectTabs ? "subject-section-shell__head" : "pp-subject-shell__head"}">
-              <div class="${embeddedSubjectTabs ? "subject-section-shell__meta" : "pp-subject-shell__meta"}">
-                <h1 class="${embeddedSubjectTabs ? "subject-section-shell__title" : "pp-subject-shell__title"}">${escapePastPapersZipHtml(model.cfg.name)}</h1>
-                <p class="${embeddedSubjectTabs ? "subject-section-shell__subtitle" : "pp-subject-shell__subtitle"}">Cambridge IGCSE · ${escapePastPapersZipHtml(model.cfg.code)}</p>
+            <div class="pp-subject-shell__head">
+              <div class="pp-subject-shell__meta">
+                <h1 class="pp-subject-shell__title">${escapePastPapersZipHtml(model.cfg.name)}</h1>
+                <p class="pp-subject-shell__subtitle">Cambridge IGCSE · ${escapePastPapersZipHtml(model.cfg.code)}</p>
               </div>
               ${embeddedGlobalBrowser ? "" : `
-                <div class="${embeddedSubjectTabs ? "subject-section-shell__tabs" : "pp-subject-shell__tabs"}">
-                  <button type="button" data-top-tab="syllabus" class="${embeddedSubjectTabs ? "subject-section-shell__tab" : "pp-subject-shell__tab"}">Syllabus</button>
-                  <button type="button" data-top-tab="past-papers" class="${embeddedSubjectTabs ? "subject-section-shell__tab" : "pp-subject-shell__tab"} is-active">Past Papers</button>
+                <div class="pp-subject-shell__tabs">
+                  <button type="button" data-top-tab="syllabus" class="pp-subject-shell__tab">Syllabus</button>
+                  <button type="button" data-top-tab="past-papers" class="pp-subject-shell__tab is-active">Past Papers</button>
                 </div>
               `}
             </div>
           </div>
         </div>
-        <div class="${embeddedSubjectTabs ? "subject-section-shell__inner subject-section-shell__body" : "pp-subject-shell__inner pp-subject-shell__body"}">
-          <div class="${embeddedSubjectTabs ? "subject-section-shell__content" : ""}">
+        <div class="pp-subject-shell__inner pp-subject-shell__body">
+          <div>
             <div class="pp-subject-search">
               <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -8056,7 +8056,7 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
       </div>
     `;
 
-    shell = shadow.querySelector(embeddedSubjectTabs ? '.subject-section-shell' : '.pp-subject-shell');
+    shell = shadow.querySelector('.pp-subject-shell');
     const syllabusTabButton = shadow.querySelector('[data-top-tab="syllabus"]');
     const pastPapersTabButton = shadow.querySelector('[data-top-tab="past-papers"]');
     const searchInput = shadow.querySelector('[data-role="search-input"]');

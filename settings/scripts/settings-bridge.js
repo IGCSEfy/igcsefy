@@ -245,6 +245,79 @@
     return value === 'side-by-side' ? 'side-by-side' : 'same-tab';
   }
 
+  function normalizeThemePreference(value) {
+    return value === 'light' || value === 'dark' || value === 'system'
+      ? value
+      : SETTINGS_DEFAULTS.appearance.theme;
+  }
+
+  function resolveThemePreference(value) {
+    var preference = normalizeThemePreference(value);
+
+    if (preference === 'system') {
+      try {
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          return 'dark';
+        }
+      } catch (error) {
+        return 'dark';
+      }
+
+      return 'light';
+    }
+
+    return preference === 'light' ? 'light' : 'dark';
+  }
+
+  function getResolvedDocumentTheme() {
+    var root = document.documentElement;
+    var datasetTheme = root && root.dataset ? root.dataset.theme : '';
+
+    if (datasetTheme === 'light' || datasetTheme === 'dark') {
+      return datasetTheme;
+    }
+
+    if (root.classList.contains('light')) return 'light';
+    if (root.classList.contains('dark')) return 'dark';
+    return resolveThemePreference(SETTINGS_DEFAULTS.appearance.theme);
+  }
+
+  function applyResolvedDocumentTheme(value) {
+    var root = document.documentElement;
+    var resolved = value === 'light' ? 'light' : 'dark';
+
+    root.classList.remove('light', 'dark');
+    root.classList.add(resolved);
+    root.dataset.theme = resolved;
+    root.dataset.themePreference = resolved;
+
+    return resolved;
+  }
+
+  function reconcileAppearanceSettings() {
+    var settings = loadSettings();
+    var storedPreference = normalizeThemePreference(settings.appearance.theme);
+    var storedResolved = resolveThemePreference(storedPreference);
+    var documentResolved = getResolvedDocumentTheme();
+
+    if (storedResolved !== documentResolved) {
+      settings = saveSettings({
+        appearance: Object.assign({}, settings.appearance, {
+          theme: documentResolved
+        }),
+        studyPreferences: settings.studyPreferences
+      });
+      storedPreference = settings.appearance.theme;
+      storedResolved = resolveThemePreference(storedPreference);
+    }
+
+    if (documentResolved !== storedResolved) {
+      applyResolvedDocumentTheme(storedResolved);
+    }
+
+    return settings;
+  }
+
   function sanitizeAccount(raw, fallback) {
     var base = fallback || ACCOUNT_DEFAULTS;
     var next = raw && typeof raw === 'object' ? raw : {};
@@ -1282,6 +1355,75 @@
     }
   }
 
+  function patchAppearanceSection(settings) {
+    var section = document.getElementById('appearance');
+    var appearance;
+    var themeRow;
+    var reducedMotionRow;
+    var themeControl;
+    var reducedMotionControl;
+    var reducedMotionThumb;
+
+    function findSettingRow(label) {
+      return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
+        var copy = row.firstElementChild;
+        var title = copy && copy.querySelector ? copy.querySelector('p') : null;
+        return title && (title.textContent || '').trim() === label;
+      }) || null;
+    }
+
+    function getThemeButtonValue(button) {
+      var label = String(button && button.textContent || '').trim().toLowerCase();
+      if (label === 'light' || label === 'dark' || label === 'system') {
+        return label;
+      }
+      return '';
+    }
+
+    if (!section) return;
+
+    appearance = settings && settings.appearance ? settings.appearance : loadSettings().appearance;
+    themeRow = findSettingRow('Theme');
+    reducedMotionRow = findSettingRow('Reduced motion');
+
+    pausePatchObserver(function () {
+      if (themeRow) {
+        themeControl = themeRow.lastElementChild;
+        Array.from(themeControl.querySelectorAll('button')).forEach(function (button) {
+          var isActive = getThemeButtonValue(button) === appearance.theme;
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.classList.toggle('bg-card', isActive);
+          button.classList.toggle('text-foreground', isActive);
+          button.classList.toggle('shadow-sm', isActive);
+          button.classList.toggle('border', isActive);
+          button.classList.toggle('border-border', isActive);
+          button.classList.toggle('text-muted-foreground', !isActive);
+        });
+      }
+
+      if (reducedMotionRow) {
+        reducedMotionControl = reducedMotionRow.lastElementChild;
+        if (reducedMotionControl && reducedMotionControl.getAttribute && reducedMotionControl.getAttribute('role') === 'switch') {
+          reducedMotionThumb = reducedMotionControl.querySelector ? reducedMotionControl.querySelector('span') : null;
+          reducedMotionControl.setAttribute('aria-checked', appearance.reducedMotion ? 'true' : 'false');
+          reducedMotionControl.setAttribute('data-state', appearance.reducedMotion ? 'checked' : 'unchecked');
+          if ('checked' in reducedMotionControl) {
+            reducedMotionControl.checked = appearance.reducedMotion;
+          }
+          reducedMotionControl.classList.toggle('bg-foreground/20', appearance.reducedMotion);
+          reducedMotionControl.classList.toggle('bg-secondary/60', !appearance.reducedMotion);
+
+          if (reducedMotionThumb && reducedMotionThumb.classList) {
+            reducedMotionThumb.classList.toggle('translate-x-[22px]', appearance.reducedMotion);
+            reducedMotionThumb.classList.toggle('bg-foreground', appearance.reducedMotion);
+            reducedMotionThumb.classList.toggle('translate-x-[3px]', !appearance.reducedMotion);
+            reducedMotionThumb.classList.toggle('bg-muted-foreground', !appearance.reducedMotion);
+          }
+        }
+      }
+    });
+  }
+
   function patchStudyPreferencesSection() {
     var section = document.getElementById('study-preferences');
     var settings;
@@ -1516,6 +1658,102 @@
             button.style.removeProperty('pointer-events');
             button.removeAttribute('tabindex');
           }
+        });
+      }
+    });
+  }
+
+  function forceDirectDownloadStudyPreferencesUi() {
+    var section = document.getElementById('study-preferences');
+    var autoOpenRow;
+    var behaviorRow;
+    var autoOpenControl;
+    var autoOpenCopy;
+    var behaviorCopy;
+    var behaviorControl;
+    var autoOpenLabel;
+    var autoOpenDescription;
+    var behaviorLabel;
+    var behaviorDescription;
+    var autoOpenThumb;
+
+    function findSettingRow(label) {
+      return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
+        var copy = row.firstElementChild;
+        var title = copy && copy.querySelector ? copy.querySelector('p') : null;
+        return title && (title.textContent || '').trim() === label;
+      }) || null;
+    }
+
+    if (!section) return;
+
+    autoOpenRow = findSettingRow('Auto-open mark scheme');
+    behaviorRow = findSettingRow('Mark scheme opening behavior') || findSettingRow('Opening behaviour');
+    if (!autoOpenRow || !behaviorRow) return;
+
+    pausePatchObserver(function () {
+      autoOpenControl = autoOpenRow.lastElementChild;
+      autoOpenCopy = autoOpenRow.firstElementChild;
+      behaviorCopy = behaviorRow.firstElementChild;
+      behaviorControl = behaviorRow.lastElementChild;
+      autoOpenLabel = autoOpenCopy && autoOpenCopy.querySelector ? autoOpenCopy.querySelector('p') : null;
+      autoOpenDescription = autoOpenCopy && autoOpenCopy.querySelectorAll
+        ? autoOpenCopy.querySelectorAll('p')[1]
+        : null;
+      behaviorLabel = behaviorCopy && behaviorCopy.querySelector ? behaviorCopy.querySelector('p') : null;
+      behaviorDescription = behaviorCopy && behaviorCopy.querySelectorAll
+        ? behaviorCopy.querySelectorAll('p')[1]
+        : null;
+
+      autoOpenRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--toggle', 'igcsefy-mark-scheme-row--disabled');
+      behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior', 'igcsefy-mark-scheme-row--disabled');
+
+      if (autoOpenLabel) {
+        autoOpenLabel.textContent = 'Auto-open mark scheme';
+      }
+      if (autoOpenDescription) {
+        autoOpenDescription.textContent = 'Available only when PDF opening mode is set to Preview first.';
+      }
+      if (behaviorLabel) {
+        behaviorLabel.textContent = 'Opening behaviour';
+      }
+      if (behaviorDescription) {
+        behaviorDescription.textContent = 'Split and same-tab mark scheme views are only available with Preview first.';
+      }
+
+      if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
+        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
+
+        autoOpenControl.setAttribute('aria-checked', 'false');
+        autoOpenControl.setAttribute('data-state', 'unchecked');
+        autoOpenControl.disabled = true;
+        if ('checked' in autoOpenControl) {
+          autoOpenControl.checked = false;
+        }
+        if (autoOpenControl.classList) {
+          autoOpenControl.classList.remove('bg-foreground/20');
+          autoOpenControl.classList.add('bg-secondary/60');
+        }
+
+        if (autoOpenThumb && autoOpenThumb.classList) {
+          autoOpenThumb.classList.remove('translate-x-[22px]', 'bg-foreground');
+          autoOpenThumb.classList.add('translate-x-[3px]', 'bg-muted-foreground');
+        }
+
+        autoOpenControl.setAttribute('aria-disabled', 'true');
+        autoOpenControl.title = 'Switch PDF opening mode to Preview first to use mark scheme auto-open.';
+        autoOpenControl.style.pointerEvents = 'none';
+        autoOpenControl.setAttribute('tabindex', '-1');
+      }
+
+      if (behaviorControl) {
+        Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
+          button.classList.remove('igcsefy-mark-scheme-pill--active');
+          button.disabled = true;
+          button.setAttribute('aria-disabled', 'true');
+          button.style.pointerEvents = 'none';
+          button.setAttribute('tabindex', '-1');
+          button.title = 'Switch PDF opening mode to Preview first to choose a mark scheme layout.';
         });
       }
     });
@@ -2100,11 +2338,13 @@
     if (patchQueued) return;
     patchQueued = true;
     window.requestAnimationFrame(function () {
+      var settings = reconcileAppearanceSettings();
       patchQueued = false;
       patchHeaderCopy();
       patchLegalLinks();
       patchPaperTargetsNav();
       patchPaperTargetsSection();
+      patchAppearanceSection(settings);
       patchAccountSection();
       patchSyncStatus();
       patchStudyPreferencesSection();
@@ -2142,18 +2382,22 @@
     if (studyPreferencesControl) {
       var studyLabel = String(control.textContent || '').trim().toLowerCase();
       if (studyLabel === 'direct download') {
-        window.setTimeout(function () {
-          updateStudyPreferences({
-            pdfOpeningMode: 'direct-download',
-            autoOpenMarkScheme: false,
-            markSchemeOpenBehavior: 'same-tab'
-          });
-        }, 0);
+        updateStudyPreferences({
+          pdfOpeningMode: 'direct-download',
+          autoOpenMarkScheme: false,
+          markSchemeOpenBehavior: 'same-tab'
+        }, { schedule: false });
+        forceDirectDownloadStudyPreferencesUi();
+        window.setTimeout(schedulePatch, 0);
       } else if (studyLabel === 'preview first') {
         window.setTimeout(schedulePatch, 0);
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
         window.setTimeout(schedulePatch, 0);
       }
+    }
+
+    if (control.closest('#appearance')) {
+      window.setTimeout(schedulePatch, 0);
     }
 
     if (control.hasAttribute('data-igcsefy-paper-targets-back')) {
@@ -2174,6 +2418,7 @@
 
       if (paperTargetsUiState.activeSection === 'paper-targets') {
         paperTargetsUiState.activeSection = '';
+        window.setTimeout(schedulePatch, 0);
       }
     }
 

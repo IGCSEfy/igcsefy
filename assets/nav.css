@@ -6,6 +6,7 @@
   --site-nav-scrollbar-compensation: 0px;
   --site-nav-shell-width: 72rem;
   --site-nav-shell-padding: 1.5rem;
+  --site-nav-shell-outer-width: min(100%, calc(var(--site-nav-shell-width) + (var(--site-nav-shell-padding) * 2)));
   --site-nav-bg: rgba(10, 10, 10, 0.4);
   --site-nav-bg-strong: rgba(10, 10, 10, 0.6);
   --site-nav-card-bg: rgba(10, 10, 10, 0.7);
@@ -91,7 +92,6 @@ body{
   pointer-events: none;
   display: block;
   width: 100%;
-  padding-right: var(--site-nav-scrollbar-compensation);
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -132,6 +132,7 @@ body{
 
 .site-nav__bar{
   height: var(--site-nav-bar-height);
+  padding-right: var(--site-nav-scrollbar-compensation);
   border-bottom: 1px solid transparent;
   background: var(--site-nav-bg);
   backdrop-filter: blur(24px) saturate(1.8);
@@ -155,7 +156,8 @@ html.light .site-nav__bar{
 }
 
 .site-nav__inner{
-  width: min(100%, calc(var(--site-nav-shell-width) + (var(--site-nav-shell-padding) * 2)));
+  width: var(--site-nav-shell-outer-width);
+  max-width: 100%;
   height: 100%;
   margin: 0 auto;
   padding: 0 var(--site-nav-shell-padding);
@@ -300,6 +302,7 @@ html.light .site-nav__bar{
   right: 0;
   bottom: 0;
   left: 0;
+  padding-right: var(--site-nav-scrollbar-compensation);
   z-index: 1;
   background: var(--site-nav-overlay-bg);
   backdrop-filter: blur(16px);
@@ -319,6 +322,9 @@ html.light .site-nav__bar{
   top: var(--site-nav-bar-height);
   right: 0;
   left: 0;
+  display: flex;
+  justify-content: center;
+  padding-right: var(--site-nav-scrollbar-compensation);
   z-index: 2;
   opacity: 0;
   transform: translateY(-0.5rem) scaleY(0.95);
@@ -336,8 +342,9 @@ html.light .site-nav__bar{
 }
 
 .site-nav__panel-outer{
-  width: min(100%, calc(var(--site-nav-shell-width) + (var(--site-nav-shell-padding) * 2)));
-  margin: 0 auto;
+  width: var(--site-nav-shell-outer-width);
+  max-width: 100%;
+  margin: 0;
   padding: 1rem var(--site-nav-shell-padding) 1.5rem;
 }
 
