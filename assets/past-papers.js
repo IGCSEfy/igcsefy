@@ -4438,7 +4438,7 @@ let PAST_PAPER_FILES = null;
 async function loadPastPaperFiles(){
   if(PAST_PAPER_FILES) return PAST_PAPER_FILES;
   try{
-    const res = await fetch("/assets/past-paper-files.json", {cache:"no-store"});
+    const res = await fetch("/assets/past-paper-files.json", {cache:"force-cache"});
     if(!res.ok) throw new Error("past paper manifest fetch failed");
     PAST_PAPER_FILES = await res.json();
   }catch(e){
@@ -5103,8 +5103,6 @@ function buildPastPaperSearchIndex(subjectMeta) {
             paperIdx += 1;
 
             if (!variants.length) return;
-
-            const paperNumber = getPaperNumberFromDefinition(paper);
 
             variants.forEach(variant => {
               const trackKey = qpVariants.includes(variant)

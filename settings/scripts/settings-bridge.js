@@ -1732,6 +1732,35 @@
           behaviorDescription.textContent = getBehaviorDescription(settings.markSchemeOpenBehavior);
         }
       }
+      if (pdfOpeningControl) {
+        Array.from(pdfOpeningControl.querySelectorAll('button')).forEach(function (button) {
+          var buttonText = String(button.textContent || '').trim().toLowerCase();
+          var isDirectDownload = buttonText === 'direct download';
+          var isPreviewFirst = buttonText === 'preview first';
+          var isActive;
+
+          if (!isDirectDownload && !isPreviewFirst) {
+            return;
+          }
+
+          isActive = isDirectDownload
+            ? effectivePdfOpeningMode === 'direct-download'
+            : effectivePdfOpeningMode === 'preview';
+
+          button.disabled = false;
+          button.removeAttribute('aria-disabled');
+          button.removeAttribute('tabindex');
+          button.removeAttribute('title');
+          button.style.removeProperty('pointer-events');
+          button.classList.remove('pointer-events-none', 'opacity-50', 'cursor-not-allowed');
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isActive ? 'active' : 'inactive';
+          }
+          applySegmentedButtonState(button, isActive, false);
+        });
+      }
       if (autoOpenControl) {
         applySwitchControlState(
           autoOpenControl,
