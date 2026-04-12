@@ -203,6 +203,27 @@ body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmente
   text-align: center;
 }
 
+body[data-settings-page="true"] #root .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-pressed="true"],
+body[data-settings-page="true"] #root .inline-flex.items-center.rounded-full.p-1.border.border-border > button[data-state="active"],
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button[aria-pressed="true"],
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button[data-state="active"] {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+body[data-settings-page="true"] #root .inline-flex.items-center.rounded-full.p-1.border.border-border > button:not(:disabled):not([aria-disabled="true"]):hover,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button:not(:disabled):not([aria-disabled="true"]):hover {
+  color: hsl(var(--foreground));
+}
+
+body[data-settings-page="true"] #root .inline-flex.items-center.rounded-full.p-1.border.border-border > button:disabled,
+body[data-settings-page="true"] #root .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-disabled="true"],
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button:disabled,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button[aria-disabled="true"] {
+  color: hsl(var(--muted-foreground));
+}
+
 html.light body[data-settings-page="true"] #root .bg-destructive {
   background-color: #000000;
 }

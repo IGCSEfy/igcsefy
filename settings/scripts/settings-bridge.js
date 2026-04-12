@@ -799,8 +799,14 @@
       'border',
       'border-border',
       'text-muted-foreground',
-      'hover:text-foreground'
+      'hover:text-foreground',
+      'hover:text-foreground/70',
+      'opacity-40',
+      'pointer-events-none',
+      'cursor-not-allowed'
     );
+    button.style.removeProperty('pointer-events');
+    button.style.removeProperty('opacity');
 
     if (isActive) {
       button.classList.add('bg-card', 'text-foreground', 'shadow-sm', 'border', 'border-border');
@@ -1584,20 +1590,6 @@
         var title = copy && copy.querySelector ? copy.querySelector('p') : null;
         return title && (title.textContent || '').trim() === label;
       }) || null;
-    }
-
-    function isSwitchChecked(control, fallback) {
-      var ariaChecked;
-      var dataState;
-
-      if (!control || !control.getAttribute) return !!fallback;
-
-      ariaChecked = control.getAttribute('aria-checked');
-      dataState = control.getAttribute('data-state');
-
-      if (ariaChecked === 'true' || dataState === 'checked' || control.checked === true) return true;
-      if (ariaChecked === 'false' || dataState === 'unchecked' || control.checked === false) return false;
-      return !!fallback;
     }
 
     function isSegmentActive(button) {
@@ -2784,8 +2776,7 @@
         && String(studyPreferencesRowTitle.textContent || '').trim() === 'Auto-open mark scheme'
       ) {
         var currentStudyPreferences = loadSettings().studyPreferences;
-        var autoOpenSwitchControl = getSwitchControl(control) || control;
-        var currentAutoOpenMarkScheme = isSwitchChecked(autoOpenSwitchControl, currentStudyPreferences.autoOpenMarkScheme);
+        var currentAutoOpenMarkScheme = !!currentStudyPreferences.autoOpenMarkScheme;
         var nextAutoOpenMarkScheme = !currentAutoOpenMarkScheme;
         var nextMarkSchemeOpenBehavior = nextAutoOpenMarkScheme
           ? normalizeMarkSchemeOpenBehavior(currentStudyPreferences.markSchemeOpenBehavior)

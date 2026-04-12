@@ -4484,6 +4484,36 @@ function buildPastPaperManifestHref(subjectSlug, year, session, fileName){
   return `/past-papers/${subjectSlug}/${year}/${session}/${fileName}`;
 }
 
+function getConfidentialInstructionsMap(subjectSlug, year, sessionCode, paperNumber){
+  const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
+  const targetPaperNumber = paperNumber === null || paperNumber === undefined
+    ? ""
+    : String(paperNumber);
+  const map = {};
+
+  if(!sessionManifest || !Array.isArray(sessionManifest.ci)){
+    return map;
+  }
+
+  sessionManifest.ci.forEach(entry => {
+    const fileName = entry && entry.file ? entry.file : "";
+    const match = fileName.match(/_ci_(\d+)\.pdf$/i);
+    const variant = match ? String(match[1]) : "";
+
+    if(!variant){
+      return;
+    }
+
+    if(targetPaperNumber && variant.charAt(0) !== targetPaperNumber){
+      return;
+    }
+
+    map[variant] = fileName;
+  });
+
+  return map;
+}
+
 function getPastPaperKindManifest(subjectSlug, year, sessionCode, kind, paperNumber){
   const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
   if(!sessionManifest) return {};
@@ -4492,6 +4522,9 @@ function getPastPaperKindManifest(subjectSlug, year, sessionCode, kind, paperNum
   }
   if(kind === "in"){
     return sessionManifest.in || {};
+  }
+  if(kind === "ci"){
+    return getConfidentialInstructionsMap(subjectSlug, year, sessionCode, paperNumber);
   }
   return {};
 }
@@ -4509,6 +4542,13 @@ function getSessionManifestPaperNumbers(sessionManifest){
   Object.keys(sessionManifest.ms || {}).forEach(number => numbers.add(String(number)));
   Object.keys(sessionManifest.in || {}).forEach(variant => {
     if(variant) numbers.add(String(variant).charAt(0));
+  });
+  (sessionManifest.ci || []).forEach(entry => {
+    const fileName = entry && entry.file ? entry.file : "";
+    const match = fileName.match(/_ci_(\d+)\.pdf$/i);
+    if(match && match[1]){
+      numbers.add(String(match[1]).charAt(0));
+    }
   });
   return Array.from(numbers)
     .filter(Boolean)
@@ -4623,9 +4663,6 @@ function buildSessionExtraItems(subjectSlug, cfg, year, sessionCode){
 
   function buildLabel(kind, entry){
     const match = entry && entry.file ? entry.file.match(/_(\d+)\.pdf$/i) : null;
-    if(kind === "ci"){
-      return match ? `Confidential Instructions · Variant ${match[1]}` : "Confidential Instructions";
-    }
     if(kind === "er"){
       return entry && entry.code && entry.code !== cfg.code
         ? `Examiner Report · ${entry.code}`
@@ -4643,7 +4680,7 @@ function buildSessionExtraItems(subjectSlug, cfg, year, sessionCode){
     return extras;
   }
 
-  ["gt", "er", "ci"].forEach(kind => {
+  ["gt", "er"].forEach(kind => {
     (sessionManifest[kind] || []).forEach(entry => {
       extras.push({
         type: kind,
@@ -4705,8 +4742,9 @@ function getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper)
   const paperNumber = getPaperNumberFromDefinition(paper);
   const qpVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber));
   const msVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber));
+  const ciVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "ci", paperNumber));
 
-  return Array.from(new Set([...(qpVariants || []), ...(msVariants || [])]))
+  return Array.from(new Set([...(qpVariants || []), ...(msVariants || []), ...(ciVariants || [])]))
     .sort((a, b) => Number(a) - Number(b));
 }
 
@@ -4762,12 +4800,14 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 		      const paperNumber = getPaperNumberFromDefinition(paper);
 		      const qpVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber);
 		      const msVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber);
+		      const ciVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ci", paperNumber);
 		      const qpVariants = Object.keys(qpVariantMap);
 		      const msVariants = Object.keys(msVariantMap);
+		      const ciVariants = Object.keys(ciVariantMap);
 		      const variantRows = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
       // If nothing exists for this paper in this series, remove the whole row
-      if (qpVariants.length === 0 && msVariants.length === 0) return;
+      if (qpVariants.length === 0 && msVariants.length === 0 && ciVariants.length === 0) return;
 
       anyRows = true;
 
@@ -4823,10 +4863,13 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 		        variantRows.forEach(variant => {
 		          const hasQP = qpVariants.includes(variant);
 		          const hasMS = msVariants.includes(variant);
+		          const hasCI = ciVariants.includes(variant);
 		          const qpFileName = qpVariantMap[String(variant)] || "";
 		          const msFileName = msVariantMap[String(variant)] || "";
+		          const ciFileName = ciVariantMap[String(variant)] || "";
 		          const qpHref = hasQP ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, qpFileName) : "";
 	          const msHref = hasMS ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, msFileName) : "";
+		          const ciHref = hasCI ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, ciFileName) : "";
 		          const trackKey = hasQP
 		            ? `${paperKeyBase}|qp|v${variant}`
 		            : `${paperKeyBase}|ms|v${variant}`;
@@ -4840,6 +4883,7 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 					                  ${buildVariantStatusControl(trackKey)}
 					                  ${hasQP ? `<a href="${qpHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${qpHref}" data-file-kind="qp" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · QP`)}">QP</a>` : ""}
 					                  ${hasMS ? `<a href="${msHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${msHref}" data-file-kind="ms" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · MS`)}">MS</a>` : ""}
+					                  ${hasCI ? `<a href="${ciHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${ciHref}" data-file-kind="ci" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · CI`)}">CI</a>` : ""}
 					                </div>
 					              </div>
 				            </div>
@@ -6383,11 +6427,13 @@ function buildSubjectPastPapersZipModel(subjectSlug){
               const paperNumber = getPaperNumberFromDefinition(paper);
               const qpVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber);
               const msVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber);
+              const ciVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ci", paperNumber);
               const qpVariants = Object.keys(qpVariantMap);
               const msVariants = Object.keys(msVariantMap);
+              const ciVariants = Object.keys(ciVariantMap);
               const variants = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
-              if(!qpVariants.length && !msVariants.length){
+              if(!qpVariants.length && !msVariants.length && !ciVariants.length){
                 return;
               }
 
@@ -6401,10 +6447,14 @@ function buildSubjectPastPapersZipModel(subjectSlug){
                 variants: variants.map(variant => {
                   const hasQP = qpVariants.includes(variant);
                   const hasMS = msVariants.includes(variant);
+                  const hasCI = ciVariants.includes(variant);
                   const insertMap = getInsertMap(subjectSlug, year, sessionCode);
                   const insertFileName = insertMap && insertMap[String(variant)];
                   const inHref = insertFileName
                     ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, insertFileName)
+                    : "";
+                  const ciHref = hasCI
+                    ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, ciVariantMap[String(variant)])
                     : "";
                   return {
                     id: `v${variant}`,
@@ -6418,6 +6468,7 @@ function buildSubjectPastPapersZipModel(subjectSlug){
                     msHref: hasMS
                       ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, msVariantMap[String(variant)])
                       : "",
+                    ciHref,
                     inHref
                   };
                 })
@@ -8436,6 +8487,9 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
               : ""}
             ${variant.msHref
               ? `<a href="${escapePastPapersZipHtml(variant.msHref)}" download data-paper-file="true" data-file-kind="ms" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.msHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · MS`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">MS</a>`
+              : ""}
+            ${variant.ciHref
+              ? `<a href="${escapePastPapersZipHtml(variant.ciHref)}" download data-paper-file="true" data-file-kind="ci" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.ciHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · CI`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">CI</a>`
               : ""}
             ${variant.inHref
               ? `<a href="${escapePastPapersZipHtml(variant.inHref)}" download data-paper-file="true" data-file-kind="insert" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.inHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · Insert`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">IN</a>`
