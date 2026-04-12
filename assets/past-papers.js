@@ -4434,6 +4434,19 @@ const BUS0450_FILESET = new Set([
 
 
 let SESSION_LEVEL_FILES = null;
+let PAST_PAPER_FILES = null;
+async function loadPastPaperFiles(){
+  if(PAST_PAPER_FILES) return PAST_PAPER_FILES;
+  try{
+    const res = await fetch("/assets/past-paper-files.json", {cache:"no-store"});
+    if(!res.ok) throw new Error("past paper manifest fetch failed");
+    PAST_PAPER_FILES = await res.json();
+  }catch(e){
+    PAST_PAPER_FILES = {};
+  }
+  return PAST_PAPER_FILES;
+}
+
 async function loadSessionLevelFiles(){
   if(SESSION_LEVEL_FILES) return SESSION_LEVEL_FILES;
   try{
@@ -4460,26 +4473,221 @@ async function loadInsertFiles(){
   return INSERT_FILES;
 }
 
+function getPastPaperSessionManifest(subjectSlug, year, session){
+  if(!PAST_PAPER_FILES) return null;
+  const subjectNode = PAST_PAPER_FILES[subjectSlug];
+  const yearNode = subjectNode && subjectNode[String(year)];
+  return (yearNode && yearNode[session]) || null;
+}
+
+function buildPastPaperManifestHref(subjectSlug, year, session, fileName){
+  return `/past-papers/${subjectSlug}/${year}/${session}/${fileName}`;
+}
+
+function getPastPaperKindManifest(subjectSlug, year, sessionCode, kind, paperNumber){
+  const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
+  if(!sessionManifest) return {};
+  if(kind === "qp" || kind === "ms"){
+    return (sessionManifest[kind] && sessionManifest[kind][String(paperNumber)]) || {};
+  }
+  if(kind === "in"){
+    return sessionManifest.in || {};
+  }
+  return {};
+}
+
+function getPastPaperVariantFile(subjectSlug, year, sessionCode, type, variant){
+  const paperNumber = String(variant || "").trim().charAt(0);
+  const manifest = getPastPaperKindManifest(subjectSlug, year, sessionCode, type, paperNumber);
+  return manifest[String(variant)] || "";
+}
+
+function getSessionManifestPaperNumbers(sessionManifest){
+  const numbers = new Set();
+  if(!sessionManifest) return [];
+  Object.keys(sessionManifest.qp || {}).forEach(number => numbers.add(String(number)));
+  Object.keys(sessionManifest.ms || {}).forEach(number => numbers.add(String(number)));
+  Object.keys(sessionManifest.in || {}).forEach(variant => {
+    if(variant) numbers.add(String(variant).charAt(0));
+  });
+  return Array.from(numbers)
+    .filter(Boolean)
+    .sort((a, b) => Number(a) - Number(b));
+}
+
+function getPaperSectionId(section, index){
+  if(section && section.id) return section.id;
+  if(section && section.title){
+    return String(section.title)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || `section-${index}`;
+  }
+  return `section-${index}`;
+}
+
+function createSyntheticPaperDefinition(paperNumber){
+  return {
+    id: `paper-${paperNumber}`,
+    label: `Paper ${paperNumber}`,
+    qpVariants: [],
+    msVariants: []
+  };
+}
+
+function getPreferredSectionIndexForPaper(cfg, sections, paperNumber){
+  const titles = sections.map(section => String(section.title || "").toLowerCase());
+  const code = cfg && cfg.code ? String(cfg.code) : "";
+  const preferredTitle = (title) => {
+    const index = titles.indexOf(title);
+    return index >= 0 ? index : -1;
+  };
+
+  if(code === "0580"){
+    if(paperNumber === "1" || paperNumber === "3"){
+      return preferredTitle("core");
+    }
+    if(paperNumber === "2" || paperNumber === "4"){
+      return preferredTitle("extended");
+    }
+  }
+
+  if(["0610", "0620", "0625", "0653"].includes(code)){
+    if(paperNumber === "1" || paperNumber === "3"){
+      return preferredTitle("core");
+    }
+    if(paperNumber === "2" || paperNumber === "4"){
+      return preferredTitle("extended");
+    }
+    if(paperNumber === "5" || paperNumber === "6"){
+      return preferredTitle("practical");
+    }
+  }
+
+  return sections.length ? sections.length - 1 : 0;
+}
+
+function getRenderablePaperSections(subjectSlug, cfg, year, sessionCode){
+  const baseSections = getPaperSections(subjectSlug, cfg).map((section, index) => ({
+    id: getPaperSectionId(section, index),
+    title: section.title,
+    papers: (section.papers || []).slice()
+  }));
+  const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
+  const existingPaperNumbers = {};
+
+  if(!sessionManifest){
+    return baseSections;
+  }
+
+  baseSections.forEach((section, sectionIndex) => {
+    section.papers.forEach(paper => {
+      const paperNumber = getPaperNumberFromDefinition(paper);
+      if(paperNumber !== null && !Object.prototype.hasOwnProperty.call(existingPaperNumbers, String(paperNumber))){
+        existingPaperNumbers[String(paperNumber)] = sectionIndex;
+      }
+    });
+  });
+
+  getSessionManifestPaperNumbers(sessionManifest).forEach(paperNumber => {
+    if(Object.prototype.hasOwnProperty.call(existingPaperNumbers, paperNumber)){
+      return;
+    }
+
+    const targetIndex = getPreferredSectionIndexForPaper(cfg, baseSections, paperNumber);
+    const safeIndex = targetIndex >= 0 ? targetIndex : Math.max(0, baseSections.length - 1);
+    if(!baseSections[safeIndex]){
+      baseSections.push({
+        id: getPaperSectionId({ title: null }, baseSections.length),
+        title: null,
+        papers: []
+      });
+    }
+    baseSections[safeIndex].papers.push(createSyntheticPaperDefinition(paperNumber));
+  });
+
+  baseSections.forEach(section => {
+    section.papers.sort((left, right) => {
+      const leftNumber = getPaperNumberFromDefinition(left);
+      const rightNumber = getPaperNumberFromDefinition(right);
+      return (leftNumber === null ? 99 : leftNumber) - (rightNumber === null ? 99 : rightNumber);
+    });
+  });
+
+  return baseSections;
+}
+
+function buildSessionExtraItems(subjectSlug, cfg, year, sessionCode){
+  const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
+  const extras = [];
+
+  function buildLabel(kind, entry){
+    const match = entry && entry.file ? entry.file.match(/_(\d+)\.pdf$/i) : null;
+    if(kind === "ci"){
+      return match ? `Confidential Instructions · Variant ${match[1]}` : "Confidential Instructions";
+    }
+    if(kind === "er"){
+      return entry && entry.code && entry.code !== cfg.code
+        ? `Examiner Report · ${entry.code}`
+        : "Examiner Report";
+    }
+    if(kind === "gt"){
+      return entry && entry.code && entry.code !== cfg.code
+        ? `Grade Thresholds · ${entry.code}`
+        : "Grade Thresholds";
+    }
+    return kind.toUpperCase();
+  }
+
+  if(!sessionManifest){
+    return extras;
+  }
+
+  ["gt", "er", "ci"].forEach(kind => {
+    (sessionManifest[kind] || []).forEach(entry => {
+      extras.push({
+        type: kind,
+        label: buildLabel(kind, entry),
+        href: buildPastPaperManifestHref(subjectSlug, year, sessionCode, entry.file)
+      });
+    });
+  });
+
+  return extras;
+}
+
 function getInsertMap(subjectSlug, year, session){
-  if(!INSERT_FILES) return null;
-  const y = String(year);
-  const node = (INSERT_FILES[subjectSlug] && INSERT_FILES[subjectSlug][y] && INSERT_FILES[subjectSlug][y][session]) || null;
-  return (node && node.variants) ? node.variants : null;
+  const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, session);
+  return sessionManifest ? (sessionManifest.in || null) : null;
 }
 
 
 function getSessionExtras(subjectSlug, year, session){
-  if(!SESSION_LEVEL_FILES) return null;
-  const y = String(year);
-  return (SESSION_LEVEL_FILES[subjectSlug] && SESSION_LEVEL_FILES[subjectSlug][y] && SESSION_LEVEL_FILES[subjectSlug][y][session]) || null;
+  return getPastPaperSessionManifest(subjectSlug, year, session);
 }
 
 function getSessionsForSubject(subjectSlug, year){
-  // Bio/Chem: 2020–2024 have all sessions present in the provided ZIPs (m/s/w). 2025 is Oct/Nov only (w).
-  if(subjectSlug === "biology-0610" || subjectSlug === "chemistry-0620"){
-    return (year === 2025) ? ["w"] : ["m","s","w"];
+  const subjectNode = PAST_PAPER_FILES && PAST_PAPER_FILES[subjectSlug];
+  const yearNode = subjectNode && subjectNode[String(year)];
+  const order = { m: 0, s: 1, w: 2 };
+
+  if(!yearNode){
+    return [];
   }
-  return ["m","s","w"];
+
+  return Object.keys(yearNode)
+    .filter(sessionCode => {
+      const sessionManifest = yearNode[sessionCode];
+      return !!sessionManifest && (
+        Object.keys(sessionManifest.qp || {}).length
+        || Object.keys(sessionManifest.ms || {}).length
+        || Object.keys(sessionManifest.in || {}).length
+        || (sessionManifest.ci || []).length
+        || (sessionManifest.er || []).length
+        || (sessionManifest.gt || []).length
+      );
+    })
+    .sort((left, right) => (order[left] ?? 9) - (order[right] ?? 9));
 }
 
 
@@ -4490,49 +4698,13 @@ function buildFilePath(subjectSlug, code, year, session, type, variant) {
 }
 
 function hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, type, variant) {
-  const isMath0580 = subjectSlug === "mathematics-0580" && cfg && cfg.code === "0580";
-  const isPhys0625 = subjectSlug === "physics-0625" && cfg && cfg.code === "0625";
-  const isFle0500 = subjectSlug === "english-first-language-0500" && cfg && cfg.code === "0500";
-  const isEcon0455 = subjectSlug === "economics-0455" && cfg && cfg.code === "0455";
-  const isAcc0452 = subjectSlug === "accounting-0452" && cfg && cfg.code === "0452";
-  const isCs0478 = subjectSlug === "computer-science-0478" && cfg && cfg.code === "0478";
-  const isBus0450 = subjectSlug === "business-studies-0450" && cfg && cfg.code === "0450";
-
-  // Oct/Nov 2025 is now available site-wide.
-  if (year === 2025 && sessionCode === "w") return true;
-
-  // Availability pruning is subject-specific and only enabled for subjects we've pruned with a real ZIP.
-  if (isMath0580) {
-    return MATH0580_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isPhys0625) {
-    return PHYS0625_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isFle0500) {
-    return FLE0500_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isEcon0455) {
-    return ECON0455_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isAcc0452) {
-    return ACC0452_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isCs0478) {
-    return CS0478_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isBus0450) {
-    return BUS0450_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  return true;
+  return !!getPastPaperVariantFile(subjectSlug, year, sessionCode, type, variant);
 }
 
 function getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper) {
-  const qpVariants = (paper && paper.qpVariants ? paper.qpVariants : []).filter(variant =>
-    hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", variant)
-  );
-  const msVariants = (paper && paper.msVariants ? paper.msVariants : []).filter(variant =>
-    hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", variant)
-  );
+  const paperNumber = getPaperNumberFromDefinition(paper);
+  const qpVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber));
+  const msVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber));
 
   return Array.from(new Set([...(qpVariants || []), ...(msVariants || [])]))
     .sort((a, b) => Number(a) - Number(b));
@@ -4575,7 +4747,7 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
   const idBase = `${subjectSlug}-${year}-${sessionCode}`;
 
   // Build paper rows first so we can skip empty sessions cleanly (no empty cards / headers)
-  const sections = getPaperSections(subjectSlug, cfg);
+  const sections = getRenderablePaperSections(subjectSlug, cfg, year, sessionCode);
   let paperIdx = 0;
   let anyRows = false;
   let bodyHtml = "";
@@ -4587,9 +4759,11 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 		      const thisPaperIdx = paperIdx;
 		      const paperKeyBase = `${subjectSlug}|${cfg.code}|${year}|${sessionCode}|p${thisPaperIdx}`;
 		      paperIdx += 1;
-
-		      const qpVariants = (paper.qpVariants || []).filter(v => hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", v));
-		      const msVariants = (paper.msVariants || []).filter(v => hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", v));
+		      const paperNumber = getPaperNumberFromDefinition(paper);
+		      const qpVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber);
+		      const msVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber);
+		      const qpVariants = Object.keys(qpVariantMap);
+		      const msVariants = Object.keys(msVariantMap);
 		      const variantRows = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
       // If nothing exists for this paper in this series, remove the whole row
@@ -4649,8 +4823,10 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 		        variantRows.forEach(variant => {
 		          const hasQP = qpVariants.includes(variant);
 		          const hasMS = msVariants.includes(variant);
-		          const qpHref = hasQP ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "qp", variant) : "";
-	          const msHref = hasMS ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "ms", variant) : "";
+		          const qpFileName = qpVariantMap[String(variant)] || "";
+		          const msFileName = msVariantMap[String(variant)] || "";
+		          const qpHref = hasQP ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, qpFileName) : "";
+	          const msHref = hasMS ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, msFileName) : "";
 		          const trackKey = hasQP
 		            ? `${paperKeyBase}|qp|v${variant}`
 		            : `${paperKeyBase}|ms|v${variant}`;
@@ -4694,27 +4870,10 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
   if (!anyRows) return "";
 
   // Session-level extras (GT / ER / CI) live once per session folder, not per paper row.
-  const extras = getSessionExtras(subjectSlug, year, sessionCode);
+  const extras = buildSessionExtraItems(subjectSlug, cfg, year, sessionCode);
   let extrasHtml = "";
-  if (extras) {
-    const base = `/past-papers/${subjectSlug}/${year}/${sessionCode}/`;
-    const pills = [];
-
-	    if (extras.gt) {
-	      pills.push(`<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="gt" data-href="${base}${extras.gt}" data-file-label="Grade Thresholds">Grade Thresholds</button>`);
-	    }
-	    if (extras.er) {
-	      pills.push(`<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="er" data-href="${base}${extras.er}" data-file-label="Examiner Report">Examiner Report</button>`);
-	    }
-	    if (extras.ci && Array.isArray(extras.ci) && extras.ci.length) {
-	      // If multiple CI files exist, use the first as the primary download (still correct + avoids clutter).
-	      const ciFile = extras.ci[0];
-	      pills.push(`<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="ci" data-href="${base}${ciFile}" data-file-label="Confidential Instructions">Confidential Instructions</button>`);
-	    }
-
-    if (pills.length) {
-      extrasHtml = `<div class="pp-session-pills">${pills.join("")}</div>`;
-    }
+  if (extras.length) {
+    extrasHtml = `<div class="pp-session-pills">${extras.map(extra => `<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="${extra.type}" data-href="${extra.href}" data-file-label="${escapePastPaperHtml(extra.label)}">${extra.label}</button>`).join("")}</div>`;
   }
 
   return `
@@ -4782,20 +4941,22 @@ const PAST_PAPER_SEARCH_SUBJECT_ALIASES = {
 };
 
 function getRenderablePastPaperYears(subjectSlug, cfg) {
-  const years = [...(cfg.years || [])].sort((a, b) => b - a);
-  const isMath0580 = subjectSlug === "mathematics-0580" && cfg.code === "0580";
-  const isPhys0625 = subjectSlug === "physics-0625" && cfg.code === "0625";
+  const subjectNode = PAST_PAPER_FILES && PAST_PAPER_FILES[subjectSlug];
 
-  if (!(isMath0580 || isPhys0625)) return years;
+  if(!subjectNode){
+    return [];
+  }
 
-  const set = isMath0580 ? MATH0580_FILESET : PHYS0625_FILESET;
-  return years.filter(year => {
-    const prefix = `/past-papers/${subjectSlug}/${year}/`;
-    for (const path of set) {
-      if (path.startsWith(prefix)) return true;
-    }
-    return false;
-  });
+  return Object.keys(subjectNode)
+    .map(year => Number(year))
+    .filter(year => getSessionsForSubject(subjectSlug, year).some(sessionCode => {
+      const sessionManifest = getPastPaperSessionManifest(subjectSlug, year, sessionCode);
+      return sessionManifest && (
+        Object.keys(sessionManifest.qp || {}).length
+        || Object.keys(sessionManifest.ms || {}).length
+      );
+    }))
+    .sort((a, b) => b - a);
 }
 
 function getPaperNumberFromDefinition(paper) {
@@ -4924,9 +5085,9 @@ function buildPastPaperSearchIndex(subjectMeta) {
 
     years.forEach(year => {
       const sessions = getSessionsForSubject(subjectSlug, year);
-      const sections = getPaperSections(subjectSlug, cfg);
 
       sessions.forEach(sessionCode => {
+        const sections = getRenderablePaperSections(subjectSlug, cfg, year, sessionCode);
         let paperIdx = 0;
         const sessionMeta = PAST_PAPER_SESSION_META[sessionCode];
 
@@ -4934,12 +5095,9 @@ function buildPastPaperSearchIndex(subjectMeta) {
           section.papers.forEach(paper => {
             const thisPaperIdx = paperIdx;
             const paperKeyBase = `${subjectSlug}|${cfg.code}|${year}|${sessionCode}|p${thisPaperIdx}`;
-            const qpVariants = (paper.qpVariants || []).filter(variant =>
-              hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", variant)
-            );
-            const msVariants = (paper.msVariants || []).filter(variant =>
-              hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", variant)
-            );
+            const paperNumber = getPaperNumberFromDefinition(paper);
+            const qpVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber));
+            const msVariants = Object.keys(getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber));
             const variants = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
             paperIdx += 1;
@@ -6183,25 +6341,11 @@ function getSubjectPastPapersZipSections(subjectSlug, cfg){
 }
 
 function buildSubjectPastPapersZipSessionExtras(subjectSlug, year, sessionCode){
-  const extras = [];
-
-  // Insert files are now shown as inline IN buttons per variant row — not as session-level pills.
-
-  const sessionExtras = getSessionExtras(subjectSlug, year, sessionCode);
-  if(sessionExtras){
-    const base = `/past-papers/${subjectSlug}/${year}/${sessionCode}/`;
-    if(sessionExtras.gt){
-      extras.push({ type: "gt", label: "Grade Thresholds", href: `${base}${sessionExtras.gt}` });
-    }
-    if(sessionExtras.er){
-      extras.push({ type: "er", label: "Examiner Report", href: `${base}${sessionExtras.er}` });
-    }
-    if(Array.isArray(sessionExtras.ci) && sessionExtras.ci.length){
-      extras.push({ type: "ci", label: "Confidential Instructions", href: `${base}${sessionExtras.ci[0]}` });
-    }
+  const cfg = PAPERS_CONFIG[subjectSlug];
+  if(!cfg){
+    return [];
   }
-
-  return extras;
+  return buildSessionExtraItems(subjectSlug, cfg, year, sessionCode);
 }
 
 function buildSubjectPastPapersZipModel(subjectSlug){
@@ -6217,20 +6361,32 @@ function buildSubjectPastPapersZipModel(subjectSlug){
       const sessions = getSessionsForSubject(subjectSlug, year)
         .map(sessionCode => {
           let paperIdx = 0;
+          const renderableSections = getRenderablePaperSections(subjectSlug, cfg, year, sessionCode)
+            .map((section, index) => ({
+              id: getPaperSectionId(section, index),
+              label: section.title,
+              hidden: !section.title,
+              papers: section.papers || []
+            }));
           const groups = sections.map(section => {
+            const renderableSection = renderableSections.find(entry => entry.id === section.id) || {
+              id: section.id,
+              label: section.label,
+              hidden: section.hidden,
+              papers: []
+            };
             const papers = [];
 
-            section.papers.forEach(paper => {
+            renderableSection.papers.forEach(paper => {
               const thisPaperIdx = paperIdx;
               const paperKeyBase = `${subjectSlug}|${cfg.code}|${year}|${sessionCode}|p${thisPaperIdx}`;
               paperIdx += 1;
 
-              const qpVariants = (paper.qpVariants || []).filter(variant =>
-                hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", variant)
-              );
-              const msVariants = (paper.msVariants || []).filter(variant =>
-                hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", variant)
-              );
+              const paperNumber = getPaperNumberFromDefinition(paper);
+              const qpVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "qp", paperNumber);
+              const msVariantMap = getPastPaperKindManifest(subjectSlug, year, sessionCode, "ms", paperNumber);
+              const qpVariants = Object.keys(qpVariantMap);
+              const msVariants = Object.keys(msVariantMap);
               const variants = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
               if(!qpVariants.length && !msVariants.length){
@@ -6250,7 +6406,7 @@ function buildSubjectPastPapersZipModel(subjectSlug){
                   const insertMap = getInsertMap(subjectSlug, year, sessionCode);
                   const insertFileName = insertMap && insertMap[String(variant)];
                   const inHref = insertFileName
-                    ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${insertFileName}`
+                    ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, insertFileName)
                     : "";
                   return {
                     id: `v${variant}`,
@@ -6259,10 +6415,10 @@ function buildSubjectPastPapersZipModel(subjectSlug){
                       ? `${paperKeyBase}|qp|v${variant}`
                       : `${paperKeyBase}|ms|v${variant}`,
                     qpHref: hasQP
-                      ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "qp", variant)
+                      ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, qpVariantMap[String(variant)])
                       : "",
                     msHref: hasMS
-                      ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "ms", variant)
+                      ? buildPastPaperManifestHref(subjectSlug, year, sessionCode, msVariantMap[String(variant)])
                       : "",
                     inHref
                   };
@@ -8628,10 +8784,7 @@ async function renderPastPapers(){
 
   const prewarmPastPaperData = () => {
     if(!container.__ppDataPromise){
-      container.__ppDataPromise = Promise.all([
-        loadSessionLevelFiles(),
-        loadInsertFiles()
-      ]).catch(error => {
+      container.__ppDataPromise = loadPastPaperFiles().catch(error => {
         container.__ppDataPromise = null;
         throw error;
       });

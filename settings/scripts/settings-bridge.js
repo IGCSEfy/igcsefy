@@ -168,6 +168,9 @@
   };
   var studyPreferencesUiOverride = null;
   var studyPreferencesUiLockUntil = 0;
+  var studyPreferencesUiReinforceToken = 0;
+  var studyPreferencesUiReinforceRafId = 0;
+  var studyPreferencesUiReinforceTimeoutIds = [];
   var PATCH_OBSERVER_OPTIONS = {
     childList: true,
     subtree: true,
@@ -786,15 +789,72 @@
     return next.appearance;
   }
 
-  function applySegmentedButtonState(button, isActive) {
+  function applySegmentedButtonState(button, isActive, isDisabled) {
     if (!button || !button.classList) return;
 
-    button.classList.toggle('bg-card', isActive);
-    button.classList.toggle('text-foreground', isActive);
-    button.classList.toggle('shadow-sm', isActive);
-    button.classList.toggle('border', isActive);
-    button.classList.toggle('border-border', isActive);
-    button.classList.toggle('text-muted-foreground', !isActive);
+    button.classList.remove(
+      'bg-card',
+      'text-foreground',
+      'shadow-sm',
+      'border',
+      'border-border',
+      'text-muted-foreground',
+      'hover:text-foreground'
+    );
+
+    if (isActive) {
+      button.classList.add('bg-card', 'text-foreground', 'shadow-sm', 'border', 'border-border');
+      return;
+    }
+
+    button.classList.add('text-muted-foreground');
+    if (!isDisabled) {
+      button.classList.add('hover:text-foreground');
+    }
+  }
+
+  function applySwitchControlState(control, isChecked, isDisabled, disabledTitle) {
+    var thumb;
+
+    if (!control || !control.getAttribute || control.getAttribute('role') !== 'switch') {
+      return;
+    }
+
+    thumb = control.querySelector ? control.querySelector('span') : null;
+
+    control.setAttribute('aria-checked', isChecked ? 'true' : 'false');
+    control.setAttribute('data-state', isChecked ? 'checked' : 'unchecked');
+    control.disabled = !!isDisabled;
+    if ('checked' in control) {
+      control.checked = !!isChecked;
+    }
+
+    if (control.classList) {
+      control.classList.remove('bg-foreground/20', 'bg-secondary/60', 'opacity-40', 'cursor-not-allowed');
+      control.classList.add(isChecked ? 'bg-foreground/20' : 'bg-secondary/60');
+      control.classList.toggle('opacity-40', !!isDisabled);
+      control.classList.toggle('cursor-not-allowed', !!isDisabled);
+    }
+
+    if (thumb && thumb.classList) {
+      thumb.classList.remove('translate-x-[22px]', 'bg-foreground', 'translate-x-[3px]', 'bg-muted-foreground');
+      thumb.classList.add(isChecked ? 'translate-x-[22px]' : 'translate-x-[3px]');
+      thumb.classList.add(isChecked ? 'bg-foreground' : 'bg-muted-foreground');
+    }
+
+    if (isDisabled) {
+      control.setAttribute('aria-disabled', 'true');
+      control.setAttribute('tabindex', '-1');
+      control.style.pointerEvents = 'none';
+      if (disabledTitle) {
+        control.title = disabledTitle;
+      }
+    } else {
+      control.removeAttribute('aria-disabled');
+      control.removeAttribute('tabindex');
+      control.removeAttribute('title');
+      control.style.removeProperty('pointer-events');
+    }
   }
 
   function getPaperTargets() {
@@ -1078,6 +1138,28 @@
       return container.querySelector('[role="switch"]');
     }
     return null;
+  }
+
+  function isSwitchChecked(control, fallback) {
+    var ariaChecked;
+    var dataState;
+
+    if (!control || !control.getAttribute) {
+      return !!fallback;
+    }
+
+    ariaChecked = control.getAttribute('aria-checked');
+    dataState = control.getAttribute('data-state');
+
+    if (ariaChecked === 'true' || dataState === 'checked' || control.checked === true) {
+      return true;
+    }
+
+    if (ariaChecked === 'false' || dataState === 'unchecked' || control.checked === false) {
+      return false;
+    }
+
+    return !!fallback;
   }
 
   function createSvgIcon(name, className) {
@@ -1457,33 +1539,17 @@
         Array.from(themeControl.querySelectorAll('button')).forEach(function (button) {
           var isActive = getThemeButtonValue(button) === appearance.theme;
           button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-          button.classList.toggle('bg-card', isActive);
-          button.classList.toggle('text-foreground', isActive);
-          button.classList.toggle('shadow-sm', isActive);
-          button.classList.toggle('border', isActive);
-          button.classList.toggle('border-border', isActive);
-          button.classList.toggle('text-muted-foreground', !isActive);
+          if (button.dataset) {
+            button.dataset.state = isActive ? 'active' : 'inactive';
+          }
+          applySegmentedButtonState(button, isActive, false);
         });
       }
 
       if (reducedMotionRow) {
         reducedMotionControl = getSwitchControl(reducedMotionRow.lastElementChild);
-        if (reducedMotionControl && reducedMotionControl.getAttribute && reducedMotionControl.getAttribute('role') === 'switch') {
-          reducedMotionThumb = reducedMotionControl.querySelector ? reducedMotionControl.querySelector('span') : null;
-          reducedMotionControl.setAttribute('aria-checked', appearance.reducedMotion ? 'true' : 'false');
-          reducedMotionControl.setAttribute('data-state', appearance.reducedMotion ? 'checked' : 'unchecked');
-          if ('checked' in reducedMotionControl) {
-            reducedMotionControl.checked = appearance.reducedMotion;
-          }
-          reducedMotionControl.classList.toggle('bg-foreground/20', appearance.reducedMotion);
-          reducedMotionControl.classList.toggle('bg-secondary/60', !appearance.reducedMotion);
-
-          if (reducedMotionThumb && reducedMotionThumb.classList) {
-            reducedMotionThumb.classList.toggle('translate-x-[22px]', appearance.reducedMotion);
-            reducedMotionThumb.classList.toggle('bg-foreground', appearance.reducedMotion);
-            reducedMotionThumb.classList.toggle('translate-x-[3px]', !appearance.reducedMotion);
-            reducedMotionThumb.classList.toggle('bg-muted-foreground', !appearance.reducedMotion);
-          }
+        if (reducedMotionControl) {
+          applySwitchControlState(reducedMotionControl, appearance.reducedMotion, false);
         }
       }
     });
@@ -1511,7 +1577,6 @@
     var behaviorDisabled;
     var effectivePdfOpeningMode;
     var effectiveAutoOpenMarkScheme;
-    var autoOpenThumb;
 
     function findSettingRow(label) {
       return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
@@ -1667,38 +1732,13 @@
           behaviorDescription.textContent = getBehaviorDescription(settings.markSchemeOpenBehavior);
         }
       }
-      if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
-        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
-
-        autoOpenControl.setAttribute('aria-checked', effectiveAutoOpenMarkScheme ? 'true' : 'false');
-        autoOpenControl.setAttribute('data-state', effectiveAutoOpenMarkScheme ? 'checked' : 'unchecked');
-        autoOpenControl.disabled = !markSchemeAvailable;
-        if ('checked' in autoOpenControl) {
-          autoOpenControl.checked = effectiveAutoOpenMarkScheme;
-        }
-        if (autoOpenControl.classList) {
-          autoOpenControl.classList.toggle('bg-foreground/20', effectiveAutoOpenMarkScheme);
-          autoOpenControl.classList.toggle('bg-secondary/60', !effectiveAutoOpenMarkScheme);
-        }
-
-        if (autoOpenThumb && autoOpenThumb.classList) {
-          autoOpenThumb.classList.toggle('translate-x-[22px]', effectiveAutoOpenMarkScheme);
-          autoOpenThumb.classList.toggle('bg-foreground', effectiveAutoOpenMarkScheme);
-          autoOpenThumb.classList.toggle('translate-x-[3px]', !effectiveAutoOpenMarkScheme);
-          autoOpenThumb.classList.toggle('bg-muted-foreground', !effectiveAutoOpenMarkScheme);
-        }
-
-        if (!markSchemeAvailable) {
-          autoOpenControl.setAttribute('aria-disabled', 'true');
-          autoOpenControl.title = 'Switch PDF opening mode to Preview first to use mark scheme auto-open.';
-          autoOpenControl.style.pointerEvents = 'none';
-          autoOpenControl.setAttribute('tabindex', '-1');
-        } else {
-          autoOpenControl.removeAttribute('aria-disabled');
-          autoOpenControl.removeAttribute('title');
-          autoOpenControl.style.removeProperty('pointer-events');
-          autoOpenControl.removeAttribute('tabindex');
-        }
+      if (autoOpenControl) {
+        applySwitchControlState(
+          autoOpenControl,
+          effectiveAutoOpenMarkScheme,
+          !markSchemeAvailable,
+          'Switch PDF opening mode to Preview first to use mark scheme auto-open.'
+        );
       }
       if (behaviorControl) {
         behaviorControl.classList.add('igcsefy-mark-scheme-control');
@@ -1710,17 +1750,22 @@
         Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
           var buttonText = (button.textContent || '').trim().toLowerCase();
           var value = buttonText === 'side by side' ? 'side-by-side' : 'same-tab';
+          var isActive;
 
           if (buttonText === 'new tab') {
             button.remove();
             return;
           }
 
+          isActive = !behaviorDisabled && value === settings.markSchemeOpenBehavior;
           button.classList.add('igcsefy-mark-scheme-pill');
-          button.classList.toggle(
-            'igcsefy-mark-scheme-pill--active',
-            !behaviorDisabled && value === settings.markSchemeOpenBehavior
-          );
+          button.classList.toggle('igcsefy-mark-scheme-pill--active', isActive);
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isActive ? 'active' : 'inactive';
+          }
+          applySegmentedButtonState(button, isActive, behaviorDisabled);
           button.disabled = behaviorDisabled;
           if (behaviorDisabled) {
             button.setAttribute('aria-disabled', 'true');
@@ -1756,7 +1801,6 @@
     var autoOpenDescription;
     var behaviorLabel;
     var behaviorDescription;
-    var autoOpenThumb;
 
     function findSettingRow(label) {
       return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
@@ -1818,33 +1862,17 @@
           if (button.dataset) {
             button.dataset.state = isDirectDownload ? 'active' : 'inactive';
           }
-          applySegmentedButtonState(button, isDirectDownload);
+          applySegmentedButtonState(button, isDirectDownload, false);
         });
       }
 
-      if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
-        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
-
-        autoOpenControl.setAttribute('aria-checked', 'false');
-        autoOpenControl.setAttribute('data-state', 'unchecked');
-        autoOpenControl.disabled = true;
-        if ('checked' in autoOpenControl) {
-          autoOpenControl.checked = false;
-        }
-        if (autoOpenControl.classList) {
-          autoOpenControl.classList.remove('bg-foreground/20');
-          autoOpenControl.classList.add('bg-secondary/60');
-        }
-
-        if (autoOpenThumb && autoOpenThumb.classList) {
-          autoOpenThumb.classList.remove('translate-x-[22px]', 'bg-foreground');
-          autoOpenThumb.classList.add('translate-x-[3px]', 'bg-muted-foreground');
-        }
-
-        autoOpenControl.setAttribute('aria-disabled', 'true');
-        autoOpenControl.title = 'Switch PDF opening mode to Preview first to use mark scheme auto-open.';
-        autoOpenControl.style.pointerEvents = 'none';
-        autoOpenControl.setAttribute('tabindex', '-1');
+      if (autoOpenControl) {
+        applySwitchControlState(
+          autoOpenControl,
+          false,
+          true,
+          'Switch PDF opening mode to Preview first to use mark scheme auto-open.'
+        );
       }
 
       if (behaviorControl) {
@@ -1852,6 +1880,12 @@
           var buttonText = String(button.textContent || '').trim().toLowerCase();
           var isSameTab = buttonText === 'same tab';
           button.classList.toggle('igcsefy-mark-scheme-pill--active', isSameTab);
+          button.setAttribute('aria-pressed', isSameTab ? 'true' : 'false');
+          button.setAttribute('aria-checked', isSameTab ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isSameTab ? 'active' : 'inactive';
+          }
+          applySegmentedButtonState(button, isSameTab, true);
           button.disabled = true;
           button.setAttribute('aria-disabled', 'true');
           button.style.pointerEvents = 'none';
@@ -1876,7 +1910,6 @@
     var autoOpenDescription;
     var behaviorLabel;
     var behaviorDescription;
-    var autoOpenThumb;
     var normalizedBehavior = normalizeMarkSchemeOpenBehavior(behaviorValue);
     var behaviorDisabled = !isEnabled;
 
@@ -1944,35 +1977,12 @@
           if (button.dataset) {
             button.dataset.state = isPreviewFirst ? 'active' : 'inactive';
           }
-          applySegmentedButtonState(button, isPreviewFirst);
+          applySegmentedButtonState(button, isPreviewFirst, false);
         });
       }
 
-      if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
-        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
-
-        autoOpenControl.setAttribute('aria-checked', isEnabled ? 'true' : 'false');
-        autoOpenControl.setAttribute('data-state', isEnabled ? 'checked' : 'unchecked');
-        autoOpenControl.disabled = false;
-        if ('checked' in autoOpenControl) {
-          autoOpenControl.checked = isEnabled;
-        }
-        if (autoOpenControl.classList) {
-          autoOpenControl.classList.toggle('bg-foreground/20', isEnabled);
-          autoOpenControl.classList.toggle('bg-secondary/60', !isEnabled);
-        }
-
-        if (autoOpenThumb && autoOpenThumb.classList) {
-          autoOpenThumb.classList.toggle('translate-x-[22px]', isEnabled);
-          autoOpenThumb.classList.toggle('bg-foreground', isEnabled);
-          autoOpenThumb.classList.toggle('translate-x-[3px]', !isEnabled);
-          autoOpenThumb.classList.toggle('bg-muted-foreground', !isEnabled);
-        }
-
-        autoOpenControl.removeAttribute('aria-disabled');
-        autoOpenControl.removeAttribute('title');
-        autoOpenControl.style.removeProperty('pointer-events');
-        autoOpenControl.removeAttribute('tabindex');
+      if (autoOpenControl) {
+        applySwitchControlState(autoOpenControl, isEnabled, false);
       }
 
       if (behaviorControl) {
@@ -1986,6 +1996,7 @@
           if (button.dataset) {
             button.dataset.state = isActive ? 'active' : 'inactive';
           }
+          applySegmentedButtonState(button, isActive, behaviorDisabled);
           button.disabled = behaviorDisabled;
           if (behaviorDisabled) {
             button.setAttribute('aria-disabled', 'true');
@@ -2012,19 +2023,48 @@
     studyPreferencesUiLockUntil = nextOverride ? Date.now() + 1200 : 0;
   }
 
+  function clearStudyPreferencesUiReinforcement() {
+    if (studyPreferencesUiReinforceRafId && typeof window.cancelAnimationFrame === 'function') {
+      window.cancelAnimationFrame(studyPreferencesUiReinforceRafId);
+    }
+    studyPreferencesUiReinforceRafId = 0;
+
+    while (studyPreferencesUiReinforceTimeoutIds.length) {
+      window.clearTimeout(studyPreferencesUiReinforceTimeoutIds.pop());
+    }
+  }
+
   function reinforceStudyPreferencesUi(forceFn) {
     if (typeof forceFn !== 'function') return;
-    forceFn();
-    requestAnimationFrame(function () {
+    clearStudyPreferencesUiReinforcement();
+    studyPreferencesUiReinforceToken += 1;
+
+    var token = studyPreferencesUiReinforceToken;
+
+    function runForce() {
+      if (token !== studyPreferencesUiReinforceToken) return;
       forceFn();
+    }
+
+    function queueTimeout(delay, callback) {
+      var timeoutId = window.setTimeout(function () {
+        if (token !== studyPreferencesUiReinforceToken) return;
+        callback();
+      }, delay);
+
+      studyPreferencesUiReinforceTimeoutIds.push(timeoutId);
+    }
+
+    runForce();
+    studyPreferencesUiReinforceRafId = window.requestAnimationFrame(function () {
+      studyPreferencesUiReinforceRafId = 0;
+      runForce();
     });
-    window.setTimeout(function () {
-      forceFn();
-    }, 80);
-    window.setTimeout(function () {
-      forceFn();
+    queueTimeout(80, runForce);
+    queueTimeout(220, function () {
+      runForce();
       schedulePatch();
-    }, 220);
+    });
   }
 
   function getSettingsNavButtonClass(isActive) {
@@ -2668,6 +2708,7 @@
           autoOpenMarkScheme: false,
           markSchemeOpenBehavior: 'same-tab'
         }, { schedule: false });
+        schedulePatch();
         reinforceStudyPreferencesUi(forceDirectDownloadStudyPreferencesUi);
         return;
       } else if (studyLabel === 'preview first') {
@@ -2682,6 +2723,7 @@
           autoOpenMarkScheme: false,
           markSchemeOpenBehavior: 'same-tab'
         }, { schedule: false });
+        schedulePatch();
         reinforceStudyPreferencesUi(forcePreviewStudyPreferencesUi);
         return;
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
@@ -2698,6 +2740,7 @@
           autoOpenMarkScheme: true,
           markSchemeOpenBehavior: nextBehaviorValue
         }, { schedule: false });
+        schedulePatch();
         reinforceStudyPreferencesUi(function () {
           forcePreviewAutoOpenStudyPreferencesUi(
             true,
@@ -2712,7 +2755,9 @@
         && String(studyPreferencesRowTitle.textContent || '').trim() === 'Auto-open mark scheme'
       ) {
         var currentStudyPreferences = loadSettings().studyPreferences;
-        var nextAutoOpenMarkScheme = !currentStudyPreferences.autoOpenMarkScheme;
+        var autoOpenSwitchControl = getSwitchControl(control) || control;
+        var currentAutoOpenMarkScheme = isSwitchChecked(autoOpenSwitchControl, currentStudyPreferences.autoOpenMarkScheme);
+        var nextAutoOpenMarkScheme = !currentAutoOpenMarkScheme;
         var nextMarkSchemeOpenBehavior = nextAutoOpenMarkScheme
           ? normalizeMarkSchemeOpenBehavior(currentStudyPreferences.markSchemeOpenBehavior)
           : 'same-tab';
@@ -2727,6 +2772,7 @@
           autoOpenMarkScheme: nextAutoOpenMarkScheme,
           markSchemeOpenBehavior: nextMarkSchemeOpenBehavior
         }, { schedule: false });
+        schedulePatch();
         reinforceStudyPreferencesUi(function () {
           forcePreviewAutoOpenStudyPreferencesUi(
             nextAutoOpenMarkScheme,

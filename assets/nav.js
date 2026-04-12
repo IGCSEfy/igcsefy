@@ -8,6 +8,8 @@
     { key: 'past-papers', label: 'Past Papers', href: '/past-papers/' },
     { key: 'about', label: 'About', href: '/about/' }
   ];
+  var PREFETCH_BIND_KEY = '__igcsefyLinkPrefetchBound';
+  var PREFETCHED_PATHS = {};
   var NAV_READY_EVENT = 'igcsefy:site-nav-ready';
   var NAV_READY_KEY = '__igcsefySiteNavReady';
   var ANALYTICS_BOOTSTRAP_SRC = '/assets/analytics.js?v=20260410o';
@@ -90,6 +92,105 @@
     }
 
     return null;
+  }
+
+  function getPrefetchablePath(href) {
+    var url;
+    var pathname;
+
+    if (!href || typeof href !== 'string') {
+      return '';
+    }
+
+    if (/^(mailto:|tel:|javascript:)/i.test(href)) {
+      return '';
+    }
+
+    try {
+      url = new URL(href, window.location.origin);
+    } catch (error) {
+      return '';
+    }
+
+    if (url.origin !== window.location.origin) {
+      return '';
+    }
+
+    if (/\.pdf$/i.test(url.pathname)) {
+      return '';
+    }
+
+    pathname = normalizePath(url.pathname);
+    if (pathname === normalizePath(window.location.pathname) && !url.search) {
+      return '';
+    }
+
+    return url.pathname + (url.search || '');
+  }
+
+  function prefetchPage(href) {
+    var path = getPrefetchablePath(href);
+    var link;
+
+    if (!path || PREFETCHED_PATHS[path]) {
+      return;
+    }
+
+    PREFETCHED_PATHS[path] = true;
+
+    if (!document.querySelector('link[rel="prefetch"][href="' + path + '"]')) {
+      link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.as = 'document';
+      link.href = path;
+      document.head.appendChild(link);
+    }
+
+    if (typeof window.fetch === 'function') {
+      window.fetch(path, {
+        credentials: 'same-origin',
+        cache: 'force-cache'
+      }).catch(function () {
+        // Ignore prefetch failures; normal navigation still works.
+      });
+    }
+  }
+
+  function bindLinkPrefetching() {
+    var scheduleIdle;
+
+    if (window[PREFETCH_BIND_KEY]) {
+      return;
+    }
+
+    window[PREFETCH_BIND_KEY] = true;
+
+    function handlePrefetchEvent(event) {
+      var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+      if (!link) {
+        return;
+      }
+      prefetchPage(link.getAttribute('href'));
+    }
+
+    document.addEventListener('mouseover', handlePrefetchEvent, { passive: true });
+    document.addEventListener('focusin', handlePrefetchEvent, { passive: true });
+    document.addEventListener('touchstart', handlePrefetchEvent, { passive: true });
+    document.addEventListener('mousedown', handlePrefetchEvent, { passive: true });
+
+    scheduleIdle = typeof window.requestIdleCallback === 'function'
+      ? window.requestIdleCallback.bind(window)
+      : function (callback) {
+          return window.setTimeout(callback, 300);
+        };
+
+    scheduleIdle(function () {
+      NAV_ITEMS.forEach(function (item) {
+        prefetchPage(item.href);
+      });
+      prefetchPage('/profile/');
+      prefetchPage('/settings/');
+    });
   }
 
   function iconMenu() {
@@ -713,6 +814,7 @@
   }
 
   ensureAnalyticsBootstrap();
+  bindLinkPrefetching();
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', mountNav, { once: true });
