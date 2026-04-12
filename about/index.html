@@ -20,7 +20,6 @@
 
       try {
         var raw = localStorage.getItem('igcsefy-settings');
-        var navTheme = localStorage.getItem('igcsefy-nav-theme-icon');
 
         if (raw) {
           var parsed = JSON.parse(raw);
@@ -36,9 +35,6 @@
             : 'light';
         } else if (preference === 'light' || preference === 'dark') {
           theme = preference;
-        } else if (navTheme === 'light') {
-          theme = 'light';
-          preference = 'light';
         }
       } catch (error) {
         theme = 'dark';
@@ -253,6 +249,6 @@
 
   <script defer src="./scripts/lenis.min.js"></script>
   <script defer src="./scripts/about-journey.js"></script>
-  <script defer src="/assets/nav.js?v=20260410o"></script>
+  <script defer src="/assets/nav.js?v=20260412a"></script>
 </body>
 </html>

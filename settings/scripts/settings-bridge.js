@@ -167,6 +167,7 @@
     selectedLevel: 'extended'
   };
   var studyPreferencesUiOverride = null;
+  var studyPreferencesUiLockUntil = 0;
   var PATCH_OBSERVER_OPTIONS = {
     childList: true,
     subtree: true,
@@ -320,7 +321,13 @@
     var documentResolved = getResolvedDocumentTheme();
 
     if (storedPreference !== documentPreference || storedResolved !== documentResolved) {
-      applyResolvedDocumentTheme(storedResolved);
+      var themeState = applyResolvedDocumentTheme(documentPreference);
+      settings = saveSettings({
+        appearance: Object.assign({}, settings.appearance, {
+          theme: themeState.preference
+        }),
+        studyPreferences: settings.studyPreferences
+      });
     }
 
     return settings;
@@ -1538,8 +1545,12 @@
     overrideSettings = studyPreferencesUiOverride && typeof studyPreferencesUiOverride === 'object'
       ? studyPreferencesUiOverride
       : null;
-    if (overrideSettings) {
+    if (overrideSettings && Date.now() < studyPreferencesUiLockUntil) {
       settings = Object.assign({}, settings, overrideSettings);
+    } else if (overrideSettings && Date.now() >= studyPreferencesUiLockUntil) {
+      studyPreferencesUiOverride = null;
+      studyPreferencesUiLockUntil = 0;
+      overrideSettings = null;
     }
     effectivePdfOpeningMode = settings.pdfOpeningMode;
     effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
@@ -1784,6 +1795,11 @@
         Array.from(pdfOpeningControl.querySelectorAll('button')).forEach(function (button) {
           var buttonText = String(button.textContent || '').trim().toLowerCase();
           var isDirectDownload = buttonText === 'direct download';
+          button.disabled = false;
+          button.removeAttribute('aria-disabled');
+          button.removeAttribute('tabindex');
+          button.removeAttribute('title');
+          button.style.removeProperty('pointer-events');
           button.setAttribute('aria-pressed', isDirectDownload ? 'true' : 'false');
           button.setAttribute('aria-checked', isDirectDownload ? 'true' : 'false');
           if (button.dataset) {
@@ -1831,6 +1847,147 @@
         });
       }
     });
+  }
+
+  function forcePreviewStudyPreferencesUi() {
+    var section = document.getElementById('study-preferences');
+    var pdfOpeningRow;
+    var pdfOpeningControl;
+    var autoOpenRow;
+    var behaviorRow;
+    var autoOpenControl;
+    var autoOpenCopy;
+    var behaviorCopy;
+    var behaviorControl;
+    var autoOpenLabel;
+    var autoOpenDescription;
+    var behaviorLabel;
+    var behaviorDescription;
+    var autoOpenThumb;
+
+    function findSettingRow(label) {
+      return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
+        var copy = row.firstElementChild;
+        var title = copy && copy.querySelector ? copy.querySelector('p') : null;
+        return title && (title.textContent || '').trim() === label;
+      }) || null;
+    }
+
+    if (!section) return;
+
+    pdfOpeningRow = findSettingRow('PDF opening mode');
+    autoOpenRow = findSettingRow('Auto-open mark scheme');
+    behaviorRow = findSettingRow('Mark scheme opening behavior') || findSettingRow('Opening behaviour');
+    if (!pdfOpeningRow || !autoOpenRow || !behaviorRow) return;
+
+    pausePatchObserver(function () {
+      pdfOpeningControl = pdfOpeningRow.lastElementChild;
+      autoOpenControl = getSwitchControl(autoOpenRow.lastElementChild);
+      autoOpenCopy = autoOpenRow.firstElementChild;
+      behaviorCopy = behaviorRow.firstElementChild;
+      behaviorControl = behaviorRow.lastElementChild;
+      autoOpenLabel = autoOpenCopy && autoOpenCopy.querySelector ? autoOpenCopy.querySelector('p') : null;
+      autoOpenDescription = autoOpenCopy && autoOpenCopy.querySelectorAll
+        ? autoOpenCopy.querySelectorAll('p')[1]
+        : null;
+      behaviorLabel = behaviorCopy && behaviorCopy.querySelector ? behaviorCopy.querySelector('p') : null;
+      behaviorDescription = behaviorCopy && behaviorCopy.querySelectorAll
+        ? behaviorCopy.querySelectorAll('p')[1]
+        : null;
+
+      autoOpenRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--toggle');
+      autoOpenRow.classList.remove('igcsefy-mark-scheme-row--disabled');
+      behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior', 'igcsefy-mark-scheme-row--disabled');
+
+      if (autoOpenLabel) {
+        autoOpenLabel.textContent = 'Auto-open mark scheme';
+      }
+      if (autoOpenDescription) {
+        autoOpenDescription.textContent = 'Automatically open the corresponding mark scheme when you view a question paper.';
+      }
+      if (behaviorLabel) {
+        behaviorLabel.textContent = 'Opening behaviour';
+      }
+      if (behaviorDescription) {
+        behaviorDescription.textContent = 'Turn on Auto-open mark scheme to choose how it opens.';
+      }
+
+      if (pdfOpeningControl) {
+        Array.from(pdfOpeningControl.querySelectorAll('button')).forEach(function (button) {
+          var buttonText = String(button.textContent || '').trim().toLowerCase();
+          var isPreviewFirst = buttonText === 'preview first';
+          button.disabled = false;
+          button.removeAttribute('aria-disabled');
+          button.removeAttribute('tabindex');
+          button.removeAttribute('title');
+          button.style.removeProperty('pointer-events');
+          button.setAttribute('aria-pressed', isPreviewFirst ? 'true' : 'false');
+          button.setAttribute('aria-checked', isPreviewFirst ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isPreviewFirst ? 'active' : 'inactive';
+          }
+          button.classList.toggle('bg-card', isPreviewFirst);
+        });
+      }
+
+      if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
+        autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
+
+        autoOpenControl.setAttribute('aria-checked', 'false');
+        autoOpenControl.setAttribute('data-state', 'unchecked');
+        autoOpenControl.disabled = false;
+        if ('checked' in autoOpenControl) {
+          autoOpenControl.checked = false;
+        }
+        if (autoOpenControl.classList) {
+          autoOpenControl.classList.remove('bg-foreground/20');
+          autoOpenControl.classList.add('bg-secondary/60');
+        }
+
+        if (autoOpenThumb && autoOpenThumb.classList) {
+          autoOpenThumb.classList.remove('translate-x-[22px]', 'bg-foreground');
+          autoOpenThumb.classList.add('translate-x-[3px]', 'bg-muted-foreground');
+        }
+
+        autoOpenControl.removeAttribute('aria-disabled');
+        autoOpenControl.removeAttribute('title');
+        autoOpenControl.style.removeProperty('pointer-events');
+        autoOpenControl.removeAttribute('tabindex');
+      }
+
+      if (behaviorControl) {
+        Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
+          var buttonText = String(button.textContent || '').trim().toLowerCase();
+          var isSameTab = buttonText === 'same tab';
+          button.classList.toggle('igcsefy-mark-scheme-pill--active', isSameTab);
+          button.disabled = true;
+          button.setAttribute('aria-disabled', 'true');
+          button.style.pointerEvents = 'none';
+          button.setAttribute('tabindex', '-1');
+          button.title = 'Turn on Auto-open mark scheme to choose a mark scheme layout.';
+        });
+      }
+    });
+  }
+
+  function holdStudyPreferencesUiOverride(nextOverride) {
+    studyPreferencesUiOverride = nextOverride;
+    studyPreferencesUiLockUntil = nextOverride ? Date.now() + 1200 : 0;
+  }
+
+  function reinforceStudyPreferencesUi(forceFn) {
+    if (typeof forceFn !== 'function') return;
+    forceFn();
+    requestAnimationFrame(function () {
+      forceFn();
+    });
+    window.setTimeout(function () {
+      forceFn();
+    }, 80);
+    window.setTimeout(function () {
+      forceFn();
+      schedulePatch();
+    }, 220);
   }
 
   function getSettingsNavButtonClass(isActive) {
@@ -2456,31 +2613,38 @@
     if (studyPreferencesControl) {
       var studyLabel = String(control.textContent || '').trim().toLowerCase();
       if (studyLabel === 'direct download') {
-        studyPreferencesUiOverride = {
+        holdStudyPreferencesUiOverride({
           pdfOpeningMode: 'direct-download',
           autoOpenMarkScheme: false,
           markSchemeOpenBehavior: 'same-tab'
-        };
+        });
         stopEvent(event);
         updateStudyPreferences({
           pdfOpeningMode: 'direct-download',
           autoOpenMarkScheme: false,
           markSchemeOpenBehavior: 'same-tab'
         }, { schedule: false });
-        forceDirectDownloadStudyPreferencesUi();
-        requestAnimationFrame(function () {
-          forceDirectDownloadStudyPreferencesUi();
-          schedulePatch();
-        });
+        reinforceStudyPreferencesUi(forceDirectDownloadStudyPreferencesUi);
         return;
       } else if (studyLabel === 'preview first') {
-        studyPreferencesUiOverride = null;
-        window.setTimeout(schedulePatch, 0);
+        holdStudyPreferencesUiOverride({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: false,
+          markSchemeOpenBehavior: 'same-tab'
+        });
+        stopEvent(event);
+        updateStudyPreferences({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: false,
+          markSchemeOpenBehavior: 'same-tab'
+        }, { schedule: false });
+        reinforceStudyPreferencesUi(forcePreviewStudyPreferencesUi);
+        return;
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
-        studyPreferencesUiOverride = null;
+        holdStudyPreferencesUiOverride(null);
         window.setTimeout(schedulePatch, 0);
       } else if (control.getAttribute && control.getAttribute('role') === 'switch') {
-        studyPreferencesUiOverride = null;
+        holdStudyPreferencesUiOverride(null);
         window.setTimeout(schedulePatch, 0);
       }
     }
