@@ -786,6 +786,17 @@
     return next.appearance;
   }
 
+  function applySegmentedButtonState(button, isActive) {
+    if (!button || !button.classList) return;
+
+    button.classList.toggle('bg-card', isActive);
+    button.classList.toggle('text-foreground', isActive);
+    button.classList.toggle('shadow-sm', isActive);
+    button.classList.toggle('border', isActive);
+    button.classList.toggle('border-border', isActive);
+    button.classList.toggle('text-muted-foreground', !isActive);
+  }
+
   function getPaperTargets() {
     return sanitizePaperTargets(loadSettings().studyPreferences.paperTargets);
   }
@@ -1807,7 +1818,7 @@
           if (button.dataset) {
             button.dataset.state = isDirectDownload ? 'active' : 'inactive';
           }
-          button.classList.toggle('bg-card', isDirectDownload);
+          applySegmentedButtonState(button, isDirectDownload);
         });
       }
 
@@ -1933,7 +1944,7 @@
           if (button.dataset) {
             button.dataset.state = isPreviewFirst ? 'active' : 'inactive';
           }
-          button.classList.toggle('bg-card', isPreviewFirst);
+          applySegmentedButtonState(button, isPreviewFirst);
         });
       }
 
