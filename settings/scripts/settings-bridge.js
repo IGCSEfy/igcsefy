@@ -766,6 +766,26 @@
     return next.studyPreferences;
   }
 
+  function updateAppearanceSettings(patch, options) {
+    var current = loadSettings();
+    var next = saveSettings({
+      appearance: Object.assign({}, current.appearance, patch || {}),
+      studyPreferences: current.studyPreferences
+    });
+
+    if (Object.prototype.hasOwnProperty.call((patch || {}), 'theme')) {
+      applyResolvedDocumentTheme(next.appearance.theme);
+    }
+
+    if (!options || options.schedule !== false) {
+      schedulePatch();
+    }
+
+    syncStoredSettingsIfNeeded();
+
+    return next.appearance;
+  }
+
   function getPaperTargets() {
     return sanitizePaperTargets(loadSettings().studyPreferences.paperTargets);
   }
@@ -1480,8 +1500,6 @@
     var behaviorDisabled;
     var effectivePdfOpeningMode;
     var effectiveAutoOpenMarkScheme;
-    var domPdfOpeningMode;
-    var domAutoOpenMarkScheme;
     var autoOpenThumb;
 
     function findSettingRow(label) {
@@ -1586,23 +1604,7 @@
       heading = section.querySelector('[data-igcsefy-mark-scheme-heading]');
 
       effectivePdfOpeningMode = settings.pdfOpeningMode;
-      domPdfOpeningMode = getSegmentedValue(pdfOpeningControl, '');
-      if (
-        !(overrideSettings && Object.prototype.hasOwnProperty.call(overrideSettings, 'pdfOpeningMode'))
-        && effectivePdfOpeningMode !== 'direct-download'
-        && domPdfOpeningMode
-      ) {
-        effectivePdfOpeningMode = domPdfOpeningMode;
-      }
-
       effectiveAutoOpenMarkScheme = settings.autoOpenMarkScheme;
-      domAutoOpenMarkScheme = isSwitchChecked(autoOpenControl, settings.autoOpenMarkScheme);
-      if (
-        !(overrideSettings && Object.prototype.hasOwnProperty.call(overrideSettings, 'autoOpenMarkScheme'))
-        && effectivePdfOpeningMode !== 'direct-download'
-      ) {
-        effectiveAutoOpenMarkScheme = domAutoOpenMarkScheme;
-      }
 
       if (effectivePdfOpeningMode === 'direct-download') {
         if (settings.autoOpenMarkScheme || settings.markSchemeOpenBehavior !== 'same-tab') {
@@ -1849,7 +1851,7 @@
     });
   }
 
-  function forcePreviewStudyPreferencesUi() {
+  function forcePreviewAutoOpenStudyPreferencesUi(isEnabled, behaviorValue) {
     var section = document.getElementById('study-preferences');
     var pdfOpeningRow;
     var pdfOpeningControl;
@@ -1864,6 +1866,8 @@
     var behaviorLabel;
     var behaviorDescription;
     var autoOpenThumb;
+    var normalizedBehavior = normalizeMarkSchemeOpenBehavior(behaviorValue);
+    var behaviorDisabled = !isEnabled;
 
     function findSettingRow(label) {
       return Array.from(section.querySelectorAll('.py-1')).find(function (row) {
@@ -1897,7 +1901,8 @@
 
       autoOpenRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--toggle');
       autoOpenRow.classList.remove('igcsefy-mark-scheme-row--disabled');
-      behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior', 'igcsefy-mark-scheme-row--disabled');
+      behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior');
+      behaviorRow.classList.toggle('igcsefy-mark-scheme-row--disabled', behaviorDisabled);
 
       if (autoOpenLabel) {
         autoOpenLabel.textContent = 'Auto-open mark scheme';
@@ -1909,7 +1914,9 @@
         behaviorLabel.textContent = 'Opening behaviour';
       }
       if (behaviorDescription) {
-        behaviorDescription.textContent = 'Turn on Auto-open mark scheme to choose how it opens.';
+        behaviorDescription.textContent = behaviorDisabled
+          ? 'Turn on Auto-open mark scheme to choose how it opens.'
+          : getBehaviorDescription(normalizedBehavior);
       }
 
       if (pdfOpeningControl) {
@@ -1933,20 +1940,22 @@
       if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
         autoOpenThumb = autoOpenControl.querySelector ? autoOpenControl.querySelector('span') : null;
 
-        autoOpenControl.setAttribute('aria-checked', 'false');
-        autoOpenControl.setAttribute('data-state', 'unchecked');
+        autoOpenControl.setAttribute('aria-checked', isEnabled ? 'true' : 'false');
+        autoOpenControl.setAttribute('data-state', isEnabled ? 'checked' : 'unchecked');
         autoOpenControl.disabled = false;
         if ('checked' in autoOpenControl) {
-          autoOpenControl.checked = false;
+          autoOpenControl.checked = isEnabled;
         }
         if (autoOpenControl.classList) {
-          autoOpenControl.classList.remove('bg-foreground/20');
-          autoOpenControl.classList.add('bg-secondary/60');
+          autoOpenControl.classList.toggle('bg-foreground/20', isEnabled);
+          autoOpenControl.classList.toggle('bg-secondary/60', !isEnabled);
         }
 
         if (autoOpenThumb && autoOpenThumb.classList) {
-          autoOpenThumb.classList.remove('translate-x-[22px]', 'bg-foreground');
-          autoOpenThumb.classList.add('translate-x-[3px]', 'bg-muted-foreground');
+          autoOpenThumb.classList.toggle('translate-x-[22px]', isEnabled);
+          autoOpenThumb.classList.toggle('bg-foreground', isEnabled);
+          autoOpenThumb.classList.toggle('translate-x-[3px]', !isEnabled);
+          autoOpenThumb.classList.toggle('bg-muted-foreground', !isEnabled);
         }
 
         autoOpenControl.removeAttribute('aria-disabled');
@@ -1958,16 +1967,33 @@
       if (behaviorControl) {
         Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
           var buttonText = String(button.textContent || '').trim().toLowerCase();
-          var isSameTab = buttonText === 'same tab';
-          button.classList.toggle('igcsefy-mark-scheme-pill--active', isSameTab);
-          button.disabled = true;
-          button.setAttribute('aria-disabled', 'true');
-          button.style.pointerEvents = 'none';
-          button.setAttribute('tabindex', '-1');
-          button.title = 'Turn on Auto-open mark scheme to choose a mark scheme layout.';
+          var value = buttonText === 'side by side' ? 'side-by-side' : 'same-tab';
+          var isActive = !behaviorDisabled && value === normalizedBehavior;
+          button.classList.toggle('igcsefy-mark-scheme-pill--active', isActive);
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isActive ? 'active' : 'inactive';
+          }
+          button.disabled = behaviorDisabled;
+          if (behaviorDisabled) {
+            button.setAttribute('aria-disabled', 'true');
+            button.style.pointerEvents = 'none';
+            button.setAttribute('tabindex', '-1');
+            button.title = 'Turn on Auto-open mark scheme to choose a mark scheme layout.';
+          } else {
+            button.removeAttribute('aria-disabled');
+            button.style.removeProperty('pointer-events');
+            button.removeAttribute('tabindex');
+            button.removeAttribute('title');
+          }
         });
       }
     });
+  }
+
+  function forcePreviewStudyPreferencesUi() {
+    forcePreviewAutoOpenStudyPreferencesUi(false, 'same-tab');
   }
 
   function holdStudyPreferencesUiOverride(nextOverride) {
@@ -2600,6 +2626,9 @@
       ? event.target.closest('.igcsefy-mark-scheme-row--disabled')
       : null;
     var studyPreferencesControl;
+    var studyPreferencesRow;
+    var studyPreferencesRowTitle;
+    var appearanceControl;
     var settingsNavControl;
 
     if (disabledMarkSchemeRow) {
@@ -2611,6 +2640,10 @@
 
     studyPreferencesControl = control.closest('#study-preferences');
     if (studyPreferencesControl) {
+      studyPreferencesRow = control.closest('.py-1');
+      studyPreferencesRowTitle = studyPreferencesRow && studyPreferencesRow.firstElementChild && studyPreferencesRow.firstElementChild.querySelector
+        ? studyPreferencesRow.firstElementChild.querySelector('p')
+        : null;
       var studyLabel = String(control.textContent || '').trim().toLowerCase();
       if (studyLabel === 'direct download') {
         holdStudyPreferencesUiOverride({
@@ -2641,15 +2674,83 @@
         reinforceStudyPreferencesUi(forcePreviewStudyPreferencesUi);
         return;
       } else if (studyLabel === 'same tab' || studyLabel === 'side by side') {
-        holdStudyPreferencesUiOverride(null);
-        window.setTimeout(schedulePatch, 0);
+        var nextBehaviorValue = studyLabel === 'side by side' ? 'side-by-side' : 'same-tab';
+        var behaviorStudyPreferences = loadSettings().studyPreferences;
+        holdStudyPreferencesUiOverride({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: true,
+          markSchemeOpenBehavior: nextBehaviorValue
+        });
+        stopEvent(event);
+        updateStudyPreferences({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: true,
+          markSchemeOpenBehavior: nextBehaviorValue
+        }, { schedule: false });
+        reinforceStudyPreferencesUi(function () {
+          forcePreviewAutoOpenStudyPreferencesUi(
+            true,
+            nextBehaviorValue || behaviorStudyPreferences.markSchemeOpenBehavior
+          );
+        });
+        return;
+      } else if (
+        control.getAttribute
+        && control.getAttribute('role') === 'switch'
+        && studyPreferencesRowTitle
+        && String(studyPreferencesRowTitle.textContent || '').trim() === 'Auto-open mark scheme'
+      ) {
+        var currentStudyPreferences = loadSettings().studyPreferences;
+        var nextAutoOpenMarkScheme = !currentStudyPreferences.autoOpenMarkScheme;
+        var nextMarkSchemeOpenBehavior = nextAutoOpenMarkScheme
+          ? normalizeMarkSchemeOpenBehavior(currentStudyPreferences.markSchemeOpenBehavior)
+          : 'same-tab';
+        holdStudyPreferencesUiOverride({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: nextAutoOpenMarkScheme,
+          markSchemeOpenBehavior: nextMarkSchemeOpenBehavior
+        });
+        stopEvent(event);
+        updateStudyPreferences({
+          pdfOpeningMode: 'preview',
+          autoOpenMarkScheme: nextAutoOpenMarkScheme,
+          markSchemeOpenBehavior: nextMarkSchemeOpenBehavior
+        }, { schedule: false });
+        reinforceStudyPreferencesUi(function () {
+          forcePreviewAutoOpenStudyPreferencesUi(
+            nextAutoOpenMarkScheme,
+            nextMarkSchemeOpenBehavior
+          );
+        });
+        return;
       } else if (control.getAttribute && control.getAttribute('role') === 'switch') {
         holdStudyPreferencesUiOverride(null);
         window.setTimeout(schedulePatch, 0);
       }
     }
 
-    if (control.closest('#appearance')) {
+    appearanceControl = control.closest('#appearance');
+    if (appearanceControl) {
+      var appearanceLabel = String(control.textContent || '').trim().toLowerCase();
+      if (appearanceLabel === 'light' || appearanceLabel === 'dark' || appearanceLabel === 'system') {
+        stopEvent(event);
+        updateAppearanceSettings({
+          theme: appearanceLabel
+        }, { schedule: false });
+        schedulePatch();
+        return;
+      }
+
+      if (control.getAttribute && control.getAttribute('role') === 'switch') {
+        stopEvent(event);
+        var currentAppearance = loadSettings().appearance;
+        updateAppearanceSettings({
+          reducedMotion: !currentAppearance.reducedMotion
+        }, { schedule: false });
+        schedulePatch();
+        return;
+      }
+
       window.setTimeout(schedulePatch, 0);
     }
 
