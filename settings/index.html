@@ -43,7 +43,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/nav.css?v=20260411b">
 <link rel="stylesheet" href="/settings/styles/index-DPrSX0si.css">
-  <link rel="stylesheet" href="/settings/styles/overrides.css?v=20260411c">
+  <link rel="stylesheet" href="/settings/styles/overrides.css?v=20260413n">
 </head>
 <body data-settings-page="true" data-site-nav-preserve-header="true">
 <script src="/assets/supabase-loading-screen.js?v=20260409k"></script>
@@ -52,8 +52,106 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script defer src="/assets/supabase-progress.js?v=20260410m"></script>
 <script defer src="/assets/user-identity.js?v=20260410j"></script>
-<script defer src="/assets/nav.js?v=20260412c"></script>
+<script defer src="/assets/nav.js?v=20260413a"></script>
 <script type="module" src="/settings/scripts/index-DJ4_c7Og.js"></script>
-<script defer src="/settings/scripts/settings-bridge.js?v=20260412m"></script>
+<script defer src="/settings/scripts/settings-bridge.js?v=20260413t"></script>
+<script>
+(() => {
+  const SECTION_LABELS = {
+    appearance: 'Appearance',
+    account: 'Account',
+    'study-preferences': 'Study Preferences',
+    'paper-targets': 'Paper Targets',
+    'data-privacy': 'Data & Privacy',
+    help: 'Help'
+  };
+
+  function normalizeRequestedSection(value) {
+    const normalized = String(value || '').trim().toLowerCase();
+    return {
+      appearance: 'appearance',
+      account: 'account',
+      'study-preferences': 'study-preferences',
+      'study preferences': 'study-preferences',
+      'paper-targets': 'paper-targets',
+      'paper targets': 'paper-targets',
+      'data-privacy': 'data-privacy',
+      'data privacy': 'data-privacy',
+      help: 'help'
+    }[normalized] || '';
+  }
+
+  function getRequestedSectionFromLocation() {
+    try {
+      const url = new URL(window.location.href);
+      return normalizeRequestedSection(url.searchParams.get('section') || String(url.hash || '').replace(/^#/, ''));
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function getRequestedSectionTarget(sectionId) {
+    if (sectionId === 'paper-targets') {
+      return document.querySelector('#paper-targets[data-igcsefy-custom-section="paper-targets"]') || document.getElementById('paper-targets');
+    }
+    return document.getElementById(sectionId);
+  }
+
+  function isVisibleTarget(node) {
+    if (!node || node.hidden) return false;
+    if (node.getAttribute && node.getAttribute('aria-hidden') === 'true') return false;
+    const style = window.getComputedStyle(node);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }
+
+  function clearRequestedSectionFromLocation() {
+    try {
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('section')) url.searchParams.delete('section');
+      if (url.searchParams.has('search-nav')) url.searchParams.delete('search-nav');
+      url.hash = '';
+      window.history.replaceState({}, document.title, url.pathname + url.search);
+    } catch (error) {}
+  }
+
+  function activateRequestedSection() {
+    const requestedSectionId = getRequestedSectionFromLocation();
+    let attempts = 0;
+
+    if (!requestedSectionId) return;
+
+    function run() {
+      const target = getRequestedSectionTarget(requestedSectionId);
+      if (isVisibleTarget(target)) {
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+        clearRequestedSectionFromLocation();
+        return;
+      }
+
+      const label = SECTION_LABELS[requestedSectionId];
+      const button = Array.from(document.querySelectorAll('#root nav button')).find((node) => {
+        return String(node.textContent || '').trim() === label;
+      });
+
+      if (button) {
+        button.click();
+      }
+
+      attempts += 1;
+      if (attempts < 30) {
+        window.setTimeout(run, 140);
+      }
+    }
+
+    window.setTimeout(run, 420);
+  }
+
+  if (document.readyState === 'complete') {
+    activateRequestedSection();
+  } else {
+    window.addEventListener('load', activateRequestedSection, { once: true });
+  }
+})();
+</script>
 </body>
 </html>

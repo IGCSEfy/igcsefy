@@ -3848,11 +3848,7 @@ async function renderSyllabus(root, data, subjectMeta, zipContext, preloadedCssT
             block: 'center'
           });
         }
-        flashFocusTargets(
-          lineTarget
-            ? [{ node: lineTarget, className: 'is-search-target' }]
-            : [{ node: item.rowButton, className: 'is-search-section-target' }]
-        );
+        flashFocusTargets([]);
       });
     }, delay);
   }

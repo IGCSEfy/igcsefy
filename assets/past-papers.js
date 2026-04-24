@@ -367,12 +367,13 @@ function normalizePastPaperFileKind(value) {
   const normalized = String(value || "").trim().toLowerCase();
   if (normalized === "ms") return "ms";
   if (normalized === "qp") return "qp";
+  if (normalized === "ci") return "ci";
   return normalized;
 }
 
 function stripPastPaperKindSuffix(label) {
   return String(label || "")
-    .replace(/\s*[·-]\s*(QP|MS)\s*$/i, "")
+    .replace(/\s*[·-]\s*(QP|MS|CI)\s*$/i, "")
     .trim();
 }
 
@@ -407,14 +408,19 @@ function getPastPaperDocumentFromTrigger(trigger, fallbackKind) {
   }
 
   const kind = normalizePastPaperFileKind(trigger.getAttribute("data-file-kind") || fallbackKind || "");
-  const resolvedKind = kind === "ms" ? "ms" : "qp";
+  const resolvedKind = kind === "ms" || kind === "ci" ? kind : "qp";
+  const shortLabel = resolvedKind === "ms"
+    ? "Mark Scheme"
+    : resolvedKind === "ci"
+      ? "CI"
+      : "Question Paper";
 
   return {
     kind: resolvedKind,
     href,
     label: getPastPaperLabelFromTrigger(trigger),
     fileName: getPastPaperFileName(href),
-    shortLabel: resolvedKind === "ms" ? "Mark Scheme" : "Question Paper"
+    shortLabel
   };
 }
 
@@ -4433,13 +4439,116 @@ const BUS0450_FILESET = new Set([
 
 
 
+let PAST_PAPER_FILES = null;
+async function loadPastPaperFiles(){
+  if(PAST_PAPER_FILES) return PAST_PAPER_FILES;
+  try{
+    const res = await fetch("/assets/past-paper-files.json", {cache:"force-cache"});
+    if(!res.ok) throw new Error("past paper manifest fetch failed");
+    PAST_PAPER_FILES = await res.json();
+  }catch(e){
+    PAST_PAPER_FILES = {};
+  }
+  return PAST_PAPER_FILES;
+}
+
+function getPastPaperSessionNode(subjectSlug, year, sessionCode){
+  if(!PAST_PAPER_FILES) return null;
+  const subjectNode = PAST_PAPER_FILES[subjectSlug];
+  if(!subjectNode) return null;
+  const yearNode = subjectNode[String(year)];
+  if(!yearNode) return null;
+  return yearNode[sessionCode] || null;
+}
+
+function getVariantManifestFile(subjectSlug, year, sessionCode, type, variant){
+  const sessionNode = getPastPaperSessionNode(subjectSlug, year, sessionCode);
+  const normalizedVariant = String(variant || "");
+  const paperNumber = normalizedVariant.charAt(0);
+  let filesForPaper;
+
+  if(!sessionNode || !normalizedVariant || !paperNumber) return "";
+
+  if(type === "qp" || type === "ms"){
+    filesForPaper = sessionNode[type] && sessionNode[type][paperNumber];
+    return filesForPaper && filesForPaper[normalizedVariant] ? filesForPaper[normalizedVariant] : "";
+  }
+
+  if(type === "in"){
+    if(sessionNode.in && typeof sessionNode.in[normalizedVariant] === "string"){
+      return sessionNode.in[normalizedVariant];
+    }
+    filesForPaper = sessionNode.in && sessionNode.in[paperNumber];
+    return filesForPaper && filesForPaper[normalizedVariant] ? filesForPaper[normalizedVariant] : "";
+  }
+
+  if(type === "ci"){
+    return ((sessionNode.ci || []).find(item => item && item.file && item.file.endsWith(`_${normalizedVariant}.pdf`)) || {}).file || "";
+  }
+
+  return "";
+}
+
+function getSessionVariantMap(subjectSlug, year, sessionCode, type){
+  const sessionNode = getPastPaperSessionNode(subjectSlug, year, sessionCode);
+  const map = {};
+
+  if(!sessionNode) return map;
+
+  if(type === "in"){
+    Object.keys(sessionNode.in || {}).forEach(function(key){
+      const value = sessionNode.in[key];
+      if(typeof value === "string"){
+        map[String(key)] = value;
+        return;
+      }
+      Object.keys(value || {}).forEach(function(variant){
+        map[String(variant)] = value[variant];
+      });
+    });
+    return map;
+  }
+
+  if(type === "ci"){
+    (sessionNode.ci || []).forEach(function(item){
+      var file = item && item.file ? String(item.file) : "";
+      var match = file.match(/_(\d{2})\.pdf$/);
+      if(match){
+        map[match[1]] = file;
+      }
+    });
+    return map;
+  }
+
+  return map;
+}
+
+function getSessionSeriesFile(subjectSlug, year, sessionCode, type){
+  const sessionNode = getPastPaperSessionNode(subjectSlug, year, sessionCode);
+  const entries = sessionNode && Array.isArray(sessionNode[type]) ? sessionNode[type] : null;
+  return entries && entries[0] && entries[0].file ? entries[0].file : "";
+}
+
 let SESSION_LEVEL_FILES = null;
 async function loadSessionLevelFiles(){
   if(SESSION_LEVEL_FILES) return SESSION_LEVEL_FILES;
   try{
-    const res = await fetch("/assets/session-level-files.json", {cache:"no-store"});
-    if(!res.ok) throw new Error("manifest fetch failed");
-    SESSION_LEVEL_FILES = await res.json();
+    const files = await loadPastPaperFiles();
+    SESSION_LEVEL_FILES = {};
+    Object.keys(files).forEach(function(subjectSlug){
+      SESSION_LEVEL_FILES[subjectSlug] = {};
+      Object.keys(files[subjectSlug] || {}).forEach(function(year){
+        SESSION_LEVEL_FILES[subjectSlug][year] = {};
+        Object.keys(files[subjectSlug][year] || {}).forEach(function(sessionCode){
+          const extras = {};
+          const gt = getSessionSeriesFile(subjectSlug, year, sessionCode, "gt");
+          const er = getSessionSeriesFile(subjectSlug, year, sessionCode, "er");
+          if(gt) extras.gt = gt;
+          if(er) extras.er = er;
+          SESSION_LEVEL_FILES[subjectSlug][year][sessionCode] = extras;
+        });
+      });
+    });
   }catch(e){
     SESSION_LEVEL_FILES = {};
   }
@@ -4451,9 +4560,19 @@ let INSERT_FILES = null;
 async function loadInsertFiles(){
   if(INSERT_FILES) return INSERT_FILES;
   try{
-    const res = await fetch("/assets/insert-files.json", {cache:"no-store"});
-    if(!res.ok) throw new Error("insert manifest fetch failed");
-    INSERT_FILES = await res.json();
+    const files = await loadPastPaperFiles();
+    INSERT_FILES = {};
+    Object.keys(files).forEach(function(subjectSlug){
+      INSERT_FILES[subjectSlug] = {};
+      Object.keys(files[subjectSlug] || {}).forEach(function(year){
+        INSERT_FILES[subjectSlug][year] = {};
+        Object.keys(files[subjectSlug][year] || {}).forEach(function(sessionCode){
+          INSERT_FILES[subjectSlug][year][sessionCode] = {
+            variants: getSessionVariantMap(subjectSlug, year, sessionCode, "in")
+          };
+        });
+      });
+    });
   }catch(e){
     INSERT_FILES = {};
   }
@@ -4490,52 +4609,35 @@ function buildFilePath(subjectSlug, code, year, session, type, variant) {
 }
 
 function hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, type, variant) {
-  const isMath0580 = subjectSlug === "mathematics-0580" && cfg && cfg.code === "0580";
-  const isPhys0625 = subjectSlug === "physics-0625" && cfg && cfg.code === "0625";
-  const isFle0500 = subjectSlug === "english-first-language-0500" && cfg && cfg.code === "0500";
-  const isEcon0455 = subjectSlug === "economics-0455" && cfg && cfg.code === "0455";
-  const isAcc0452 = subjectSlug === "accounting-0452" && cfg && cfg.code === "0452";
-  const isCs0478 = subjectSlug === "computer-science-0478" && cfg && cfg.code === "0478";
-  const isBus0450 = subjectSlug === "business-studies-0450" && cfg && cfg.code === "0450";
-
-  // Oct/Nov 2025 is now available site-wide.
-  if (year === 2025 && sessionCode === "w") return true;
-
-  // Availability pruning is subject-specific and only enabled for subjects we've pruned with a real ZIP.
-  if (isMath0580) {
-    return MATH0580_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isPhys0625) {
-    return PHYS0625_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isFle0500) {
-    return FLE0500_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isEcon0455) {
-    return ECON0455_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isAcc0452) {
-    return ACC0452_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isCs0478) {
-    return CS0478_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  if (isBus0450) {
-    return BUS0450_FILESET.has(buildFilePath(subjectSlug, cfg.code, year, sessionCode, type, variant));
-  }
-  return true;
+  return !!getVariantManifestFile(subjectSlug, year, sessionCode, type, variant);
 }
 
 function getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper) {
-  const qpVariants = (paper && paper.qpVariants ? paper.qpVariants : []).filter(variant =>
-    hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", variant)
-  );
-  const msVariants = (paper && paper.msVariants ? paper.msVariants : []).filter(variant =>
-    hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", variant)
-  );
+  const paperNumber = String(getPaperNumberFromDefinition(paper) || "");
+  const sessionNode = getPastPaperSessionNode(subjectSlug, year, sessionCode);
+  const ciMap = getSessionVariantMap(subjectSlug, year, sessionCode, "ci");
+  const variants = new Set();
 
-  return Array.from(new Set([...(qpVariants || []), ...(msVariants || [])]))
-    .sort((a, b) => Number(a) - Number(b));
+  if(sessionNode && paperNumber){
+    ["qp", "ms"].forEach(function(type){
+      var paperFiles = sessionNode[type] && sessionNode[type][paperNumber];
+      Object.keys(paperFiles || {}).forEach(function(variant){
+        variants.add(String(variant));
+      });
+    });
+    Object.keys(getSessionVariantMap(subjectSlug, year, sessionCode, "in")).forEach(function(variant){
+      if(String(variant).charAt(0) === paperNumber){
+        variants.add(String(variant));
+      }
+    });
+    Object.keys(ciMap).forEach(function(variant){
+      if(String(variant).charAt(0) === paperNumber){
+        variants.add(String(variant));
+      }
+    });
+  }
+
+  return Array.from(variants).sort((a, b) => Number(a) - Number(b));
 }
 
 
@@ -4573,6 +4675,7 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
   const sessionCode = session;
   const sessionYearShort = String(year).slice(-2);
   const idBase = `${subjectSlug}-${year}-${sessionCode}`;
+  const ciMap = getSessionVariantMap(subjectSlug, year, sessionCode, "ci");
 
   // Build paper rows first so we can skip empty sessions cleanly (no empty cards / headers)
   const sections = getPaperSections(subjectSlug, cfg);
@@ -4588,12 +4691,10 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 		      const paperKeyBase = `${subjectSlug}|${cfg.code}|${year}|${sessionCode}|p${thisPaperIdx}`;
 		      paperIdx += 1;
 
-		      const qpVariants = (paper.qpVariants || []).filter(v => hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", v));
-		      const msVariants = (paper.msVariants || []).filter(v => hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", v));
 		      const variantRows = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
       // If nothing exists for this paper in this series, remove the whole row
-      if (qpVariants.length === 0 && msVariants.length === 0) return;
+      if (variantRows.length === 0) return;
 
       anyRows = true;
 
@@ -4608,12 +4709,12 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
       `;
 
       
-      // Insert dropdown (per-paper) — renders instantly using assets/insert-files.json (no delayed fetch probing).
+      // Insert dropdown (per-paper) — renders instantly from the real file manifest.
       // Only shown if an insert file exists for any variant in this paper row.
       const insertMap = getInsertMap(subjectSlug, year, sessionCode);
       if (insertMap) {
         const insertPanelId = `${idBase}-p${thisPaperIdx}-in`;
-        const insertVariants = Array.from(new Set([...(qpVariants||[]), ...(msVariants||[])]));
+        const insertVariants = variantRows.slice();
         const foundInserts = [];
         insertVariants.forEach(v => {
           const fileName = insertMap[v];
@@ -4641,17 +4742,19 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 	        </div>
 	      `;
 
-		// Variant rows (inline per-paper QP/MS actions)
+		// Variant rows (inline per-paper QP/MS/CI actions)
 		      if (variantRows.length) {
 		        rowHtml += `
 		          <div class="pp-variant-list">
 		        `;
 		        variantRows.forEach(variant => {
-		          const hasQP = qpVariants.includes(variant);
-		          const hasMS = msVariants.includes(variant);
-		          const qpHref = hasQP ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "qp", variant) : "";
-	          const msHref = hasMS ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "ms", variant) : "";
-		          const trackKey = hasQP
+		          const qpFile = getVariantManifestFile(subjectSlug, year, sessionCode, "qp", variant);
+		          const msFile = getVariantManifestFile(subjectSlug, year, sessionCode, "ms", variant);
+		          const ciFile = ciMap[String(variant)] || "";
+		          const qpHref = qpFile ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${qpFile}` : "";
+	          const msHref = msFile ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${msFile}` : "";
+	          const ciHref = ciFile ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${ciFile}` : "";
+		          const trackKey = qpHref
 		            ? `${paperKeyBase}|qp|v${variant}`
 		            : `${paperKeyBase}|ms|v${variant}`;
 				          rowHtml += `
@@ -4662,8 +4765,9 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 					                </div>
 					                <div class="pp-variant-actions">
 					                  ${buildVariantStatusControl(trackKey)}
-					                  ${hasQP ? `<a href="${qpHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${qpHref}" data-file-kind="qp" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · QP`)}">QP</a>` : ""}
-					                  ${hasMS ? `<a href="${msHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${msHref}" data-file-kind="ms" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · MS`)}">MS</a>` : ""}
+					                  ${qpHref ? `<a href="${qpHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${qpHref}" data-file-kind="qp" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · QP`)}">QP</a>` : ""}
+					                  ${msHref ? `<a href="${msHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${msHref}" data-file-kind="ms" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · MS`)}">MS</a>` : ""}
+					                  ${ciHref ? `<a href="${ciHref}" class="pp-toggle pp-variant-action" download data-paper-file="true" data-file-href="${ciHref}" data-file-kind="ci" data-track-key="${trackKey}" data-file-label="${escapePastPaperHtml(`${paper.label} · Variant ${variant} · CI`)}">CI</a>` : ""}
 					                </div>
 					              </div>
 				            </div>
@@ -4693,7 +4797,7 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
   // If this series has zero rows, remove the entire session card
   if (!anyRows) return "";
 
-  // Session-level extras (GT / ER / CI) live once per session folder, not per paper row.
+  // Session-level extras (GT / ER) live once per session folder, not per paper row.
   const extras = getSessionExtras(subjectSlug, year, sessionCode);
   let extrasHtml = "";
   if (extras) {
@@ -4705,11 +4809,6 @@ function buildSeriesCard(subjectSlug, cfg, year, session) {
 	    }
 	    if (extras.er) {
 	      pills.push(`<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="er" data-href="${base}${extras.er}" data-file-label="Examiner Report">Examiner Report</button>`);
-	    }
-	    if (extras.ci && Array.isArray(extras.ci) && extras.ci.length) {
-	      // If multiple CI files exist, use the first as the primary download (still correct + avoids clutter).
-	      const ciFile = extras.ci[0];
-	      pills.push(`<button class="pp-toggle pp-session-file" type="button" data-paper-file="true" data-file-kind="ci" data-href="${base}${ciFile}" data-file-label="Confidential Instructions">Confidential Instructions</button>`);
 	    }
 
     if (pills.length) {
@@ -4783,18 +4882,23 @@ const PAST_PAPER_SEARCH_SUBJECT_ALIASES = {
 
 function getRenderablePastPaperYears(subjectSlug, cfg) {
   const years = [...(cfg.years || [])].sort((a, b) => b - a);
-  const isMath0580 = subjectSlug === "mathematics-0580" && cfg.code === "0580";
-  const isPhys0625 = subjectSlug === "physics-0625" && cfg.code === "0625";
+  const subjectNode = PAST_PAPER_FILES && PAST_PAPER_FILES[subjectSlug];
 
-  if (!(isMath0580 || isPhys0625)) return years;
+  if(!subjectNode) return years;
 
-  const set = isMath0580 ? MATH0580_FILESET : PHYS0625_FILESET;
-  return years.filter(year => {
-    const prefix = `/past-papers/${subjectSlug}/${year}/`;
-    for (const path of set) {
-      if (path.startsWith(prefix)) return true;
-    }
-    return false;
+  return years.filter(function(year){
+    const yearNode = subjectNode[String(year)];
+    if(!yearNode) return false;
+
+    return Object.keys(yearNode).some(function(sessionCode){
+      const sessionNode = yearNode[sessionCode] || {};
+      return Object.keys(sessionNode.qp || {}).length
+        || Object.keys(sessionNode.ms || {}).length
+        || Object.keys(sessionNode.in || {}).length
+        || (sessionNode.ci || []).length
+        || (sessionNode.er || []).length
+        || (sessionNode.gt || []).length;
+    });
   });
 }
 
@@ -6196,9 +6300,6 @@ function buildSubjectPastPapersZipSessionExtras(subjectSlug, year, sessionCode){
     if(sessionExtras.er){
       extras.push({ type: "er", label: "Examiner Report", href: `${base}${sessionExtras.er}` });
     }
-    if(Array.isArray(sessionExtras.ci) && sessionExtras.ci.length){
-      extras.push({ type: "ci", label: "Confidential Instructions", href: `${base}${sessionExtras.ci[0]}` });
-    }
   }
 
   return extras;
@@ -6225,15 +6326,10 @@ function buildSubjectPastPapersZipModel(subjectSlug){
               const paperKeyBase = `${subjectSlug}|${cfg.code}|${year}|${sessionCode}|p${thisPaperIdx}`;
               paperIdx += 1;
 
-              const qpVariants = (paper.qpVariants || []).filter(variant =>
-                hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "qp", variant)
-              );
-              const msVariants = (paper.msVariants || []).filter(variant =>
-                hasAvailablePastPaperFile(subjectSlug, cfg, year, sessionCode, "ms", variant)
-              );
+              const ciMap = getSessionVariantMap(subjectSlug, year, sessionCode, "ci");
               const variants = getAvailableTrackerVariants(subjectSlug, cfg, year, sessionCode, paper);
 
-              if(!qpVariants.length && !msVariants.length){
+              if(!variants.length){
                 return;
               }
 
@@ -6245,24 +6341,28 @@ function buildSubjectPastPapersZipModel(subjectSlug){
                 detail: paperMeta.detail,
                 searchSource: `${paperMeta.name} ${paperMeta.detail} ${paper.label || ""}`.toLowerCase(),
                 variants: variants.map(variant => {
-                  const hasQP = qpVariants.includes(variant);
-                  const hasMS = msVariants.includes(variant);
+                  const qpFileName = getVariantManifestFile(subjectSlug, year, sessionCode, "qp", variant);
+                  const msFileName = getVariantManifestFile(subjectSlug, year, sessionCode, "ms", variant);
                   const insertMap = getInsertMap(subjectSlug, year, sessionCode);
                   const insertFileName = insertMap && insertMap[String(variant)];
+                  const ciFileName = ciMap && ciMap[String(variant)];
                   const inHref = insertFileName
                     ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${insertFileName}`
                     : "";
                   return {
                     id: `v${variant}`,
                     label: String(variant),
-                    trackKey: hasQP
+                    trackKey: qpFileName
                       ? `${paperKeyBase}|qp|v${variant}`
                       : `${paperKeyBase}|ms|v${variant}`,
-                    qpHref: hasQP
-                      ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "qp", variant)
+                    qpHref: qpFileName
+                      ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${qpFileName}`
                       : "",
-                    msHref: hasMS
-                      ? buildFilePath(subjectSlug, cfg.code, year, sessionCode, "ms", variant)
+                    msHref: msFileName
+                      ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${msFileName}`
+                      : "",
+                    ciHref: ciFileName
+                      ? `/past-papers/${subjectSlug}/${year}/${sessionCode}/${ciFileName}`
                       : "",
                     inHref
                   };
@@ -8283,6 +8383,9 @@ async function renderSubjectPastPapersZip(container, subjectSlug, options = {}){
             ${variant.msHref
               ? `<a href="${escapePastPapersZipHtml(variant.msHref)}" download data-paper-file="true" data-file-kind="ms" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.msHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · MS`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">MS</a>`
               : ""}
+            ${variant.ciHref
+              ? `<a href="${escapePastPapersZipHtml(variant.ciHref)}" download data-paper-file="true" data-file-kind="ci" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.ciHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · CI`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">CI</a>`
+              : ""}
             ${variant.inHref
               ? `<a href="${escapePastPapersZipHtml(variant.inHref)}" download data-paper-file="true" data-file-kind="insert" data-track-key="${escapePastPapersZipHtml(variant.trackKey)}" data-file-href="${escapePastPapersZipHtml(variant.inHref)}" data-file-label="${escapePastPapersZipHtml(`${paperLabel} · Variant ${variant.label} · Insert`)}" class="pp-variant-file px-3.5 py-1.5 rounded-xl text-[11px] font-semibold text-white/50 bg-white/[0.07] hover:bg-white/[0.12] hover:text-white/85 transition-all duration-200">IN</a>`
               : ""}
@@ -8629,6 +8732,7 @@ async function renderPastPapers(){
   const prewarmPastPaperData = () => {
     if(!container.__ppDataPromise){
       container.__ppDataPromise = Promise.all([
+        loadPastPaperFiles(),
         loadSessionLevelFiles(),
         loadInsertFiles()
       ]).catch(error => {

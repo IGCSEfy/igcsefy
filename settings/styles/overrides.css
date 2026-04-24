@@ -203,6 +203,13 @@ body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmente
   text-align: center;
 }
 
+body[data-settings-page="true"] #study-preferences .inline-flex.items-center.rounded-full.p-1.border.border-border.igcsefy-mark-scheme-segmented > button,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button {
+  transition-property: color !important;
+  transition-duration: 150ms !important;
+  transition-timing-function: ease !important;
+}
+
 html.light body[data-settings-page="true"] #root .bg-destructive {
   background-color: #000000;
 }
@@ -266,18 +273,18 @@ body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-row--beh
 
 body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-control {
   width: 100%;
+  transition: none;
 }
 
+body[data-settings-page="true"] #study-preferences .inline-flex.items-center.rounded-full.p-1.border.border-border.igcsefy-mark-scheme-segmented,
 body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented {
-  display: inline-flex;
   align-items: center;
-  width: auto;
-  max-width: 100%;
   padding: 0.25rem;
   gap: 0.15rem;
   border-radius: 999px;
   border: 1px solid hsl(var(--border));
   background: rgba(255, 255, 255, 0.04);
+  transition: none !important;
 }
 
 html.light body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented {
@@ -286,10 +293,28 @@ html.light body[data-settings-page="true"] #study-preferences .igcsefy-mark-sche
 
 body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-pill {
   min-width: 0;
+  box-sizing: border-box;
 }
 
 body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-pill--active {
   box-shadow: none;
+}
+
+body[data-settings-page="true"] #appearance .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-pressed="true"],
+body[data-settings-page="true"] #appearance .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-pressed="true"]:hover,
+body[data-settings-page="true"] #study-preferences .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-pressed="true"],
+body[data-settings-page="true"] #study-preferences .inline-flex.items-center.rounded-full.p-1.border.border-border > button[aria-pressed="true"]:hover,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button[aria-pressed="true"],
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button[aria-pressed="true"]:hover,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-pill--active,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-pill--active:hover {
+  color: hsl(var(--foreground)) !important;
+}
+
+body[data-settings-page="true"] #appearance .inline-flex.items-center.rounded-full.p-1.border.border-border > button:not([disabled]):not([aria-disabled="true"]):hover,
+body[data-settings-page="true"] #study-preferences .inline-flex.items-center.rounded-full.p-1.border.border-border > button:not([disabled]):not([aria-disabled="true"]):hover,
+body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-segmented button:not([disabled]):not([aria-disabled="true"]):hover {
+  color: hsl(var(--foreground)) !important;
 }
 
 body[data-settings-page="true"] #study-preferences .igcsefy-mark-scheme-row--disabled > :first-child,

@@ -159,6 +159,31 @@ html[data-home-auth-gate="pending"] .home-page-footer {
       #root [data-home-search-host] {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root section.relative.min-h-screen > .relative.z-10 {
+        width: min(100%, 64rem);
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root section.relative.min-h-screen > .relative.z-10 h1,
+      #root section.relative.min-h-screen > .relative.z-10 p {
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none > div {
+        transform: none !important;
+        transform-style: flat !important;
+      }
+      #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none > div > div {
+        filter: none !important;
+      }
+      #root section.relative.min-h-screen .absolute.inset-0.flex.items-center.justify-center.pointer-events-none svg {
+        shape-rendering: geometricPrecision;
       }
     </style>
 <style id="signin-pill-cursor-glow-tune">
@@ -320,6 +345,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
  <script>
       const uiState = window.__igcsefyHomeUi || (window.__igcsefyHomeUi = {});
       const HOME_SEARCH_DATA_URL = "/assets/home-search-data.json";
+      const HOME_PAST_PAPER_FILE_MANIFEST_URL = "/assets/past-paper-files.json";
       const HOME_SEARCH_RECENTS_KEY = "igcsefy.home.search.recent.v1";
       const HOME_SEARCH_SELECTIONS_KEY = "igcsefy.home.search.selections.v1";
       const HOME_SEARCH_LIMITS = {
@@ -355,11 +381,164 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         { query: "business studies past papers", description: "Open a subject paper hub", icon: "book-open" },
         { query: "progress", description: "Go back to your profile", icon: "activity" }
       ];
+      const HOME_SITE_SEARCH_ROUTES = [
+        {
+          id: "page:home",
+          title: "Home",
+          subtitle: "Open the homepage",
+          badge: "Home",
+          href: "/",
+          icon: "search",
+          aliases: ["home", "homepage", "start"]
+        },
+        {
+          id: "page:subjects",
+          title: "Subjects",
+          subtitle: "Browse all subject pages",
+          badge: "Subjects",
+          href: "/subjects/",
+          icon: "book-open",
+          aliases: ["subjects", "subject"]
+        },
+        {
+          id: "page:past-papers",
+          title: "Past Papers",
+          subtitle: "Browse all past papers",
+          badge: "Past papers",
+          href: "/past-papers/",
+          icon: "file-text",
+          aliases: ["past papers", "past paper", "papers"]
+        },
+        {
+          id: "page:profile",
+          title: "Profile",
+          subtitle: "Open your profile and progress",
+          badge: "Profile",
+          href: "/profile/",
+          icon: "activity",
+          aliases: ["profile", "progress", "account", "tracked subjects"]
+        },
+        {
+          id: "page:settings",
+          title: "Settings",
+          subtitle: "Open settings and study preferences",
+          badge: "Settings",
+          href: "/settings/",
+          icon: "user",
+          aliases: ["settings", "preferences"]
+        },
+        {
+          id: "page:settings:study-preferences",
+          title: "Study Preferences",
+          subtitle: "Open study preferences in settings",
+          badge: "Settings",
+          href: "/settings/?section=study-preferences&search-nav=1",
+          icon: "user",
+          aliases: [
+            "study preferences",
+            "default subject destination",
+            "remember last subject tab",
+            "preview first",
+            "direct download",
+            "same tab",
+            "side by side",
+            "auto open mark scheme",
+            "mark scheme setting"
+          ]
+        },
+        {
+          id: "page:settings:paper-targets",
+          title: "Paper Targets",
+          subtitle: "Open paper targets in settings",
+          badge: "Settings",
+          href: "/settings/?section=paper-targets&search-nav=1",
+          icon: "user",
+          aliases: ["paper targets", "target papers", "paper target", "target progress", "paper goal", "paper goals"]
+        },
+        {
+          id: "page:settings:appearance",
+          title: "Appearance",
+          subtitle: "Open appearance settings",
+          badge: "Settings",
+          href: "/settings/?section=appearance&search-nav=1",
+          icon: "user",
+          aliases: ["appearance", "theme", "light mode", "dark mode", "reduced motion", "system theme"]
+        },
+        {
+          id: "page:settings:account",
+          title: "Account",
+          subtitle: "Open account settings",
+          badge: "Settings",
+          href: "/settings/?section=account&search-nav=1",
+          icon: "user",
+          aliases: ["account settings", "account", "change password", "sign out", "sign in", "email settings", "profile email"]
+        },
+        {
+          id: "page:settings:data-privacy",
+          title: "Data & Privacy",
+          subtitle: "Open data and privacy settings",
+          badge: "Settings",
+          href: "/settings/?section=data-privacy&search-nav=1",
+          icon: "user",
+          aliases: ["data privacy", "privacy settings", "export data", "clear recent searches", "recent searches", "delete data"]
+        },
+        {
+          id: "page:settings:help",
+          title: "Help",
+          subtitle: "Open help and support in settings",
+          badge: "Settings",
+          href: "/settings/?section=help&search-nav=1",
+          icon: "user",
+          aliases: ["help", "support", "feedback", "report a bug", "request a subject"]
+        },
+        {
+          id: "page:about",
+          title: "About IGCSEfy",
+          subtitle: "Open the About page",
+          badge: "About",
+          href: "/about/",
+          icon: "book-open",
+          aliases: ["about", "about igcsefy"]
+        },
+        {
+          id: "page:privacy",
+          title: "Privacy Policy",
+          subtitle: "Open the privacy policy",
+          badge: "Privacy",
+          href: "/privacy/",
+          icon: "file-text",
+          aliases: ["privacy", "privacy policy"]
+        },
+        {
+          id: "page:terms",
+          title: "Terms of Use",
+          subtitle: "Open the terms of use",
+          badge: "Terms",
+          href: "/terms/",
+          icon: "file-text",
+          aliases: ["terms", "terms of use"]
+        },
+        {
+          id: "page:signin",
+          title: "Sign In",
+          subtitle: "Open the sign in page",
+          badge: "Account",
+          href: "/pages/signin.html",
+          icon: "user",
+          aliases: ["sign in", "signin", "login", "log in"]
+        }
+      ];
       const SEARCH_NOISE_TOKENS = new Set([
         "account",
         "activity",
+        "ci",
+        "er",
         "march",
         "feb",
+        "grade",
+        "gt",
+        "insert",
+        "instructions",
         "june",
         "mark",
         "may",
@@ -432,6 +611,73 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
       const escapeRegex = (value) => String(value || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+      const isNumericSearchToken = (value) => /^\d+$/.test(String(value || "").trim());
+
+      const getFuzzyDistanceLimit = (left, right) => {
+        const minLength = Math.min(String(left || "").length, String(right || "").length);
+        if (minLength < 4) return 0;
+        return minLength >= 7 ? 2 : 1;
+      };
+
+      const getLevenshteinDistanceWithinLimit = (left, right, limit) => {
+        const source = String(left || "");
+        const target = String(right || "");
+        const sourceLength = source.length;
+        const targetLength = target.length;
+
+        if (source === target) return 0;
+        if (!sourceLength) return targetLength <= limit ? targetLength : limit + 1;
+        if (!targetLength) return sourceLength <= limit ? sourceLength : limit + 1;
+        if (Math.abs(sourceLength - targetLength) > limit) return limit + 1;
+
+        let previous = Array.from({ length: targetLength + 1 }, (_, index) => index);
+
+        for (let sourceIndex = 1; sourceIndex <= sourceLength; sourceIndex += 1) {
+          const current = [sourceIndex];
+          let rowMinimum = current[0];
+
+          for (let targetIndex = 1; targetIndex <= targetLength; targetIndex += 1) {
+            const substitutionCost = source[sourceIndex - 1] === target[targetIndex - 1] ? 0 : 1;
+            const value = Math.min(
+              previous[targetIndex] + 1,
+              current[targetIndex - 1] + 1,
+              previous[targetIndex - 1] + substitutionCost
+            );
+            current[targetIndex] = value;
+            if (value < rowMinimum) rowMinimum = value;
+          }
+
+          if (rowMinimum > limit) {
+            return limit + 1;
+          }
+
+          previous = current;
+        }
+
+        return previous[targetLength];
+      };
+
+      const isLooseTokenMatch = (queryToken, candidateToken) => {
+        const query = String(queryToken || "").trim();
+        const candidate = String(candidateToken || "").trim();
+
+        if (!query || !candidate) return false;
+        if (query === candidate) return true;
+        if (query.length > 1 && candidate.length > 1) {
+          if (query.startsWith(candidate) || candidate.startsWith(query)) {
+            return true;
+          }
+        }
+        if (isNumericSearchToken(query) || isNumericSearchToken(candidate)) {
+          return false;
+        }
+
+        const limit = getFuzzyDistanceLimit(query, candidate);
+        if (!limit) return false;
+
+        return getLevenshteinDistanceWithinLimit(query, candidate, limit) <= limit;
+      };
+
       const normalizeSearchText = (value) => {
         let text = String(value || "").toLowerCase();
 
@@ -464,7 +710,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         return aliasTokens.every((aliasToken) =>
           queryTokens.some((token) => {
             if (token.length < 2) return false;
-            return token === aliasToken || token.startsWith(aliasToken) || aliasToken.startsWith(token);
+            return isLooseTokenMatch(token, aliasToken);
           })
         );
       };
@@ -662,6 +908,212 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
       const buildTokenSet = (value) => new Set(normalizeSearchText(value).split(" ").filter(Boolean));
 
+      const buildPastPaperFileHref = (subjectSlug, year, sessionCode, fileName) =>
+        `/past-papers/${subjectSlug}/${year}/${sessionCode}/${fileName}`;
+
+      const extractFileNameFromHref = (href) => {
+        const cleanHref = String(href || "").split("?")[0].split("#")[0];
+        const fileName = cleanHref.split("/").pop() || "";
+        return /\.pdf$/i.test(fileName) ? fileName : "";
+      };
+
+      const extractExactPaperFileName = (rawValue) => {
+        const match = String(rawValue || "").match(
+          /\b(\d{4}_[msw]\d{2}_(?:qp|ms|ci|in)_[0-9]{2}\.pdf|\d{4}_[msw]\d{2}_(?:gt|er)\.pdf)\b/i
+        );
+        return match ? match[1].toLowerCase() : "";
+      };
+
+      const parseExactPaperFileName = (fileName) => {
+        const cleanFileName = String(fileName || "").trim().toLowerCase();
+        const variantMatch = cleanFileName.match(/^(\d{4})_([msw])(\d{2})_(qp|ms|ci|in)_([0-9]{2})\.pdf$/i);
+        if (variantMatch) {
+          const [, subjectCode, sessionCode, yearSuffix, kind, variantNumber] = variantMatch;
+          return {
+            subjectCode,
+            session: sessionCode,
+            year: 2000 + Number(yearSuffix),
+            fileIntent: kind,
+            variant: variantNumber,
+            paper: Number(variantNumber.charAt(0))
+          };
+        }
+
+        const seriesMatch = cleanFileName.match(/^(\d{4})_([msw])(\d{2})_(gt|er)\.pdf$/i);
+        if (seriesMatch) {
+          const [, subjectCode, sessionCode, yearSuffix, kind] = seriesMatch;
+          return {
+            subjectCode,
+            session: sessionCode,
+            year: 2000 + Number(yearSuffix),
+            fileIntent: kind,
+            variant: null,
+            paper: null
+          };
+        }
+
+        return null;
+      };
+
+      const buildStaticSiteSearchEntries = () =>
+        HOME_SITE_SEARCH_ROUTES.map((route) => {
+          const aliases = Array.isArray(route.aliases)
+            ? route.aliases.map(normalizeSearchText).filter(Boolean)
+            : [];
+          const searchText = normalizeSearchText([
+            route.title,
+            route.subtitle,
+            route.badge,
+            aliases.join(" ")
+          ].join(" "));
+
+          return Object.assign({}, route, {
+            aliases,
+            searchText,
+            tokenSet: buildTokenSet(searchText)
+          });
+        });
+
+      const buildDocumentSearchTitle = (subject, sessionMeta, year, kind, paperNumber, variantNumber) => {
+        if (kind === "gt") {
+          return `${subject.name} ${subject.code} • ${sessionMeta.label} ${year} • Grade Threshold`;
+        }
+        if (kind === "er") {
+          return `${subject.name} ${subject.code} • ${sessionMeta.label} ${year} • Examiner Report`;
+        }
+        if (kind === "in") {
+          return `${subject.name} ${subject.code} • ${sessionMeta.label} ${year} • Paper ${paperNumber} • Variant ${variantNumber} • Insert`;
+        }
+        if (kind === "ci") {
+          return `${subject.name} ${subject.code} • ${sessionMeta.label} ${year} • Paper ${paperNumber} • Variant ${variantNumber} • CI`;
+        }
+        return `${subject.name} ${subject.code} • ${sessionMeta.label} ${year}`;
+      };
+
+      const matchesVariantQuery = (queryVariant, entryVariant) => {
+        if (!queryVariant) return true;
+        const normalizedEntryVariant = String(entryVariant || "").trim().padStart(2, "0");
+        const normalizedQueryVariant = String(queryVariant || "").trim().padStart(2, "0");
+        if (!normalizedEntryVariant) return false;
+        return (
+          normalizedEntryVariant === normalizedQueryVariant ||
+          normalizedEntryVariant.endsWith(normalizedQueryVariant.slice(-1))
+        );
+      };
+
+      const buildDocumentSearchSubtitle = (kind) => {
+        if (kind === "ci") return "Open the confidential instructions file";
+        if (kind === "in") return "Open the insert file";
+        if (kind === "gt") return "Open the grade thresholds file";
+        if (kind === "er") return "Open the examiner report file";
+        return "Open the document file";
+      };
+
+      const buildPastPaperFileSearchEntries = (fileManifest, subjectBySlug) => {
+        if (!fileManifest || typeof fileManifest !== "object") {
+          return [];
+        }
+
+        const entries = [];
+
+        Object.entries(fileManifest).forEach(([subjectSlug, years]) => {
+          const subject = subjectBySlug.get(subjectSlug);
+          if (!subject || !years || typeof years !== "object") return;
+
+          Object.entries(years).forEach(([yearKey, sessions]) => {
+            const year = Number(yearKey);
+            if (!Number.isFinite(year) || !sessions || typeof sessions !== "object") return;
+
+            Object.entries(sessions).forEach(([sessionCode, sessionInfo]) => {
+              const sessionMeta = SESSION_META[sessionCode] || SESSION_META.s;
+              const addEntry = (kind, fileName, paperNumber, variantNumber) => {
+                const cleanFileName = String(fileName || "").trim();
+                if (!cleanFileName) return;
+
+                const title = buildDocumentSearchTitle(
+                  subject,
+                  sessionMeta,
+                  year,
+                  kind,
+                  paperNumber,
+                  variantNumber
+                );
+                const searchText = normalizeSearchText([
+                  subject.name,
+                  subject.code,
+                  subject.aliases.join(" "),
+                  cleanFileName,
+                  title,
+                  sessionMeta.label,
+                  sessionMeta.searchLabel,
+                  sessionCode,
+                  paperNumber ? `paper ${paperNumber} p ${paperNumber}` : "",
+                  variantNumber ? `variant ${variantNumber} v ${variantNumber}` : "",
+                  kind === "ci" ? "confidential instructions ci" : "",
+                  kind === "in" ? "insert inserts" : "",
+                  kind === "gt" ? "grade threshold grade thresholds gt" : "",
+                  kind === "er" ? "examiner report examiner reports er" : ""
+                ].join(" "));
+
+                entries.push({
+                  id: `paper-file:${subjectSlug}:${year}:${sessionCode}:${kind}:${paperNumber || 0}:${variantNumber || "series"}`,
+                  type: "paper-file",
+                  kind,
+                  title,
+                  subtitle: buildDocumentSearchSubtitle(kind),
+                  badge: kind.toUpperCase(),
+                  href: buildPastPaperFileHref(subjectSlug, year, sessionCode, cleanFileName),
+                  subjectSlug,
+                  subjectCode: subject.code,
+                  subjectName: subject.name,
+                  fileName: cleanFileName,
+                  year,
+                  session: sessionCode,
+                  sessionLabel: sessionMeta.label,
+                  sessionRank: sessionMeta.rank,
+                  paperNumber: paperNumber ? Number(paperNumber) : 0,
+                  variantNumber: variantNumber ? String(variantNumber).padStart(2, "0") : "",
+                  searchText,
+                  tokenSet: buildTokenSet(searchText)
+                });
+              };
+
+              const ciEntries = Array.isArray(sessionInfo && sessionInfo.ci) ? sessionInfo.ci : [];
+              ciEntries.forEach((item) => {
+                const fileName = typeof item === "string" ? item : item && item.file;
+                const variantMatch = String(fileName || "").match(/_(\d{2})\.pdf$/i);
+                const variantNumber = variantMatch ? variantMatch[1] : "";
+                const paperNumber = variantNumber ? Number(variantNumber.charAt(0)) : 0;
+                addEntry("ci", fileName, paperNumber, variantNumber);
+              });
+
+              const insertEntries =
+                sessionInfo && sessionInfo.in && typeof sessionInfo.in === "object"
+                  ? sessionInfo.in
+                  : {};
+              Object.entries(insertEntries).forEach(([paperKey, variants]) => {
+                if (!variants || typeof variants !== "object") return;
+                Object.entries(variants).forEach(([variantKey, fileName]) => {
+                  const variantNumber = String(variantKey || "").padStart(2, "0");
+                  const paperNumber = Number(paperKey) || Number(variantNumber.charAt(0)) || 0;
+                  addEntry("in", fileName, paperNumber, variantNumber);
+                });
+              });
+
+              ["gt", "er"].forEach((kind) => {
+                const seriesEntries = Array.isArray(sessionInfo && sessionInfo[kind]) ? sessionInfo[kind] : [];
+                seriesEntries.forEach((item) => {
+                  const fileName = typeof item === "string" ? item : item && item.file;
+                  addEntry(kind, fileName, 0, "");
+                });
+              });
+            });
+          });
+        });
+
+        return entries;
+      };
+
       const hasPastPaperIntent = (parsed) =>
         !!(
           parsed &&
@@ -686,7 +1138,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           )
         );
 
-      const prepareHomeSearchData = (rawData) => {
+      const prepareHomeSearchData = (rawData, fileManifest) => {
         const subjects = Array.isArray(rawData && rawData.subjects) ? rawData.subjects : [];
         const paperEntries = Array.isArray(rawData && rawData.paperEntries) ? rawData.paperEntries : [];
         const syllabusEntries = Array.isArray(rawData && rawData.syllabusEntries) ? rawData.syllabusEntries : [];
@@ -727,6 +1179,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
         const subjectBySlug = new Map(preparedSubjects.map((subject) => [subject.slug, subject]));
         const subjectByCode = new Map(preparedSubjects.map((subject) => [subject.code, subject]));
+        const staticPages = buildStaticSiteSearchEntries();
 
         const preparedPapers = paperEntries
           .map((entry) => {
@@ -832,13 +1285,47 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           })
           .filter(Boolean);
 
+        const fileEntries = buildPastPaperFileSearchEntries(fileManifest, subjectBySlug);
+        const exactFileTargetByName = new Map();
+
+        preparedPapers.forEach((entry) => {
+          const qpFileName = extractFileNameFromHref(entry.qpUrl || entry.qpHref);
+          const msFileName = extractFileNameFromHref(entry.msUrl || entry.msHref);
+
+          if (qpFileName) {
+            exactFileTargetByName.set(qpFileName.toLowerCase(), {
+              type: "track-file",
+              fileIntent: "qp",
+              entry
+            });
+          }
+          if (msFileName) {
+            exactFileTargetByName.set(msFileName.toLowerCase(), {
+              type: "track-file",
+              fileIntent: "ms",
+              entry
+            });
+          }
+        });
+
+        fileEntries.forEach((entry) => {
+          if (!entry.fileName) return;
+          exactFileTargetByName.set(String(entry.fileName).toLowerCase(), {
+            type: "paper-file",
+            entry
+          });
+        });
+
         return {
           subjects: preparedSubjects,
           subjectBySlug,
           subjectByCode,
+          staticPages,
           paperEntries: preparedPapers,
           paperSearchIndex: preparedPapers,
           paperByTrackKey: new Map(preparedPapers.map((entry) => [entry.trackKey, entry])),
+          fileEntries,
+          exactFileTargetByName,
           syllabusEntries: preparedSyllabus,
           syllabusByTopicKey: new Map(
             preparedSyllabus
@@ -856,11 +1343,16 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           return uiState.homeSearchDataPromise;
         }
 
-        uiState.homeSearchDataPromise = fetch(HOME_SEARCH_DATA_URL, { cache: "no-store" })
-          .then((response) => (response.ok ? response.json() : { subjects: [], paperEntries: [] }))
-          .catch(() => ({ subjects: [], paperEntries: [] }))
-          .then((rawData) => {
-            uiState.homeSearchData = prepareHomeSearchData(rawData);
+        uiState.homeSearchDataPromise = Promise.all([
+          fetch(HOME_SEARCH_DATA_URL, { cache: "no-store" })
+            .then((response) => (response.ok ? response.json() : { subjects: [], paperEntries: [], syllabusEntries: [] }))
+            .catch(() => ({ subjects: [], paperEntries: [], syllabusEntries: [] })),
+          fetch(HOME_PAST_PAPER_FILE_MANIFEST_URL, { cache: "no-store" })
+            .then((response) => (response.ok ? response.json() : {}))
+            .catch(() => ({}))
+        ])
+          .then(([rawData, fileManifest]) => {
+            uiState.homeSearchData = prepareHomeSearchData(rawData, fileManifest);
             return uiState.homeSearchData;
           });
 
@@ -868,11 +1360,13 @@ html[data-home-auth-gate="pending"] .home-page-footer {
       };
 
       const parseSearchQuery = (rawValue, data) => {
+        const exactFileName = extractExactPaperFileName(rawValue);
+        const exactFileMeta = exactFileName ? parseExactPaperFileName(exactFileName) : null;
         const normalized = normalizeSearchText(rawValue);
         const tokens = normalized ? normalized.split(" ") : [];
         const subjectSlugs = new Set();
         const subjectTokens = new Set();
-        let subjectCode = null;
+        let subjectCode = exactFileMeta && exactFileMeta.subjectCode ? exactFileMeta.subjectCode : null;
 
         (data ? data.subjects : []).forEach((subject) => {
           let matched = false;
@@ -894,22 +1388,49 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           }
         });
 
-        let session = null;
+        let session = exactFileMeta && exactFileMeta.session ? exactFileMeta.session : null;
         if (normalized.includes("may june")) {
           session = "s";
         } else if (normalized.includes("oct nov")) {
           session = "w";
         } else if (normalized.includes("feb march")) {
           session = "m";
+        } else {
+          const compactSessionMatch = normalized.match(/\b([msw])(\d{2})\b/);
+          if (compactSessionMatch) {
+            session = compactSessionMatch[1];
+          }
         }
 
         const yearMatch = normalized.match(/\b(20\d{2})\b/);
         const paperMatch = normalized.match(/\b(?:paper|p)\s+([1-9])\b/);
         const variantMatch = normalized.match(/\b(?:variant|v)\s+([0-9]{1,2})\b/);
-        const fileIntent = /\bqp\b/.test(normalized) ? "qp" : /\bms\b/.test(normalized) ? "ms" : "";
+        const compactVariantMatch = normalized.match(/\b(?:qp|ms|ci|in)\s+([0-9]{2})\b/);
+        const fileIntent =
+          (exactFileMeta && exactFileMeta.fileIntent) ||
+          (/\bqp\b/.test(normalized) || /\bquestion\s+paper\b/.test(normalized)
+            ? "qp"
+            : /\bms\b/.test(normalized) || /\bmark\s+scheme\b/.test(normalized)
+              ? "ms"
+              : /\bci\b/.test(normalized) || /\bconfidential\s+instructions?\b/.test(normalized)
+                ? "ci"
+                : /\binserts?\b/.test(normalized)
+                  ? "in"
+                  : /\ber\b/.test(normalized) || /\bexaminer\s+reports?\b/.test(normalized)
+                    ? "er"
+                    : /\bgt\b/.test(normalized) || /\bgrade\s+thresholds?\b/.test(normalized) || /\bthresholds?\b/.test(normalized)
+                      ? "gt"
+                      : "");
         const intents = new Set();
-        let paper = paperMatch ? Number(paperMatch[1]) : null;
-        const variant = variantMatch ? variantMatch[1].padStart(2, "0") : null;
+        let paper = exactFileMeta && exactFileMeta.paper ? exactFileMeta.paper : (paperMatch ? Number(paperMatch[1]) : null);
+        const variant =
+          exactFileMeta && exactFileMeta.variant
+            ? exactFileMeta.variant
+            : variantMatch
+              ? variantMatch[1].padStart(2, "0")
+              : compactVariantMatch
+                ? compactVariantMatch[1].padStart(2, "0")
+                : null;
 
         if (!paper && variant && variant.length === 2 && /^[1-9]/.test(variant)) {
           paper = Number(variant.charAt(0));
@@ -925,10 +1446,11 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           intents.add("syllabus");
         }
         if (
-          /\b(past papers?|papers?|qp|ms|question paper|mark scheme)\b/.test(normalized) ||
+          /\b(past papers?|past paper|question papers?|question paper|mark schemes?|mark scheme|qp|ms|ci|gt|er|confidential instructions?|examiner reports?|grade thresholds?|thresholds?|inserts?)\b/.test(normalized) ||
           yearMatch ||
           paperMatch ||
           variantMatch ||
+          compactVariantMatch ||
           session
         ) {
           intents.add("past-papers");
@@ -942,9 +1464,18 @@ html[data-home-auth-gate="pending"] .home-page-footer {
             !/^\d+$/.test(token)
         );
 
-        const year = yearMatch ? Number(yearMatch[1]) : null;
+        const year =
+          exactFileMeta && exactFileMeta.year
+            ? exactFileMeta.year
+            : yearMatch
+              ? Number(yearMatch[1])
+              : (() => {
+                  const compactSessionMatch = normalized.match(/\b[msw](\d{2})\b/);
+                  return compactSessionMatch ? 2000 + Number(compactSessionMatch[1]) : null;
+                })();
+        const hasPaperFilters = !!(year || paper || variant || session);
         const pastPaperIntent = hasPastPaperIntent({
-          hasPaperFilters: !!(yearMatch || paperMatch || variantMatch || session),
+          hasPaperFilters,
           fileIntent,
           subjectCode,
           subjectSlugs,
@@ -976,9 +1507,10 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           session,
           paper,
           variant,
+          exactFileName,
           fileIntent,
           intents,
-          hasPaperFilters: !!(yearMatch || paperMatch || variantMatch || session),
+          hasPaperFilters,
           isPastPaperIntent: pastPaperIntent,
           hasSpecificPastPaperTarget: specificPastPaperTarget
         };
@@ -1009,8 +1541,18 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         };
       };
 
-      const countTokenMatches = (tokens, tokenSet) =>
-        tokens.reduce((count, token) => count + (tokenSet.has(token) ? 1 : 0), 0);
+      const countTokenMatches = (tokens, tokenSet) => {
+        if (!Array.isArray(tokens) || !tokens.length || !(tokenSet instanceof Set) || !tokenSet.size) {
+          return 0;
+        }
+
+        const tokenCandidates = Array.from(tokenSet);
+        return tokens.reduce((count, token) => {
+          if (!token) return count;
+          if (tokenSet.has(token)) return count + 1;
+          return count + (tokenCandidates.some((candidate) => isLooseTokenMatch(token, candidate)) ? 1 : 0);
+        }, 0);
+      };
 
       const createQueryResult = (query, subtitle, icon, id) => ({
         id,
@@ -1029,6 +1571,18 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           },
           config
         );
+
+      const createSitePageResult = (entry, score) =>
+        createNavigateResult({
+          id: entry.id,
+          type: "site-page",
+          icon: entry.icon || "search",
+          title: entry.title,
+          subtitle: entry.subtitle,
+          badge: entry.badge,
+          href: entry.href,
+          score
+        });
 
       const createSubjectResult = (subject, score) =>
         createNavigateResult({
@@ -1122,6 +1676,23 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           sortTopicIndex: entry.topicIndex || 0
         });
 
+      const createPaperFileResult = (entry, score) =>
+        createNavigateResult({
+          id: entry.id,
+          type: "paper-file",
+          icon: "file-text",
+          title: entry.title,
+          subtitle: entry.subtitle,
+          badge: entry.badge,
+          href: entry.href,
+          subjectSlug: entry.subjectSlug,
+          score,
+          sortYear: entry.year,
+          sortSessionRank: entry.sessionRank,
+          sortPaperNumber: entry.paperNumber || 0,
+          sortVariant: entry.variantNumber ? Number(entry.variantNumber) : 0
+        });
+
       const buildProfileRouteResults = (parsed) => {
         const results = [];
         const wantsProfile = parsed.intents.has("profile") || parsed.normalized === "profile";
@@ -1158,6 +1729,44 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         }
 
         return results;
+      };
+
+      const buildStaticPageResults = (data, parsed) => {
+        if (!data || !Array.isArray(data.staticPages) || !parsed.normalized) {
+          return [];
+        }
+
+        return data.staticPages
+          .map((entry) => {
+            const exactTitle = parsed.normalized === normalizeSearchText(entry.title);
+            const exactAlias = entry.aliases.some((alias) => alias === parsed.normalized);
+            const aliasHit = entry.aliases.some((alias) => matchesAlias(parsed.normalized, parsed.tokens, alias));
+            const textHit = entry.searchText.includes(parsed.normalized);
+            const tokenMatches = countTokenMatches(parsed.tokens, entry.tokenSet);
+
+            if (!(exactTitle || exactAlias || aliasHit || textHit || tokenMatches > 0)) {
+              return null;
+            }
+
+            let score = 0;
+            if (exactTitle) score += 216;
+            else if (exactAlias) score += 212;
+            else if (aliasHit) score += 178;
+            else if (textHit) score += 144;
+            else score += 112;
+
+            score += Math.min(tokenMatches, 6) * 8;
+
+            if (parsed.isPastPaperIntent && entry.id !== "page:past-papers") {
+              score -= 52;
+            }
+            if (parsed.subjectCode || parsed.subjectSlugs.size) {
+              score -= 28;
+            }
+
+            return createSitePageResult(entry, score);
+          })
+          .filter(Boolean);
       };
 
       const buildSubjectResults = (data, parsed, boosts) => {
@@ -1363,7 +1972,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
             if (parsed.paper && entry.paperNumber !== parsed.paper) {
               return null;
             }
-            if (parsed.variant && entry.variant !== parsed.variant) {
+            if (parsed.variant && !matchesVariantQuery(parsed.variant, entry.variantNumber || entry.variant)) {
               return null;
             }
             if (parsed.fileIntent === "qp" && !(entry.qpUrl || entry.qpHref)) {
@@ -1446,6 +2055,77 @@ html[data-home-auth-gate="pending"] .home-page-footer {
             }
             return Number(leftEntry.variant) - Number(rightEntry.variant);
           });
+      };
+
+      const buildPaperFileResults = (data, parsed) => {
+        if (
+          !data ||
+          !Array.isArray(data.fileEntries) ||
+          !parsed.normalized ||
+          (!parsed.isPastPaperIntent &&
+            !parsed.intents.has("past-papers") &&
+            !parsed.fileIntent &&
+            !parsed.subjectCode &&
+            !parsed.subjectSlugs.size)
+        ) {
+          return [];
+        }
+
+        return data.fileEntries
+          .map((entry) => {
+            const subjectCodeMatch = parsed.subjectCode === entry.subjectCode;
+            const subjectSlugMatch = parsed.subjectSlugs.has(entry.subjectSlug);
+
+            if (parsed.subjectCode && entry.subjectCode !== parsed.subjectCode) {
+              return null;
+            }
+            if (parsed.subjectSlugs.size && !parsed.subjectSlugs.has(entry.subjectSlug)) {
+              return null;
+            }
+            if (parsed.year && entry.year !== parsed.year) {
+              return null;
+            }
+            if (parsed.session && entry.session !== parsed.session) {
+              return null;
+            }
+            if (parsed.paper && entry.paperNumber && entry.paperNumber !== parsed.paper) {
+              return null;
+            }
+            if (parsed.variant && entry.variantNumber && !matchesVariantQuery(parsed.variant, entry.variantNumber)) {
+              return null;
+            }
+            if (parsed.fileIntent && entry.kind !== parsed.fileIntent) {
+              return null;
+            }
+
+            const tokenMatches = countTokenMatches(parsed.tokens, entry.tokenSet);
+            const fullQueryMatch = entry.searchText.includes(parsed.normalized);
+            const exactFileMatch = normalizeSearchText(entry.fileName) === parsed.normalized;
+            let score = 0;
+
+            if (subjectCodeMatch) score += 216;
+            if (subjectSlugMatch) score += 176;
+            if (parsed.year) score += 78;
+            if (parsed.session) score += 64;
+            if (parsed.paper && entry.paperNumber) score += 96;
+            if (parsed.variant && entry.variantNumber) score += 112;
+            if (parsed.fileIntent && parsed.fileIntent === entry.kind) score += 124;
+            if (parsed.isPastPaperIntent) score += 34;
+            if (exactFileMatch) score += 142;
+            else if (fullQueryMatch) score += 54;
+            score += Math.min(tokenMatches, 8) * 10;
+
+            if (!parsed.fileIntent && !parsed.year && !parsed.paper && !parsed.variant && tokenMatches < 2 && !fullQueryMatch) {
+              return null;
+            }
+
+            if (score <= 0) {
+              return null;
+            }
+
+            return createPaperFileResult(entry, score);
+          })
+          .filter(Boolean);
       };
 
       const dedupeResults = (results) => {
@@ -1638,7 +2318,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
         if (continueResults.length) {
           collections.push({
-            title: "Continue Where You Left Off",
+            title: "Continue where you left off",
             layout: "list",
             items: continueResults
           });
@@ -1646,7 +2326,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
         if (recentSearches.length) {
           collections.push({
-            title: "Recent Searches",
+            title: "Recent searches",
             layout: "list",
             items: recentSearches
           });
@@ -1656,7 +2336,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
           const suggested = buildSuggestedSubjectResults(data);
           if (suggested.length) {
             collections.push({
-              title: "Suggested Subjects",
+              title: "Suggested subjects",
               layout: "grid",
               items: suggested
             });
@@ -1664,7 +2344,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         }
 
         collections.push({
-          title: "Popular Searches",
+          title: "Popular searches",
           layout: "grid",
           items: POPULAR_SEARCHES.map((item) =>
             createQueryResult(item.query, item.description, item.icon, `popular:${normalizeSearchText(item.query)}`)
@@ -1680,9 +2360,11 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         const results = dedupeResults(
           [
             ...buildProfileRouteResults(parsed),
+            ...buildStaticPageResults(data, parsed),
             ...buildSubjectResults(data, parsed, boosts),
             ...buildSyllabusTopicResults(data, parsed, boosts),
-            ...buildPastPaperResults(data, parsed, boosts)
+            ...buildPastPaperResults(data, parsed, boosts),
+            ...buildPaperFileResults(data, parsed)
           ].sort((left, right) => {
             if (right.score !== left.score) return right.score - left.score;
             if ((right.sortYear || 0) !== (left.sortYear || 0)) {
@@ -1710,12 +2392,12 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         if (!results.length) {
           return [
             {
-              title: "No Matches",
+              title: "No matches",
               layout: "list",
-              empty: "No matches found. Try a subject code, syllabus topic, year, session, or paper number."
+              empty: "No matches found. Try a subject code, year, session, paper number, or topic."
             },
             {
-              title: "Popular Searches",
+              title: "Popular searches",
               layout: "grid",
               items: POPULAR_SEARCHES.map((item) =>
                 createQueryResult(item.query, item.description, item.icon, `popular:${normalizeSearchText(item.query)}`)
@@ -1726,1009 +2408,616 @@ html[data-home-auth-gate="pending"] .home-page-footer {
 
         return [
           {
-            title: "Best Matches",
+            title: "Best matches",
             layout: "list",
             items: results
           }
         ];
       };
 
-      const mountSearchBar = (host) => {
-        const resolveSearchTheme = () => {
-          const root = document.documentElement;
-          return root.classList.contains("light") || root.dataset.theme === "light"
-            ? "light"
-            : "dark";
-        };
+      const getSingleResolvedSubject = (data, parsed) => {
+        if (!data || !parsed) return null;
+        if (parsed.subjectCode && data.subjectByCode.has(parsed.subjectCode)) {
+          return data.subjectByCode.get(parsed.subjectCode);
+        }
+        if (parsed.subjectSlugs && parsed.subjectSlugs.size === 1) {
+          return data.subjectBySlug.get(Array.from(parsed.subjectSlugs)[0]) || null;
+        }
+        return null;
+      };
 
-        const shadow = host.attachShadow({ mode: "open" });
-        shadow.innerHTML = `
+      const resolveExactFileNavigationTarget = (data, parsed) => {
+        if (!data || !parsed || !parsed.exactFileName) {
+          return null;
+        }
+
+        const exactTarget = data.exactFileTargetByName instanceof Map
+          ? data.exactFileTargetByName.get(String(parsed.exactFileName).toLowerCase())
+          : null;
+
+        if (!exactTarget) {
+          return null;
+        }
+
+        if (exactTarget.type === "paper-file") {
+          return createPaperFileResult(exactTarget.entry, 999);
+        }
+
+        if (exactTarget.type === "track-file") {
+          return createPastPaperResult(exactTarget.entry, 999, {
+            fileIntent: exactTarget.fileIntent
+          });
+        }
+
+        return null;
+      };
+
+      const resolveBroadSubjectNavigationTarget = (data, parsed) => {
+        const subject = getSingleResolvedSubject(data, parsed);
+        if (!subject) return null;
+
+        if (parsed.intents.has("past-papers") && !parsed.hasSpecificPastPaperTarget && !parsed.fileIntent) {
+          return subject.hasPastPapers ? createPastPaperHubResult(subject, 999) : null;
+        }
+
+        if (parsed.intents.has("syllabus") && !parsed.contentTokens.length) {
+          return createSyllabusResult(subject, 999);
+        }
+
+        if (!parsed.intents.size && !parsed.contentTokens.length && !parsed.hasPaperFilters && !parsed.fileIntent) {
+          return createSubjectResult(subject, 999);
+        }
+
+        return null;
+      };
+
+      const resolveExactStaticNavigationTarget = (data, parsed) => {
+        if (!data || !Array.isArray(data.staticPages) || !parsed || !parsed.normalized) {
+          return null;
+        }
+
+        const directMatches = data.staticPages
+          .map((entry) => {
+            const normalizedTitle = normalizeSearchText(entry.title);
+            const exactTitle = parsed.normalized === normalizedTitle;
+            const exactAlias = entry.aliases.some((alias) => alias === parsed.normalized);
+
+            if (!(exactTitle || exactAlias)) {
+              return null;
+            }
+
+            let score = 0;
+            if (exactTitle) score += 220;
+            if (exactAlias) score += 216;
+
+            return createSitePageResult(entry, score);
+          })
+          .filter(Boolean)
+          .sort((left, right) => right.score - left.score);
+
+        return directMatches[0] || null;
+      };
+
+      const resolveHomeSearchNavigationTarget = (data, query) => {
+        if (!data || !String(query || "").trim()) {
+          return null;
+        }
+
+        const parsed = parseSearchQuery(query, data);
+        const boosts = buildRecentBoostMaps();
+        const exactStaticTarget = resolveExactStaticNavigationTarget(data, parsed);
+        if (exactStaticTarget) {
+          return exactStaticTarget;
+        }
+        const exactFileTarget = resolveExactFileNavigationTarget(data, parsed);
+        if (parsed.exactFileName) {
+          return exactFileTarget;
+        }
+
+        const broadSubjectTarget = resolveBroadSubjectNavigationTarget(data, parsed);
+        if (broadSubjectTarget) {
+          return broadSubjectTarget;
+        }
+
+        const wantsDirectFile =
+          !!parsed.fileIntent ||
+          /\.pdf\b/i.test(String(query || "")) ||
+          /\b(download|open file|pdf)\b/.test(parsed.normalized);
+
+        if (parsed.hasPaperFilters || parsed.isPastPaperIntent) {
+          if (!wantsDirectFile) {
+            const paperResults = buildPastPaperResults(data, parsed, boosts);
+            if (paperResults.length) {
+              const distinctVariants = new Set(
+                paperResults
+                  .map((result) => data.paperByTrackKey.get(result.trackKey))
+                  .filter(Boolean)
+                  .map((entry) => String(entry.variantNumber || entry.variant || ""))
+              );
+              const shouldOpenHub =
+                !!getSingleResolvedSubject(data, parsed) &&
+                !parsed.variant &&
+                !parsed.fileIntent &&
+                (
+                  (!parsed.paper && !parsed.session && !parsed.year) ||
+                  (parsed.paper && distinctVariants.size > 1)
+                );
+
+              if (shouldOpenHub) {
+                const subject = getSingleResolvedSubject(data, parsed);
+                return subject && subject.hasPastPapers
+                  ? createPastPaperHubResult(subject, 999)
+                  : paperResults[0];
+              }
+
+              if (parsed.hasSpecificPastPaperTarget) {
+                const preferredAction =
+                  (paperResults[0].actions || []).find((action) => action.label === "QP" && action.href) ||
+                  (paperResults[0].actions || []).find((action) => action.label === "MS" && action.href);
+                if (preferredAction && preferredAction.href) {
+                  return Object.assign({}, paperResults[0], {
+                    href: preferredAction.href,
+                    badge: preferredAction.label,
+                    subtitle:
+                      preferredAction.label === "MS"
+                        ? "Open the matching mark scheme"
+                        : "Open the matching question paper"
+                  });
+                }
+              }
+              return paperResults[0];
+            }
+          }
+
+          const fileResults = buildPaperFileResults(data, parsed);
+          if (fileResults.length) {
+            return fileResults[0];
+          }
+
+          if (parsed.fileIntent && ["ci", "in", "gt", "er"].indexOf(parsed.fileIntent) !== -1) {
+            return null;
+          }
+        }
+
+        const collections = buildSearchCollections(data, query);
+        const items = collections.flatMap((collection) => collection.items || []);
+
+        const scoredItems = items
+          .filter((item) => item && item.mode === "navigate" && item.href)
+          .map((item) => {
+            let score = Number(item.score || 0);
+
+            if (parsed.hasPaperFilters || parsed.isPastPaperIntent) {
+              if (item.type === "past-paper") {
+                score += parsed.hasSpecificPastPaperTarget ? 180 : 92;
+              } else if (item.type === "past-papers-hub") {
+                score += parsed.hasSpecificPastPaperTarget ? 36 : 88;
+              } else if (item.type === "paper-file") {
+                score += wantsDirectFile ? 84 : -180;
+              }
+            }
+
+            if (parsed.intents.has("syllabus")) {
+              if (item.type === "syllabus" || item.type === "syllabus-topic" || item.type === "syllabus-section") {
+                score += 90;
+              } else if (item.type === "paper-file" || item.type === "past-paper") {
+                score -= 70;
+              }
+            }
+
+            if (parsed.intents.has("settings") && item.type === "site-page" && item.href === "/settings/") {
+              score += 140;
+            }
+
+            if ((parsed.intents.has("profile") || parsed.intents.has("progress")) && (item.type === "profile" || item.type === "progress")) {
+              score += 140;
+            }
+
+            return { item, score };
+          })
+          .sort((left, right) => right.score - left.score);
+
+        return scoredItems[0]?.item || null;
+      };
+
+      const mountHomeSearchBar = (host) => {
+        if (!host) return;
+        const shadowRoot = host.shadowRoot || host.attachShadow({ mode: "open" });
+
+        if (host.__igSearchMounted) {
+          if (typeof host.__igSyncTheme === "function") {
+            host.__igSyncTheme();
+          }
+          return;
+        }
+
+        host.__igSearchMounted = true;
+        shadowRoot.innerHTML = `
           <style>
             :host {
               display: block;
-              width: 100%;
-              max-width: 42rem;
-              margin: 0 auto;
-              text-align: initial;
-              opacity: 1;
-              animation: none;
-            }
-            * {
-              box-sizing: border-box;
-            }
-            .ig-search {
-              position: relative;
-              -webkit-font-smoothing: antialiased;
+              width: min(100%, 600px);
+              margin: clamp(64px, 8.5vh, 104px) auto 0;
+              color: #f3efe7;
+              font-family: Inter, "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
               text-rendering: geometricPrecision;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              --ig-search-text-size: clamp(1.36rem, 1.42vw, 1.6rem);
+              --ig-search-line-height: 32px;
+            }
+
+            .ig-search {
+              display: flex;
+              flex-direction: column;
               width: 100%;
-              max-width: 42rem;
-              margin: 0 auto;
-              font-family: Inter, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-              color: rgb(248, 248, 248);
-            }
-            .ig-glow {
-              display: none;
-            }
-            .ig-card {
-              position: relative;
-              will-change: auto;
-              overflow: hidden;
-              border-radius: 24px;
-              background: rgba(255, 255, 255, 0.03);
-              border: 1px solid rgba(255, 255, 255, 0.08);
-              backdrop-filter: none;
-              -webkit-backdrop-filter: none;
-              transition:
-                transform 0.32s cubic-bezier(0.25,0.1,0.25,1),
-                background-color 0.5s cubic-bezier(0.23, 1, 0.32, 1),
-                border-color 0.5s cubic-bezier(0.23, 1, 0.32, 1),
-                box-shadow 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-            }
-            .ig-line {
-              position: absolute;
-              inset-inline: 0;
-              top: 0;
-              height: 1px;
-              opacity: 0;
-              transition: opacity 0.5s;
-              background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.3),
-                transparent
-              );
-            }
-            .ig-input-row {
-              position: relative;
-              display: flex;
-              align-items: center;
-              gap: 16px;
-              padding: 16px 24px;
-            }
-            .ig-input-icon {
-              width: 20px;
-              height: 20px;
-              flex-shrink: 0;
-              color: rgba(113, 113, 113, 1);
-              transition: transform 0.3s ease, color 0.3s ease;
-            }
-            .ig-input-icon svg {
-              display: block;
-              width: 100%;
-              height: 100%;
-            }
-            .ig-input {
-              flex: 1;
-              min-width: 0;
-              border: none;
-              outline: none;
-              background: transparent;
-              color: rgb(248, 248, 248);
-              font-size: 16px;
-              line-height: 1.5;
-              font-family: inherit;
-            }
-            .ig-input::placeholder {
-              color: rgba(113, 113, 113, 0.7);
-            }
-            .ig-panel {
-              opacity: 0;
-              transform: translateY(-6px);
-              pointer-events: none;
-              transition:
-                opacity 0.34s cubic-bezier(0.23, 1, 0.32, 1),
-                transform 0.32s cubic-bezier(0.25,0.1,0.25,1);
-            }
-            .ig-panel-overflow {
-              overflow: hidden;
-              height: 0;
-              will-change: height;
-              transition: height 0.42s cubic-bezier(0.23, 1, 0.32, 1);
-            }
-            .ig-panel-scroll {
-              max-height: min(30rem, 62vh);
-              overflow: hidden;
-            }
-            .ig-panel-inner {
-              padding: 0 12px 16px;
-            }
-            .ig-panel-content {
-              display: flex;
-              flex-direction: column;
-              scrollbar-width: thin;
-              scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
-            }
-            .ig-panel-scroll::-webkit-scrollbar {
-              width: 8px;
-            }
-            .ig-panel-scroll::-webkit-scrollbar-thumb {
-              border-radius: 999px;
-              background: rgba(255, 255, 255, 0.14);
-            }
-            .ig-panel-divider {
-              margin: 0 0 12px;
-              height: 1px;
-              background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.1),
-                transparent
-              );
-            }
-            .ig-suggestions {
-              display: grid;
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 8px;
-              transition: opacity 0.18s ease-out;
-            }
-            .ig-section {
-              grid-column: 1 / -1;
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .ig-section-head {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              padding: 0 4px;
-            }
-            .ig-section-title {
-              color: rgba(248, 248, 248, 0.4);
-              font-size: 10px;
-              line-height: 1;
-              letter-spacing: 0.18em;
-              text-transform: uppercase;
-              font-weight: 600;
-            }
-            .ig-result-list {
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .ig-section[data-layout="grid"] .ig-result-list {
-              display: grid;
-              grid-template-columns: repeat(2, minmax(0, 1fr));
-              gap: 8px;
-            }
-            .ig-result-card {
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .ig-suggestion {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              width: 100%;
-              padding: 12px 16px;
-              border-radius: 16px;
-              border: 1px solid transparent;
-              background: rgba(255, 255, 255, 0.02);
-              color: inherit;
               text-align: left;
-              cursor: pointer;
-              transition:
-                background-color 0.24s ease-out,
-                border-color 0.24s ease-out,
-                transform 0.24s ease-out;
             }
-            .ig-suggestion:hover,
-            .ig-suggestion.is-active {
-              background: rgba(255, 255, 255, 0.08);
-              border-color: rgba(255, 255, 255, 0.1);
-              transform: scale(1.02);
-            }
-            .ig-suggestion:active {
-              transform: scale(0.98);
-            }
-            .ig-suggestion-icon {
+
+            .ig-shell {
+              position: relative;
+              width: 100%;
+              min-height: 46px;
               display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 32px;
-              height: 32px;
-              border-radius: 12px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
-              background: rgba(255, 255, 255, 0.06);
-              color: rgba(113, 113, 113, 1);
+              align-items: flex-end;
+              border-bottom: 1px solid var(--ig-shell-border, rgba(255, 255, 255, 0.22));
               transition:
-                background-color 0.24s ease,
-                border-color 0.24s ease,
-                color 0.24s ease;
+                border-color 180ms ease,
+                opacity 180ms ease;
             }
-            .ig-suggestion-icon svg {
-              width: 16px;
-              height: 16px;
+
+            .ig-shell:focus-within {
+              border-bottom-color: var(--ig-shell-open-border, rgba(255, 255, 255, 0.3));
             }
-            .ig-suggestion:hover .ig-suggestion-icon,
-            .ig-suggestion.is-active .ig-suggestion-icon {
-              background: rgba(255, 255, 255, 0.12);
-              border-color: rgba(255, 255, 255, 0.15);
-              color: rgb(248, 248, 248);
-            }
-            .ig-result-copy {
-              min-width: 0;
+
+            .ig-input-wrap {
+              position: relative;
+              width: 100%;
+              padding: 0 40px 9px 0;
               display: flex;
-              flex: 1;
-              flex-direction: column;
-              gap: 4px;
+              align-items: flex-end;
+              min-height: var(--ig-search-line-height);
             }
-            .ig-result-title {
-              color: rgba(248, 248, 248, 0.9);
-              font-size: 14px;
-              line-height: 1.35;
+
+            .ig-placeholder {
+              position: absolute;
+              left: 0;
+              right: 40px;
+              top: auto;
+              bottom: 9px;
+              height: var(--ig-search-line-height);
+              transform: translateY(0);
+              color: var(--ig-input-placeholder, rgba(243, 239, 231, 0.48));
+              font: inherit;
+              font-size: var(--ig-search-text-size);
               font-weight: 500;
+              line-height: var(--ig-search-line-height);
+              letter-spacing: -0.02em;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              text-align: left;
+              pointer-events: none;
+              opacity: 1;
+              filter: blur(0);
+              transition:
+                opacity 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+                filter 280ms cubic-bezier(0.22, 1, 0.36, 1);
+              will-change: opacity, transform, filter;
             }
-            .ig-result-subtitle {
-              color: rgba(248, 248, 248, 0.42);
-              font-size: 11px;
-              line-height: 1.35;
+
+            .ig-placeholder.is-exiting {
+              opacity: 0;
+              transform: translateY(-8px);
+              filter: blur(3px);
             }
-            .ig-result-badge {
-              flex-shrink: 0;
+
+            .ig-placeholder.is-entering {
+              opacity: 0;
+              transform: translateY(8px);
+              filter: blur(3px);
+            }
+
+            .ig-search.is-filled .ig-placeholder {
+              opacity: 0;
+              transform: translateY(0);
+              filter: blur(0);
+              transition-duration: 140ms;
+            }
+
+            .ig-input {
+              width: 100%;
+              min-height: var(--ig-search-line-height);
+              max-height: var(--ig-search-line-height);
+              height: var(--ig-search-line-height);
+              display: block;
+              appearance: none;
+              -webkit-appearance: none;
+              border: 0;
+              outline: 0;
+              background: transparent;
+              color: var(--ig-input-fg, rgba(243, 239, 231, 0.9));
+              font: inherit;
+              font-size: var(--ig-search-text-size);
+              font-weight: 500;
+              line-height: var(--ig-search-line-height);
+              letter-spacing: -0.02em;
+              text-rendering: geometricPrecision;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              padding: 0;
+              margin: 0;
+              overflow: hidden;
+              text-align: left;
+            }
+
+            .ig-input::placeholder {
+              color: var(--ig-input-placeholder, rgba(243, 239, 231, 0.48));
+            }
+
+            .ig-submit {
+              position: absolute;
+              right: 0;
+              top: 50%;
+              transform: translateY(-50%);
+              width: 30px;
+              height: 30px;
               border-radius: 999px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
-              background: rgba(255, 255, 255, 0.04);
-              color: rgba(248, 248, 248, 0.46);
-              font-size: 10px;
-              line-height: 1;
-              letter-spacing: 0.08em;
-              text-transform: uppercase;
-              padding: 6px 9px;
-            }
-            .ig-result-actions {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 6px;
-              padding: 0 4px 0 44px;
-            }
-            .ig-result-action {
+              border: 0;
+              outline: 0;
+              padding: 0;
               display: inline-flex;
               align-items: center;
               justify-content: center;
-              min-width: 44px;
-              border-radius: 999px;
-              border: 1px solid rgba(255, 255, 255, 0.08);
-              background: rgba(255, 255, 255, 0.04);
-              color: rgba(248, 248, 248, 0.66);
-              text-decoration: none;
-              font-size: 10px;
-              line-height: 1;
-              letter-spacing: 0.08em;
-              text-transform: uppercase;
-              padding: 7px 9px;
+              background: var(--ig-submit-bg, rgba(255, 255, 255, 0.52));
+              color: var(--ig-submit-fg, #0b0b0b);
+              cursor: pointer;
               transition:
-                background-color 0.2s ease,
-                border-color 0.2s ease,
-                color 0.2s ease;
+                background 180ms ease,
+                color 180ms ease,
+                opacity 180ms ease;
             }
-            .ig-result-action:hover {
-              background: rgba(255, 255, 255, 0.09);
-              border-color: rgba(255, 255, 255, 0.13);
-              color: rgb(248, 248, 248);
+
+            .ig-submit:hover:not(:disabled),
+            .ig-submit:focus-visible:not(:disabled) {
+              background: var(--ig-submit-bg-hover, rgba(255, 255, 255, 0.68));
             }
-            .ig-empty {
-              padding: 14px 16px;
-              border-radius: 16px;
-              background: rgba(255, 255, 255, 0.02);
-              color: rgba(248, 248, 248, 0.44);
-              font-size: 13px;
-              line-height: 1.45;
+
+            .ig-submit:disabled {
+              opacity: 0.72;
+              cursor: default;
             }
-            .ig-search.is-hovered .ig-glow,
-            .ig-search.is-open .ig-glow {
-              opacity: 1;
+
+            .ig-submit svg {
+              width: 16px;
+              height: 16px;
+              stroke-width: 2.2;
             }
-            .ig-search.is-hovered:not(.is-open) .ig-card {
-              background: rgba(255, 255, 255, 0.06);
-              border-color: rgba(255, 255, 255, 0.12);
-              transform: none;
-            }
-            .ig-search.is-open .ig-card {
-              background: rgba(255, 255, 255, 0.06);
-              border-color: rgba(255, 255, 255, 0.14);
-              transform: none;
-              box-shadow: 0 8px 36px rgba(0, 0, 0, 0.22);
-            }
-            .ig-search.is-open .ig-input-icon {
-              color: rgb(248, 248, 248);
-              transform: scale(1.1);
-            }
-            .ig-search.is-hovered .ig-line,
-            .ig-search.is-open .ig-line {
-              opacity: 1;
-            }
-            .ig-search.is-open .ig-panel {
-              opacity: 1;
-              transform: translateY(0);
-              pointer-events: auto;
-            }
+
             .ig-search[data-theme="light"] {
-              color: #000000;
+              color: #1a1814;
             }
-            .ig-search[data-theme="light"] .ig-card {
-              background: rgba(255, 255, 255, 0.9);
-              border-color: rgba(233, 227, 216, 0.96);
-              backdrop-filter: blur(22px) saturate(180%);
-              -webkit-backdrop-filter: blur(22px) saturate(180%);
-              box-shadow:
-                0 18px 44px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.65);
+
+            .ig-search[data-theme="light"] .ig-shell {
+              border-bottom-color: rgba(36, 32, 24, 0.22);
             }
-            .ig-search[data-theme="light"] .ig-line {
-              background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(0, 0, 0, 0.12),
-                transparent
-              );
-            }
+
             .ig-search[data-theme="light"] .ig-input {
-              color: #000000;
+              color: #1a1814;
             }
+
             .ig-search[data-theme="light"] .ig-input::placeholder {
-              color: #666666;
+              color: rgba(26, 24, 20, 0.46);
             }
-            .ig-search[data-theme="light"] .ig-input-icon {
-              color: #000000;
+
+            .ig-search[data-theme="light"] .ig-placeholder {
+              color: rgba(26, 24, 20, 0.46);
             }
-            .ig-search[data-theme="light"] .ig-panel-content {
-              scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+
+            .ig-search[data-theme="light"] .ig-submit {
+              background: rgba(26, 24, 20, 0.26);
+              color: #f8f5ef;
             }
-            .ig-search[data-theme="light"] .ig-panel-scroll::-webkit-scrollbar-thumb {
-              background: rgba(0, 0, 0, 0.18);
+
+            .ig-search[data-theme="light"] .ig-submit:hover:not(:disabled),
+            .ig-search[data-theme="light"] .ig-submit:focus-visible:not(:disabled) {
+              background: rgba(26, 24, 20, 0.34);
             }
-            .ig-search[data-theme="light"] .ig-panel-divider {
-              background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(0, 0, 0, 0.08),
-                transparent
-              );
-            }
-            .ig-search[data-theme="light"] .ig-section-title,
-            .ig-search[data-theme="light"] .ig-result-subtitle,
-            .ig-search[data-theme="light"] .ig-result-badge,
-            .ig-search[data-theme="light"] .ig-empty {
-              color: #666666;
-            }
-            .ig-search[data-theme="light"] .ig-suggestion {
-              background: rgba(255, 255, 255, 0.78);
-              border-color: rgba(233, 227, 216, 0.92);
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-suggestion:hover,
-            .ig-search[data-theme="light"] .ig-suggestion.is-active {
-              background: rgba(255, 255, 255, 0.94);
-              border-color: rgba(233, 227, 216, 0.96);
-            }
-            .ig-search[data-theme="light"] .ig-suggestion-icon {
-              background: rgba(255, 255, 255, 0.88);
-              border-color: rgba(233, 227, 216, 0.92);
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-suggestion:hover .ig-suggestion-icon,
-            .ig-search[data-theme="light"] .ig-suggestion.is-active .ig-suggestion-icon {
-              background: rgba(255, 255, 255, 1);
-              border-color: rgba(233, 227, 216, 0.96);
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-result-title {
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-result-action {
-              background: rgba(255, 255, 255, 0.82);
-              border-color: rgba(233, 227, 216, 0.9);
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-result-action:hover {
-              background: rgba(255, 255, 255, 1);
-              border-color: rgba(233, 227, 216, 0.96);
-              color: #000000;
-            }
-            .ig-search[data-theme="light"] .ig-empty {
-              background: rgba(255, 255, 255, 0.82);
-            }
-            .ig-search[data-theme="light"].is-hovered:not(.is-open) .ig-card,
-            .ig-search[data-theme="light"].is-open .ig-card {
-              background: rgba(255, 255, 255, 0.96);
-              border-color: rgba(233, 227, 216, 0.96);
-              box-shadow:
-                0 20px 48px rgba(0, 0, 0, 0.08),
-                inset 0 1px 0 rgba(255, 255, 255, 0.75);
-            }
-            .ig-search[data-theme="light"].is-open .ig-input-icon {
-              color: #000000;
-            }
-            @media (max-width: 520px) {
-              .ig-input-row {
-                padding: 16px 20px;
+
+	            @media (max-width: 900px) {
+	              :host {
+	                width: min(100%, 580px);
+	                margin-top: clamp(42px, 7vh, 72px);
+	                --ig-search-text-size: clamp(1.08rem, 3.45vw, 1.32rem);
+	              }
+	            }
+
+            @media (max-width: 640px) {
+	              :host {
+	                width: min(100%, 100%);
+	                margin-top: 34px;
+	                --ig-search-text-size: 1.14rem;
+	              }
+
+              .ig-input-wrap {
+                padding: 0 48px 10px 0;
               }
-              .ig-suggestions,
-              .ig-section[data-layout="grid"] .ig-result-list {
-                grid-template-columns: 1fr;
-              }
-              .ig-result-actions {
-                padding-left: 4px;
-              }
-            }
-            @keyframes ig-float-up {
-              0% {
-                opacity: 0;
-                transform: translateY(40px);
-              }
-              100% {
-                opacity: 1;
-                transform: translateY(0);
+
+	              .ig-placeholder {
+	                right: 48px;
+	              }
+
+              .ig-submit {
+                width: 30px;
+                height: 30px;
               }
             }
           </style>
-          <div class="ig-search" data-root>
-            <div class="ig-glow"></div>
-            <div class="ig-card">
-              <div class="ig-line"></div>
-              <div class="ig-input-row">
-                <div class="ig-input-icon">${iconMarkup.search}</div>
-                <input class="ig-input" type="text" placeholder="Search subjects and papers..." />
-              </div>
-              <div class="ig-panel" data-panel>
-                <div class="ig-panel-overflow" data-panel-overflow>
-                  <div class="ig-panel-scroll" data-panel-scroll>
-                    <div class="ig-panel-inner">
-                      <div class="ig-panel-content" data-panel-content>
-                        <div class="ig-panel-divider"></div>
-                        <div class="ig-suggestions" data-suggestions></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <div class="ig-search">
+            <div class="ig-shell">
+              <div class="ig-input-wrap">
+                <span class="ig-placeholder" aria-hidden="true">Search for a subject</span>
+	                <input class="ig-input" type="text" placeholder="" aria-label="Search IGCSEfy" autocomplete="off" spellcheck="false">
+                <button class="ig-submit" type="button" aria-label="Search">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 19 0-14"></path><path d="m5 12 7-7 7 7"></path></svg>
+                </button>
               </div>
             </div>
           </div>
         `;
 
-        const root = shadow.querySelector("[data-root]");
-        const input = shadow.querySelector(".ig-input");
-        const panelOverflow = shadow.querySelector("[data-panel-overflow]");
-        const panelScroll = shadow.querySelector("[data-panel-scroll]");
-        const panelContent = shadow.querySelector("[data-panel-content]");
-        const suggestions = shadow.querySelector("[data-suggestions]");
-        const syncSearchHostTheme = () => {
-          const theme = resolveSearchTheme();
-          host.dataset.theme = theme;
-          root.dataset.theme = theme;
-        };
-
-        syncSearchHostTheme();
-        if (host.__igThemeObserver) {
-          host.__igThemeObserver.disconnect();
-        }
-        host.__igThemeObserver = new MutationObserver(syncSearchHostTheme);
-        host.__igThemeObserver.observe(document.documentElement, {
-          attributes: true,
-          attributeFilter: ["class", "data-theme"]
-        });
+        const search = shadowRoot.querySelector(".ig-search");
+        const input = shadowRoot.querySelector(".ig-input");
+        const placeholder = shadowRoot.querySelector(".ig-placeholder");
+        const submit = shadowRoot.querySelector(".ig-submit");
+        const placeholderPrompts = [
+          "Search for a subject",
+          "Search for a past paper",
+          "Search for a topic",
+          "Search for progress",
+          "Search for settings"
+        ];
+        let placeholderIndex = 0;
+        let placeholderInterval = null;
+        let placeholderTimeout = null;
 
         const state = {
-          open: false,
-          hovered: false,
-          value: "",
-          activeIndex: -1,
-          visibleResults: [],
-          renderTimer: 0,
-          layoutRaf: 0,
-          panelObserver: null,
-          sectionCache: new Map(),
-          resultCache: new Map()
+          data: null,
+          loading: false,
+          query: ""
         };
 
-        const getPanelMaxHeight = () => Math.min(480, Math.max(240, Math.floor(window.innerHeight * 0.62)));
-
-        const syncPanelLayout = (immediate) => {
-          if (state.layoutRaf) {
-            window.cancelAnimationFrame(state.layoutRaf);
-            state.layoutRaf = 0;
-          }
-
-          const nextHeight = state.open ? Math.min(panelContent.scrollHeight, getPanelMaxHeight()) : 0;
-          const currentHeight = Math.round(panelOverflow.getBoundingClientRect().height);
-
-          panelScroll.style.overflowY =
-            state.open && panelContent.scrollHeight > nextHeight + 1 ? "auto" : "hidden";
-
-          if (immediate) {
-            panelOverflow.style.height = `${nextHeight}px`;
-            return;
-          }
-
-          panelOverflow.style.height = `${currentHeight}px`;
-          state.layoutRaf = window.requestAnimationFrame(() => {
-            panelOverflow.style.height = `${nextHeight}px`;
-          });
+        const syncTheme = () => {
+          search.dataset.theme = isLightTheme() ? "light" : "dark";
         };
 
-        const emitSearchOpenState = () => {
-          window.dispatchEvent(
-            new CustomEvent("igcsefy:search-open-state", {
-              detail: { open: state.open }
-            })
-          );
+        const syncFilledState = () => {
+          search.classList.toggle("is-filled", Boolean(state.query.trim()));
         };
 
-        const syncState = (immediate) => {
-          root.classList.toggle("is-open", state.open);
-          root.classList.toggle("is-hovered", state.hovered);
-          if (input.value !== state.value) {
-            input.value = state.value;
-          }
-          syncPanelLayout(immediate);
-          emitSearchOpenState();
-        };
-
-        const setActiveIndex = (nextIndex) => {
-          state.activeIndex = nextIndex;
-          suggestions.querySelectorAll(".ig-suggestion[data-result-index]").forEach((button) => {
-            const buttonIndex = Number(button.getAttribute("data-result-index"));
-            button.classList.toggle("is-active", buttonIndex === state.activeIndex);
-          });
-          if (state.activeIndex >= 0) {
-            const activeEl = suggestions.querySelector(`.ig-suggestion[data-result-index="${state.activeIndex}"]`);
-            if (activeEl) {
-              activeEl.scrollIntoView({ block: "nearest" });
-            }
-          }
-        };
-
-        const closeSearch = () => {
-          state.open = false;
-          state.activeIndex = -1;
-          syncState(false);
-          setActiveIndex(-1);
-          input.blur();
-        };
-
-        const activateResult = (result) => {
-          if (!result) return;
-
-          if (result.mode === "query") {
-            state.value = result.title;
-            pushRecentSearch(result.title);
-            state.open = true;
-            state.activeIndex = -1;
-            syncState(false);
-            renderSuggestions();
-            input.focus({ preventScroll: true });
-            return;
-          }
-
-          if (state.value.trim()) {
-            pushRecentSearch(state.value.trim());
-          }
-          pushRecentSelection(result, state.value.trim());
-
-          if (result.href) {
-            window.location.href = result.href;
-          }
-        };
-
-        const ensureResultCard = (result) => {
-          let card = state.resultCache.get(result.id);
-          if (card) {
-            return card;
-          }
-
-          card = document.createElement("div");
-          card.className = "ig-result-card";
-          card.dataset.resultId = result.id;
-
-          const button = document.createElement("button");
-          button.className = "ig-suggestion";
-          button.type = "button";
-
-          const icon = document.createElement("span");
-          icon.className = "ig-suggestion-icon";
-
-          const copy = document.createElement("span");
-          copy.className = "ig-result-copy";
-
-          const title = document.createElement("span");
-          title.className = "ig-result-title";
-
-          copy.appendChild(title);
-          button.appendChild(icon);
-          button.appendChild(copy);
-          card.appendChild(button);
-
-          card.__button = button;
-          card.__icon = icon;
-          card.__copy = copy;
-          card.__title = title;
-          card.__subtitle = null;
-          card.__badge = null;
-          card.__actions = null;
-
-          state.resultCache.set(result.id, card);
-          return card;
-        };
-
-        const updateResultCard = (card, result, index) => {
-          card.dataset.resultId = result.id;
-
-          const button = card.__button;
-          button.setAttribute("data-result-index", String(index));
-          button.classList.toggle("is-active", index === state.activeIndex);
-
-          card.__icon.innerHTML = iconMarkup[result.icon] || iconMarkup.search;
-          card.__title.textContent = result.title || "";
-
-          if (result.subtitle) {
-            if (!card.__subtitle) {
-              card.__subtitle = document.createElement("span");
-              card.__subtitle.className = "ig-result-subtitle";
-              card.__copy.appendChild(card.__subtitle);
-            }
-            card.__subtitle.textContent = result.subtitle;
-          } else if (card.__subtitle) {
-            card.__subtitle.remove();
-            card.__subtitle = null;
-          }
-
-          if (result.badge) {
-            if (!card.__badge) {
-              card.__badge = document.createElement("span");
-              card.__badge.className = "ig-result-badge";
-              button.appendChild(card.__badge);
-            }
-            card.__badge.textContent = result.badge;
-          } else if (card.__badge) {
-            card.__badge.remove();
-            card.__badge = null;
-          }
-
-          if (Array.isArray(result.actions) && result.actions.length) {
-            if (!card.__actions) {
-              card.__actions = document.createElement("div");
-              card.__actions.className = "ig-result-actions";
-              card.appendChild(card.__actions);
-            }
-
-            card.__actions.innerHTML = result.actions
-              .map(
-                (action) => `
-                  <a
-                    class="ig-result-action"
-                    href="${escapeHtml(action.href)}"
-                    data-result-index="${index}"
-                    data-result-action="${escapeHtml(action.label)}"
-                  >
-                    ${escapeHtml(action.label)}
-                  </a>
-                `
-              )
-              .join("");
-          } else if (card.__actions) {
-            card.__actions.remove();
-            card.__actions = null;
-          }
-        };
-
-        const ensureSectionNode = (sectionKey) => {
-          let sectionNode = state.sectionCache.get(sectionKey);
-          if (sectionNode) {
-            return sectionNode;
-          }
-
-          sectionNode = document.createElement("section");
-          sectionNode.className = "ig-section";
-
-          const head = document.createElement("div");
-          head.className = "ig-section-head";
-
-          const title = document.createElement("span");
-          title.className = "ig-section-title";
-
-          head.appendChild(title);
-          sectionNode.appendChild(head);
-
-          sectionNode.__title = title;
-          sectionNode.__body = null;
-
-          state.sectionCache.set(sectionKey, sectionNode);
-          return sectionNode;
-        };
-
-        const setSectionBody = (sectionNode, nextBody) => {
-          if (sectionNode.__body === nextBody) {
-            return;
-          }
-          if (sectionNode.__body && sectionNode.__body.parentNode === sectionNode) {
-            sectionNode.__body.remove();
-          }
-          sectionNode.__body = nextBody || null;
-          if (nextBody) {
-            sectionNode.appendChild(nextBody);
-          }
-        };
-
-        const renderCollections = (collections) => {
-          const nextResults = [];
-          const nextSectionKeys = new Set();
-          const nextSectionNodes = [];
-
-          collections.forEach((section) => {
-            const sectionKey = [
-              section.title || "",
-              section.layout || "list",
-              section.empty ? "empty" : "items"
-            ].join("::");
-            const sectionNode = ensureSectionNode(sectionKey);
-            sectionNode.dataset.layout = section.layout || "list";
-            sectionNode.__title.textContent = section.title || "";
-
-            if (section.empty) {
-              const emptyNode = sectionNode.__body && sectionNode.__body.classList.contains("ig-empty")
-                ? sectionNode.__body
-                : document.createElement("div");
-              emptyNode.className = "ig-empty";
-              emptyNode.textContent = section.empty;
-              setSectionBody(sectionNode, emptyNode);
-            } else {
-              const listNode = sectionNode.__body && sectionNode.__body.classList.contains("ig-result-list")
-                ? sectionNode.__body
-                : document.createElement("div");
-              const fragment = document.createDocumentFragment();
-
-              listNode.className = "ig-result-list";
-
-              (section.items || []).forEach((result) => {
-                const index = nextResults.push(result) - 1;
-                const card = ensureResultCard(result);
-                updateResultCard(card, result, index);
-                fragment.appendChild(card);
-              });
-
-              listNode.replaceChildren(fragment);
-              setSectionBody(sectionNode, listNode);
-            }
-
-            nextSectionKeys.add(sectionKey);
-            nextSectionNodes.push(sectionNode);
-          });
-
-          state.visibleResults = nextResults;
-          if (state.activeIndex >= nextResults.length) {
-            state.activeIndex = -1;
-          }
-
-          Array.from(state.sectionCache.keys()).forEach((sectionKey) => {
-            if (!nextSectionKeys.has(sectionKey)) {
-              state.sectionCache.delete(sectionKey);
-            }
-          });
-
-          suggestions.replaceChildren(...nextSectionNodes);
-          setActiveIndex(state.activeIndex);
-          syncPanelLayout(false);
-        };
-
-        const renderLoading = () => {
-          renderCollections([
-            {
-              title: "Search",
-              layout: "list",
-              empty: "Loading search data..."
-            }
-          ]);
-        };
-
-        const renderSuggestions = () => {
-          const data = uiState.homeSearchData || null;
-          const query = state.value.trim();
-
-          if (!data) {
-            if (query) {
-              renderLoading();
-            } else {
-              renderCollections(buildFocusCollections(null));
-            }
-
-            ensureHomeSearchData().then(() => {
-              if (host.isConnected) {
-                renderSuggestions();
-              }
+        const rotatePlaceholder = () => {
+          if (!placeholder || state.query.trim()) return;
+          placeholder.classList.add("is-exiting");
+          window.clearTimeout(placeholderTimeout);
+          placeholderTimeout = window.setTimeout(() => {
+            placeholderIndex = (placeholderIndex + 1) % placeholderPrompts.length;
+            placeholder.textContent = placeholderPrompts[placeholderIndex];
+            placeholder.classList.remove("is-exiting");
+            placeholder.classList.add("is-entering");
+            window.requestAnimationFrame(() => {
+              placeholder.classList.remove("is-entering");
             });
+          }, 280);
+        };
+
+        const startPlaceholderRotation = () => {
+          if (placeholderInterval) return;
+          placeholderInterval = window.setInterval(rotatePlaceholder, 2800);
+        };
+
+        const autoSizeInput = () => {
+          input.style.height = "";
+        };
+
+        const ensureData = () => {
+          if (state.data) return Promise.resolve(state.data);
+          if (state.loading) return uiState.homeSearchDataPromise || Promise.resolve(null);
+          state.loading = true;
+          submit.disabled = true;
+          return ensureHomeSearchData()
+            .then((data) => {
+              state.data = data;
+              return data;
+            })
+            .finally(() => {
+              state.loading = false;
+              submit.disabled = !state.query.trim();
+            });
+        };
+
+        const submitTopResult = () => {
+          const query = state.query.trim();
+          if (!query) {
+            input.focus();
             return;
           }
 
-          const collections = query ? buildSearchCollections(data, query) : buildFocusCollections(data);
-          renderCollections(collections);
-        };
+          submit.disabled = true;
+          ensureData().then((data) => {
+            const target = resolveHomeSearchNavigationTarget(data, query);
+            if (!target) {
+              submit.disabled = false;
+              return;
+            }
 
-        const queueRender = () => {
-          if (state.renderTimer) {
-            window.clearTimeout(state.renderTimer);
-          }
-          state.renderTimer = window.setTimeout(() => {
-            state.renderTimer = 0;
-            renderSuggestions();
-          }, 90);
+            pushRecentSearch(query);
+            pushRecentSelection(target, query);
+            window.location.href = target.href;
+          });
         };
 
         input.addEventListener("focus", () => {
-          state.open = true;
-          syncState(false);
-          renderSuggestions();
+          ensureData();
         });
 
-        input.addEventListener("input", (event) => {
-          state.value = event.target.value || "";
-          state.open = true;
-          state.activeIndex = -1;
-          syncState(false);
-          queueRender();
+        input.addEventListener("input", () => {
+          state.query = input.value;
+          syncFilledState();
+          autoSizeInput();
+          submit.disabled = state.loading || !state.query.trim();
         });
 
         input.addEventListener("keydown", (event) => {
-          if (event.key === "ArrowDown") {
-            if (!state.visibleResults.length) return;
+          if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            setActiveIndex(state.activeIndex < state.visibleResults.length - 1 ? state.activeIndex + 1 : 0);
-            return;
-          }
-
-          if (event.key === "ArrowUp") {
-            if (!state.visibleResults.length) return;
-            event.preventDefault();
-            setActiveIndex(state.activeIndex > 0 ? state.activeIndex - 1 : state.visibleResults.length - 1);
-            return;
-          }
-
-          if (event.key === "Enter") {
-            const selected = state.visibleResults[state.activeIndex >= 0 ? state.activeIndex : 0];
-            if (!selected) return;
-            event.preventDefault();
-            activateResult(selected);
-            return;
-          }
-
-          if (event.key === "Escape") {
-            closeSearch();
+            submitTopResult();
           }
         });
 
-        suggestions.addEventListener("mousemove", (event) => {
-          const button = event.target.closest(".ig-suggestion[data-result-index]");
-          if (!button) {
-            setActiveIndex(-1);
-            return;
-          }
-          setActiveIndex(Number(button.getAttribute("data-result-index")));
-        });
+        submit.addEventListener("click", submitTopResult);
 
-        suggestions.addEventListener("mouseleave", () => {
-          setActiveIndex(-1);
-        });
+        host.__igSyncTheme = syncTheme;
+        host.__igCleanup = () => {
+          window.clearInterval(placeholderInterval);
+          window.clearTimeout(placeholderTimeout);
+        };
 
-        suggestions.addEventListener("click", (event) => {
-          const action = event.target.closest("[data-result-action]");
-          if (action) {
-            const index = Number(action.getAttribute("data-result-index"));
-            const result = state.visibleResults[index];
-            if (result) {
-              if (state.value.trim()) {
-                pushRecentSearch(state.value.trim());
-              }
-              pushRecentSelection(result, state.value.trim());
-            }
-            return;
-          }
-
-          const button = event.target.closest("[data-result-index]");
-          if (!button) return;
-          const result = state.visibleResults[Number(button.getAttribute("data-result-index"))];
-          activateResult(result);
-        });
-
-        root.addEventListener("mouseenter", () => {
-          state.hovered = true;
-          syncState(true);
-        });
-
-        root.addEventListener("mouseleave", () => {
-          state.hovered = false;
-          syncState(true);
-        });
-
-        document.addEventListener("mousedown", (event) => {
-          const path = typeof event.composedPath === "function" ? event.composedPath() : [];
-          if (path.includes(host)) {
-            return;
-          }
-          closeSearch();
-        });
-
-        document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && state.open) {
-            closeSearch();
-          }
-        });
-
-        if (typeof window.ResizeObserver === "function") {
-          state.panelObserver = new ResizeObserver(() => {
-            if (state.open) {
-              syncPanelLayout(false);
-            }
-          });
-          state.panelObserver.observe(panelContent);
-        }
-
-        window.addEventListener("resize", () => {
-          syncPanelLayout(true);
-        });
-
-        if (typeof window.requestIdleCallback === "function") {
-          window.requestIdleCallback(() => {
-            void ensureHomeSearchData();
-          });
-        } else {
-          window.setTimeout(() => {
-            void ensureHomeSearchData();
-          }, 120);
-        }
-
-        renderSuggestions();
-        syncState(true);
-      };
-
-      const getSearchHost = () => {
-        if (!uiState.searchHost) {
-          uiState.searchHost = document.createElement("div");
-          uiState.searchHost.setAttribute("data-igcsefy-search-host", "");
-          mountSearchBar(uiState.searchHost);
-        }
-        return uiState.searchHost;
-      };
-
-      const ensureSearchBar = () => {
-        const host = getSearchHost();
-        const heroContent = document.querySelector("#root section .relative.z-10");
-        const description = heroContent?.querySelector("p");
-
-        if (!isHomePath() || !heroContent || !description) {
-          if (host.isConnected) {
-            host.remove();
-          }
-          return;
-        }
-
-        if (host.parentNode !== heroContent || host.previousElementSibling !== description) {
-          description.insertAdjacentElement("afterend", host);
-        }
+        syncTheme();
+        syncFilledState();
+        autoSizeInput();
+        submit.disabled = true;
+        startPlaceholderRotation();
+        ensureHomeSearchData()
+          .then((data) => {
+            state.data = data;
+            submit.disabled = !state.query.trim();
+          })
+          .catch(() => {});
       };
 
       const ensureHomeMockupUi = () => {
-        ensureSearchBar();
+        const heroSection = document.querySelector("#root section");
+        const heroContent = heroSection?.querySelector(".relative.z-10");
+        const heroParagraph = heroContent?.querySelector("p");
+        if (!heroContent || !heroParagraph) {
+          return;
+        }
+
+        let host = heroContent.querySelector("[data-home-search-host]");
+        if (!host) {
+          host = document.createElement("div");
+          host.setAttribute("data-home-search-host", "");
+          heroParagraph.insertAdjacentElement("afterend", host);
+        } else if (host.previousElementSibling !== heroParagraph) {
+          heroParagraph.insertAdjacentElement("afterend", host);
+        }
+
+        uiState.searchHost = host;
+        mountHomeSearchBar(host);
+        if (typeof host.__igSyncTheme === "function") {
+          host.__igSyncTheme();
+        }
       };
 
       const isLightTheme = () => {
@@ -2865,7 +3154,7 @@ html[data-home-auth-gate="pending"] .home-page-footer {
         attributeFilter: ["class", "data-theme"]
       });
       window.addEventListener("popstate", removeHomeChrome);
-    </script><script defer="" src="/assets/nav.js?v=20260412c"></script>
+    </script><script defer="" src="/assets/nav.js?v=20260413a"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <script defer src="/assets/supabase-progress.js?v=20260410m"></script>
 <script defer src="/assets/user-identity.js?v=20260410j"></script>

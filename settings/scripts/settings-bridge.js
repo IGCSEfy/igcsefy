@@ -163,9 +163,18 @@
   };
   var paperTargetsUiState = {
     activeSection: '',
+    pendingNavSection: '',
     selectedSubject: PAPER_TARGET_SUBJECTS[0] ? PAPER_TARGET_SUBJECTS[0].id : '',
     selectedLevel: 'extended'
   };
+  var settingsNavReinforceToken = 0;
+  var settingsNavReinforceRafId = 0;
+  var settingsNavReinforceTimeoutIds = [];
+  var requestedSettingsSectionId = '';
+  var requestedSettingsSectionApplied = false;
+  var requestedSettingsSectionTriggered = false;
+  var requestedSettingsSectionActivateTimeoutId = 0;
+  var requestedSettingsSectionFallbackTimerId = 0;
   var studyPreferencesUiOverride = null;
   var studyPreferencesUiLockUntil = 0;
   var studyPreferencesUiReinforceToken = 0;
@@ -244,6 +253,60 @@
     } catch (error) {
       return '';
     }
+  }
+
+  function normalizeRequestedSettingsSectionId(value) {
+    var normalized = String(value || '').trim().toLowerCase();
+    var aliases = {
+      appearance: 'appearance',
+      account: 'account',
+      'study-preferences': 'study-preferences',
+      'study preferences': 'study-preferences',
+      'paper-targets': 'paper-targets',
+      'paper targets': 'paper-targets',
+      'data-privacy': 'data-privacy',
+      'data privacy': 'data-privacy',
+      help: 'help'
+    };
+
+    return aliases[normalized] || '';
+  }
+
+  function getRequestedSettingsSectionIdFromLocation() {
+    var url;
+    try {
+      url = new URL(window.location.href);
+      return normalizeRequestedSettingsSectionId(
+        url.searchParams.get('section') || String(url.hash || '').replace(/^#/, '')
+      );
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function clearRequestedSettingsSectionFromUrl() {
+    var url;
+    try {
+      url = new URL(window.location.href);
+      if (url.searchParams.has('section')) {
+        url.searchParams.delete('section');
+      }
+      if (url.searchParams.has('search-nav')) {
+        url.searchParams.delete('search-nav');
+      }
+      url.hash = '';
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (error) {}
+  }
+
+  function refreshRequestedSettingsSectionState() {
+    if (requestedSettingsSectionApplied && requestedSettingsSectionId) return;
+    if (requestedSettingsSectionId) return;
+    requestedSettingsSectionId = getRequestedSettingsSectionIdFromLocation();
+    requestedSettingsSectionApplied = !requestedSettingsSectionId;
+    requestedSettingsSectionTriggered = false;
   }
 
   function normalizeMarkSchemeOpenBehavior(value) {
@@ -792,12 +855,45 @@
   function applySegmentedButtonState(button, isActive) {
     if (!button || !button.classList) return;
 
-    button.classList.toggle('bg-card', isActive);
-    button.classList.toggle('text-foreground', isActive);
-    button.classList.toggle('shadow-sm', isActive);
-    button.classList.toggle('border', isActive);
-    button.classList.toggle('border-border', isActive);
-    button.classList.toggle('text-muted-foreground', !isActive);
+    button.classList.remove(
+      'bg-card',
+      'text-foreground',
+      'shadow-sm',
+      'border-border',
+      'border-transparent',
+      'text-muted-foreground',
+      'hover:text-foreground/70',
+      'pointer-events-none',
+      'opacity-40'
+    );
+
+    button.classList.add('border');
+
+    if (isActive) {
+      button.classList.add('bg-card', 'text-foreground', 'shadow-sm', 'border-border');
+    } else {
+      button.classList.add('text-muted-foreground', 'border-transparent');
+    }
+  }
+
+  function applySegmentedControlEnabled(control, isEnabled) {
+    if (!control || !control.querySelectorAll) return;
+
+    Array.from(control.querySelectorAll('.igcsefy-mark-scheme-segmented, .inline-flex.items-center.rounded-full.p-1.border.border-border')).forEach(function (group) {
+      if (!group || !group.classList) return;
+      group.classList.remove('pointer-events-none', 'opacity-40');
+      if (!isEnabled) {
+        group.classList.add('pointer-events-none', 'opacity-40');
+      }
+    });
+
+    Array.from(control.querySelectorAll('button')).forEach(function (button) {
+      if (!button || !button.classList) return;
+      button.classList.remove('pointer-events-none', 'opacity-40', 'hover:text-foreground/70');
+      if (!isEnabled) {
+        button.classList.add('pointer-events-none', 'opacity-40');
+      }
+    });
   }
 
   function getPaperTargets() {
@@ -1460,12 +1556,7 @@
         Array.from(themeControl.querySelectorAll('button')).forEach(function (button) {
           var isActive = getThemeButtonValue(button) === appearance.theme;
           button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
-          button.classList.toggle('bg-card', isActive);
-          button.classList.toggle('text-foreground', isActive);
-          button.classList.toggle('shadow-sm', isActive);
-          button.classList.toggle('border', isActive);
-          button.classList.toggle('border-border', isActive);
-          button.classList.toggle('text-muted-foreground', !isActive);
+          applySegmentedButtonState(button, isActive);
         });
       }
 
@@ -1648,7 +1739,6 @@
       autoOpenRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--toggle');
       autoOpenRow.classList.toggle('igcsefy-mark-scheme-row--disabled', !markSchemeAvailable);
       behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior');
-      behaviorRow.classList.toggle('igcsefy-mark-scheme-row--disabled', behaviorDisabled);
 
       if (autoOpenLabel) {
         autoOpenLabel.textContent = 'Auto-open mark scheme';
@@ -1720,10 +1810,14 @@
           }
 
           button.classList.add('igcsefy-mark-scheme-pill');
-          button.classList.toggle(
-            'igcsefy-mark-scheme-pill--active',
-            !behaviorDisabled && value === settings.markSchemeOpenBehavior
-          );
+          var isActive = !behaviorDisabled && value === settings.markSchemeOpenBehavior;
+          button.classList.toggle('igcsefy-mark-scheme-pill--active', isActive);
+          button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+          button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+          if (button.dataset) {
+            button.dataset.state = isActive ? 'active' : 'inactive';
+          }
+          applySegmentedButtonState(button, isActive);
           button.disabled = behaviorDisabled;
           if (behaviorDisabled) {
             button.setAttribute('aria-disabled', 'true');
@@ -1741,7 +1835,10 @@
             button.removeAttribute('tabindex');
           }
         });
+        applySegmentedControlEnabled(behaviorControl, !behaviorDisabled);
       }
+
+      behaviorRow.classList.toggle('igcsefy-mark-scheme-row--disabled', behaviorDisabled);
     });
   }
 
@@ -1823,6 +1920,7 @@
           }
           applySegmentedButtonState(button, isDirectDownload);
         });
+        applySegmentedControlEnabled(pdfOpeningControl, true);
       }
 
       if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
@@ -1852,15 +1950,20 @@
 
       if (behaviorControl) {
         Array.from(behaviorControl.querySelectorAll('button')).forEach(function (button) {
-          var buttonText = String(button.textContent || '').trim().toLowerCase();
-          var isSameTab = buttonText === 'same tab';
-          button.classList.toggle('igcsefy-mark-scheme-pill--active', isSameTab);
+          button.classList.remove('igcsefy-mark-scheme-pill--active');
+          button.setAttribute('aria-pressed', 'false');
+          button.setAttribute('aria-checked', 'false');
+          if (button.dataset) {
+            button.dataset.state = 'inactive';
+          }
+          applySegmentedButtonState(button, false);
           button.disabled = true;
           button.setAttribute('aria-disabled', 'true');
           button.style.pointerEvents = 'none';
           button.setAttribute('tabindex', '-1');
           button.title = 'Switch PDF opening mode to Preview first to choose a mark scheme layout.';
         });
+        applySegmentedControlEnabled(behaviorControl, false);
       }
     });
   }
@@ -1916,7 +2019,6 @@
       autoOpenRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--toggle');
       autoOpenRow.classList.remove('igcsefy-mark-scheme-row--disabled');
       behaviorRow.classList.add('igcsefy-mark-scheme-row', 'igcsefy-mark-scheme-row--behavior');
-      behaviorRow.classList.toggle('igcsefy-mark-scheme-row--disabled', behaviorDisabled);
 
       if (autoOpenLabel) {
         autoOpenLabel.textContent = 'Auto-open mark scheme';
@@ -1949,6 +2051,7 @@
           }
           applySegmentedButtonState(button, isPreviewFirst);
         });
+        applySegmentedControlEnabled(pdfOpeningControl, true);
       }
 
       if (autoOpenControl && autoOpenControl.getAttribute && autoOpenControl.getAttribute('role') === 'switch') {
@@ -2001,8 +2104,12 @@
             button.removeAttribute('tabindex');
             button.removeAttribute('title');
           }
+          applySegmentedButtonState(button, isActive);
         });
+        applySegmentedControlEnabled(behaviorControl, !behaviorDisabled);
       }
+
+      behaviorRow.classList.toggle('igcsefy-mark-scheme-row--disabled', behaviorDisabled);
     });
   }
 
@@ -2059,6 +2166,21 @@
     });
   }
 
+  function applyStudyPreferencesUiOnce(forceFn) {
+    if (typeof forceFn !== 'function') return;
+    clearStudyPreferencesUiReinforcement();
+    studyPreferencesUiReinforceToken += 1;
+    forceFn();
+
+    if (typeof window.requestAnimationFrame === 'function') {
+      window.requestAnimationFrame(function () {
+        schedulePatch();
+      });
+    } else {
+      window.setTimeout(schedulePatch, 0);
+    }
+  }
+
   function getSettingsNavButtonClass(isActive) {
     return [
       'flex items-center gap-3 text-left px-3 py-2.5 rounded-lg text-sm transition-colors duration-150',
@@ -2067,6 +2189,72 @@
         ? 'text-foreground bg-secondary/60 font-medium'
         : 'text-muted-foreground hover:text-foreground hover:bg-secondary/30'
     ].join(' ');
+  }
+
+  var SETTINGS_NAV_LABEL_TO_SECTION_ID = {
+    Appearance: 'appearance',
+    Account: 'account',
+    'Study Preferences': 'study-preferences',
+    'Paper Targets': 'paper-targets',
+    'Data & Privacy': 'data-privacy',
+    Help: 'help'
+  };
+
+  function getSettingsNavSectionId(node) {
+    var label;
+
+    if (!node) return '';
+    if (node.dataset && node.dataset.igcsefySettingsNav) {
+      return node.dataset.igcsefySettingsNav;
+    }
+
+    label = String(node.textContent || '').trim();
+    return SETTINGS_NAV_LABEL_TO_SECTION_ID[label] || '';
+  }
+
+  function isVisibleSettingsSection(node) {
+    var style;
+    if (!node || !node.id || node.hidden) return false;
+    if (node.getAttribute && node.getAttribute('aria-hidden') === 'true') return false;
+    style = window.getComputedStyle(node);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }
+
+  function getActiveSettingsSectionId() {
+    var selectorGroups;
+    var activeSectionId = '';
+
+    if (paperTargetsUiState.pendingNavSection) {
+      return paperTargetsUiState.pendingNavSection;
+    }
+
+    selectorGroups = [
+      '#root main > div > *',
+      '#root .px-4.py-8 > *'
+    ];
+
+    selectorGroups.some(function (selector) {
+      return Array.from(document.querySelectorAll(selector)).some(function (node) {
+        if (!isVisibleSettingsSection(node)) return false;
+        if (node.id && Object.values(SETTINGS_NAV_LABEL_TO_SECTION_ID).indexOf(node.id) !== -1) {
+          activeSectionId = node.id;
+          return true;
+        }
+        return false;
+      });
+    });
+
+    if (activeSectionId) return activeSectionId;
+
+    if (document.querySelector('[data-igcsefy-paper-targets-mobile-view]:not([hidden])')) {
+      return 'paper-targets';
+    }
+
+    if (paperTargetsUiState.activeSection === 'paper-targets') {
+      return 'paper-targets';
+    }
+
+    return activeSectionId;
   }
 
   function createSettingsNavButton(label, sectionId, iconName) {
@@ -2080,6 +2268,107 @@
     return button;
   }
 
+  function applySettingsNavActiveState(activeSectionId) {
+    document.querySelectorAll('#root nav.flex.flex-col.gap-1 button').forEach(function (node) {
+      var sectionId = getSettingsNavSectionId(node);
+      if (!sectionId) return;
+      if (!node.dataset.igcsefySettingsNav) {
+        node.dataset.igcsefySettingsNav = sectionId;
+      }
+      node.className = getSettingsNavButtonClass(sectionId === activeSectionId);
+    });
+  }
+
+  function clearSettingsNavReinforcement() {
+    if (settingsNavReinforceRafId) {
+      window.cancelAnimationFrame(settingsNavReinforceRafId);
+      settingsNavReinforceRafId = 0;
+    }
+    while (settingsNavReinforceTimeoutIds.length) {
+      window.clearTimeout(settingsNavReinforceTimeoutIds.pop());
+    }
+  }
+
+  function queueRequestedSettingsNavActivation(button) {
+    var attempts = 0;
+    function runActivation() {
+      var paperTargetsSection;
+      requestedSettingsSectionActivateTimeoutId = 0;
+      if (requestedSettingsSectionApplied) return;
+      if (!button || !button.isConnected) return;
+      button.click();
+      if (requestedSettingsSectionId !== 'paper-targets') return;
+      paperTargetsSection = document.querySelector('#paper-targets[data-igcsefy-custom-section="paper-targets"]');
+      if (isVisibleSettingsSection(paperTargetsSection)) return;
+      attempts += 1;
+      if (attempts >= 12) return;
+      requestedSettingsSectionActivateTimeoutId = window.setTimeout(runActivation, 120);
+    }
+    if (!button) return;
+    if (requestedSettingsSectionActivateTimeoutId) {
+      window.clearTimeout(requestedSettingsSectionActivateTimeoutId);
+      requestedSettingsSectionActivateTimeoutId = 0;
+    }
+    requestedSettingsSectionActivateTimeoutId = window.setTimeout(runActivation, 0);
+  }
+
+  function ensureRequestedSettingsSectionVisible() {
+    var attempts = 0;
+
+    function runFallback() {
+      var target;
+      var navButton;
+
+      requestedSettingsSectionFallbackTimerId = 0;
+      if (!requestedSettingsSectionId || requestedSettingsSectionApplied) return;
+
+      target = requestedSettingsSectionId === 'paper-targets'
+        ? document.querySelector('#paper-targets[data-igcsefy-custom-section="paper-targets"]') || document.getElementById('paper-targets')
+        : document.getElementById(requestedSettingsSectionId);
+
+      if (isVisibleSettingsSection(target)) {
+        finalizeRequestedSettingsSection();
+        return;
+      }
+
+      navButton = document.querySelector(
+        '#root nav button[data-igcsefy-settings-nav="' + requestedSettingsSectionId + '"]'
+      );
+
+      if (navButton) {
+        navButton.click();
+      }
+
+      attempts += 1;
+      if (attempts >= 20) return;
+      requestedSettingsSectionFallbackTimerId = window.setTimeout(runFallback, 150);
+    }
+
+    if (!requestedSettingsSectionId || requestedSettingsSectionApplied || requestedSettingsSectionFallbackTimerId) {
+      return;
+    }
+
+    requestedSettingsSectionFallbackTimerId = window.setTimeout(runFallback, 120);
+  }
+
+  function reinforceSettingsNavActiveState(activeSectionId) {
+    var token;
+    function runForce() {
+      if (token !== settingsNavReinforceToken) return;
+      applySettingsNavActiveState(activeSectionId);
+    }
+    clearSettingsNavReinforcement();
+    settingsNavReinforceToken += 1;
+    token = settingsNavReinforceToken;
+    runForce();
+    settingsNavReinforceRafId = window.requestAnimationFrame(function () {
+      settingsNavReinforceRafId = 0;
+      runForce();
+      settingsNavReinforceTimeoutIds.push(window.setTimeout(runForce, 80));
+      settingsNavReinforceTimeoutIds.push(window.setTimeout(runForce, 220));
+    });
+  }
+
   function patchPaperTargetsNav() {
     document.querySelectorAll('#root nav.flex.flex-col.gap-1').forEach(function (nav) {
       var button = nav.querySelector('[data-igcsefy-settings-nav="paper-targets"]');
@@ -2089,6 +2378,7 @@
       var dataPrivacyButton = Array.from(nav.querySelectorAll('button')).find(function (node) {
         return (node.textContent || '').trim() === 'Data & Privacy';
       });
+      var activeSectionId = getActiveSettingsSectionId();
 
       pausePatchObserver(function () {
         if (!button) {
@@ -2103,17 +2393,100 @@
         }
 
         Array.from(nav.querySelectorAll('button')).forEach(function (node) {
-          var isCustom = node.dataset.igcsefySettingsNav === 'paper-targets';
-          if (paperTargetsUiState.activeSection === 'paper-targets') {
-            node.className = isCustom
-              ? getSettingsNavButtonClass(true)
-              : getSettingsNavButtonClass(false);
-          } else if (isCustom) {
-            node.className = getSettingsNavButtonClass(false);
+          var sectionId = getSettingsNavSectionId(node);
+          if (!sectionId) return;
+          if (!node.dataset.igcsefySettingsNav) {
+            node.dataset.igcsefySettingsNav = sectionId;
+          }
+          if (!node.dataset.igcsefySettingsNavBound) {
+            node.dataset.igcsefySettingsNavBound = 'true';
+            node.addEventListener('click', function () {
+              if (sectionId === 'paper-targets') {
+                paperTargetsUiState.activeSection = 'paper-targets';
+                paperTargetsUiState.pendingNavSection = '';
+                reinforceSettingsNavActiveState('paper-targets');
+                schedulePatch();
+                return;
+              }
+
+              if (paperTargetsUiState.activeSection === 'paper-targets') {
+                paperTargetsUiState.activeSection = '';
+              }
+
+              paperTargetsUiState.pendingNavSection = sectionId;
+              reinforceSettingsNavActiveState(sectionId);
+              window.setTimeout(schedulePatch, 0);
+            });
           }
         });
+        applySettingsNavActiveState(activeSectionId);
+
+        if (
+          requestedSettingsSectionId === 'paper-targets'
+          && !requestedSettingsSectionApplied
+          && !requestedSettingsSectionTriggered
+          && button
+        ) {
+          requestedSettingsSectionTriggered = true;
+          queueRequestedSettingsNavActivation(button);
+        }
       });
     });
+  }
+
+  function applyRequestedSettingsSectionState() {
+    var navButton;
+    if (!requestedSettingsSectionId || requestedSettingsSectionApplied) return;
+
+    navButton = document.querySelector(
+      '#root nav button[data-igcsefy-settings-nav="' + requestedSettingsSectionId + '"]'
+    );
+
+    if (requestedSettingsSectionId === 'paper-targets') {
+      paperTargetsUiState.activeSection = 'paper-targets';
+      paperTargetsUiState.pendingNavSection = 'paper-targets';
+      reinforceSettingsNavActiveState('paper-targets');
+      if (!requestedSettingsSectionTriggered && navButton) {
+        requestedSettingsSectionTriggered = true;
+        navButton.click();
+      }
+      return;
+    }
+
+    if (paperTargetsUiState.activeSection === 'paper-targets') {
+      paperTargetsUiState.activeSection = '';
+    }
+
+    paperTargetsUiState.pendingNavSection = requestedSettingsSectionId;
+    reinforceSettingsNavActiveState(requestedSettingsSectionId);
+
+    if (requestedSettingsSectionTriggered) return;
+
+    if (!navButton) return;
+
+    requestedSettingsSectionTriggered = true;
+    navButton.click();
+  }
+
+  function finalizeRequestedSettingsSection() {
+    var target;
+    if (!requestedSettingsSectionId || requestedSettingsSectionApplied) return;
+
+    target = requestedSettingsSectionId === 'paper-targets'
+      ? document.querySelector('#paper-targets[data-igcsefy-custom-section="paper-targets"]') || document.getElementById('paper-targets')
+      : document.getElementById(requestedSettingsSectionId);
+
+    if (!isVisibleSettingsSection(target)) return;
+
+    requestedSettingsSectionApplied = true;
+    requestedSettingsSectionTriggered = false;
+    clearRequestedSettingsSectionFromUrl();
+    if (requestedSettingsSectionId !== 'paper-targets') {
+      paperTargetsUiState.pendingNavSection = '';
+    }
+    if (target && typeof target.scrollIntoView === 'function') {
+      target.scrollIntoView({ block: 'start', behavior: 'auto' });
+    }
   }
 
   function createSettingsCard(id, title, description) {
@@ -2640,6 +3013,8 @@
     window.requestAnimationFrame(function () {
       var settings = reconcileAppearanceSettings();
       patchQueued = false;
+      refreshRequestedSettingsSectionState();
+      applyRequestedSettingsSectionState();
       patchHeaderCopy();
       patchLegalLinks();
       patchPaperTargetsNav();
@@ -2648,6 +3023,8 @@
       patchAccountSection();
       patchSyncStatus();
       patchStudyPreferencesSection();
+      finalizeRequestedSettingsSection();
+      ensureRequestedSettingsSectionVisible();
       syncStoredSettingsIfNeeded();
     });
   }
@@ -2759,7 +3136,7 @@
           autoOpenMarkScheme: nextAutoOpenMarkScheme,
           markSchemeOpenBehavior: nextMarkSchemeOpenBehavior
         }, { schedule: false });
-        reinforceStudyPreferencesUi(function () {
+        applyStudyPreferencesUiOnce(function () {
           forcePreviewAutoOpenStudyPreferencesUi(
             nextAutoOpenMarkScheme,
             nextMarkSchemeOpenBehavior
@@ -2800,21 +3177,29 @@
     if (control.hasAttribute('data-igcsefy-paper-targets-back')) {
       stopEvent(event);
       paperTargetsUiState.activeSection = '';
+      paperTargetsUiState.pendingNavSection = '';
       schedulePatch();
       return;
     }
 
     settingsNavControl = control.closest('#root nav button');
     if (settingsNavControl) {
+      var nextSectionId = getSettingsNavSectionId(settingsNavControl);
       if (settingsNavControl.dataset.igcsefySettingsNav === 'paper-targets') {
         stopEvent(event);
         paperTargetsUiState.activeSection = 'paper-targets';
+        paperTargetsUiState.pendingNavSection = '';
+        reinforceSettingsNavActiveState('paper-targets');
         schedulePatch();
         return;
       }
 
       if (paperTargetsUiState.activeSection === 'paper-targets') {
         paperTargetsUiState.activeSection = '';
+        paperTargetsUiState.pendingNavSection = nextSectionId || '';
+        if (nextSectionId) {
+          reinforceSettingsNavActiveState(nextSectionId);
+        }
         window.setTimeout(schedulePatch, 0);
       }
     }
@@ -2918,12 +3303,18 @@
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function () {
+      requestedSettingsSectionId = getRequestedSettingsSectionIdFromLocation();
+      requestedSettingsSectionApplied = !requestedSettingsSectionId;
+      requestedSettingsSectionTriggered = false;
       loadPaperTargetSubjects();
       syncAuthState(null);
       startObserver();
       schedulePatch();
     }, { once: true });
   } else {
+    requestedSettingsSectionId = getRequestedSettingsSectionIdFromLocation();
+    requestedSettingsSectionApplied = !requestedSettingsSectionId;
+    requestedSettingsSectionTriggered = false;
     loadPaperTargetSubjects();
     syncAuthState(null);
     startObserver();

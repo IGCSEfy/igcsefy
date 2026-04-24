@@ -521,6 +521,31 @@
     var syncFrame = 0;
     var lastScrollbarCompensation = 0;
     var systemThemeQuery = null;
+    var prefetchedPages = window.__igcsefyPrefetchedPages || (window.__igcsefyPrefetchedPages = {});
+
+    function prefetchPage(url) {
+      var href;
+
+      try {
+        href = new URL(url, window.location.href);
+      } catch (error) {
+        return;
+      }
+
+      if (href.origin !== window.location.origin) return;
+      if (href.hash && href.pathname === window.location.pathname && href.search === window.location.search) return;
+
+      var key = href.pathname + href.search;
+      if (prefetchedPages[key]) return;
+      prefetchedPages[key] = true;
+
+      window.fetch(href.toString(), {
+        method: 'GET',
+        credentials: 'same-origin'
+      }).catch(function () {
+        delete prefetchedPages[key];
+      });
+    }
 
     function syncThemeState(preference) {
       var themeState = applyDocumentTheme(preference);
@@ -612,7 +637,24 @@
       link.addEventListener('click', function () {
         setOpen(false);
       });
+      link.addEventListener('mouseenter', function () {
+        prefetchPage(link.href);
+      }, { passive: true });
+      link.addEventListener('focus', function () {
+        prefetchPage(link.href);
+      }, { passive: true });
+      link.addEventListener('touchstart', function () {
+        prefetchPage(link.href);
+      }, { passive: true });
     });
+
+    if (typeof window.requestIdleCallback === 'function') {
+      window.requestIdleCallback(function () {
+        Array.prototype.forEach.call(closeTargets, function (link) {
+          prefetchPage(link.href);
+        });
+      }, { timeout: 900 });
+    }
 
     if (themeToggle) {
       themeToggle.addEventListener('click', function () {

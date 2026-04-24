@@ -1,0 +1,61 @@
+- generic [active] [ref=e1]:
+  - banner:
+    - generic [ref=e3]:
+      - link "IGCSEfy" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation "Primary navigation" [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e8]: Home
+        - link "Subjects" [ref=e9] [cursor=pointer]:
+          - /url: /subjects/
+          - generic [ref=e10]: Subjects
+        - link "Past Papers" [ref=e11] [cursor=pointer]:
+          - /url: /past-papers/
+          - generic [ref=e12]: Past Papers
+        - link "About" [ref=e13] [cursor=pointer]:
+          - /url: /about/
+          - generic [ref=e14]: About
+      - button "Open menu" [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - img [ref=e19]
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - link:
+              - /url: /profile/
+              - img
+            - button:
+              - generic:
+                - generic:
+                  - img
+            - link:
+              - /url: /settings/
+              - img
+  - main [ref=e25]:
+    - generic [ref=e27]:
+      - generic:
+        - generic:
+          - generic:
+            - img
+      - generic [ref=e28]:
+        - heading "Study smarter. Revise better." [level=1] [ref=e29]:
+          - text: Study smarter.
+          - text: Revise better.
+        - paragraph [ref=e30]: The modern platform for Cambridge IGCSE students. Past papers, syllabi, and structured revision — all in one place.
+        - generic [ref=e34]:
+          - generic: Search for a subject
+          - textbox "Search IGCSEfy" [ref=e35]:
+            - /placeholder: ""
+          - button "Search" [disabled] [ref=e36]:
+            - img [ref=e37]
+  - contentinfo "Homepage footer" [ref=e41]:
+    - generic [ref=e42]:
+      - paragraph [ref=e43]: © 2026 IGCSEfy
+      - generic [ref=e44]:
+        - link "Privacy Policy" [ref=e45] [cursor=pointer]:
+          - /url: /privacy/
+        - generic [ref=e46]: •
+        - link "Terms of Use" [ref=e47] [cursor=pointer]:
+          - /url: /terms/

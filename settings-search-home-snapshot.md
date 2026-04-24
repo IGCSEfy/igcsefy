@@ -1,0 +1,37 @@
+- generic [active] [ref=e1]:
+  - banner:
+    - generic [ref=e3]:
+      - link "IGCSEfy" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - navigation "Primary navigation" [ref=e5]:
+        - link "Home" [ref=e6] [cursor=pointer]:
+          - /url: /
+        - link "Subjects" [ref=e9] [cursor=pointer]:
+          - /url: /subjects/
+        - link "Past Papers" [ref=e11] [cursor=pointer]:
+          - /url: /past-papers/
+        - link "About" [ref=e13] [cursor=pointer]:
+          - /url: /about/
+      - button "Open menu" [ref=e15] [cursor=pointer]:
+        - img [ref=e17]
+        - img [ref=e19]
+    - generic:
+      - generic:
+        - generic
+  - main [ref=e25]:
+    - generic [ref=e27]:
+      - generic:
+        - generic
+      - generic [ref=e28]:
+        - heading "Study smarter. Revise better." [level=1] [ref=e29]
+        - paragraph [ref=e30]: The modern platform for Cambridge IGCSE students. Past papers, syllabi, and structured revision — all in one place.
+        - generic [ref=e34]
+  - contentinfo "Homepage footer" [ref=e41]:
+    - generic [ref=e42]:
+      - paragraph [ref=e43]: © 2026 IGCSEfy
+      - generic [ref=e44]:
+        - link "Privacy Policy" [ref=e45] [cursor=pointer]:
+          - /url: /privacy/
+        - generic [ref=e46]: •
+        - link "Terms of Use" [ref=e47] [cursor=pointer]:
+          - /url: /terms/
